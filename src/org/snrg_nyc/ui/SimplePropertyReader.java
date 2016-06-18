@@ -3,7 +3,6 @@ package org.snrg_nyc.ui;
 import org.snrg_nyc.model.UIException;
 import org.snrg_nyc.model.UI_Interface;
 
-import javafx.beans.property.SimpleStringProperty;
 
 public class SimplePropertyReader {
 	UI_Interface ui;
