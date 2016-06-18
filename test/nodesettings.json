@@ -1,0 +1,37 @@
+{
+  "ExperimentName": "test",
+  "Type": "NodeSettings",
+  "Object": {
+    "PropertyDefinitionList": [
+      {
+        "BooleanProperty": {
+          "PropertyName": "happy",
+          "Description": "happy?",
+          "Dependency Level": 0,
+          "DistributionID": "uniform"
+        }
+      },
+      {
+        "IntegerRangeProperty": {
+          "PropertyName": "age",
+          "Description": "live long?",
+          "Dependency Level": 0,
+          "IntegerRangeList": [
+            {
+              "RangeID": "kid",
+              "Min": 0,
+              "Max": 15
+            },
+            {
+              "RangeID": "mungo",
+              "Min": 16,
+              "Max": 100
+            }
+          ],
+          "DistributionID": "age_dist0"
+        }
+      }
+    ],
+    "LayerAttributesList": []
+  }
+}

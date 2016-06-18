@@ -1,0 +1,26 @@
+{
+  "ExperimentName": "hcv_project",
+  "Type": "UnivariatDistribution",
+  "Object": {
+    "UnivariatDistributionID": "averagedegree_dist3",
+    "BindToPropertyName": "averagedegree",
+    "DependencyDistributionList": [
+      {
+        "DistributionSampleList": [
+          {
+            "Name": "low",
+            "Value": 40.0
+          },
+          {
+            "Name": "medium",
+            "Value": 5.0
+          },
+          {
+            "Name": "high",
+            "Value": 2.0
+          }
+        ]
+      }
+    ]
+  }
+}

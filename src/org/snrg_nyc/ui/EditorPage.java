@@ -96,14 +96,22 @@ public class EditorPage {
 	private void updatePage(){
 		switch(mode){
 		case Editing:
+<<<<<<< HEAD
 			newPropertyPage();
+=======
+			updateEditorPage();
+>>>>>>> a27e8118e70214ad06388ffd3e16eb13118d20d6
 			break;
 		default:
 			page.getChildren().clear();
 		}
 	}
 	@SuppressWarnings("unchecked")
+<<<<<<< HEAD
 	private void newPropertyPage(){
+=======
+	private void updateEditorPage(){
+>>>>>>> a27e8118e70214ad06388ffd3e16eb13118d20d6
 		page.getChildren().clear();
 		Text title = new Text("New Node Property");
 		title.setFont(titleFont);
@@ -817,7 +825,11 @@ public class EditorPage {
 			});
 			
 		}
+<<<<<<< HEAD
 		else if(pageNumber == 4){
+=======
+		else if(pageNumber == 4){ //Create the default distribution for the property
+>>>>>>> a27e8118e70214ad06388ffd3e16eb13118d20d6
 			title.setText(title.getText()+" - Default Distribution");
 			TableView<Entry<Scratch_Range, Float>> distMap = new TableView<>();
 			TableColumn<Entry<Scratch_Range, Float>, String> labelCol = new TableColumn<>("Range");
