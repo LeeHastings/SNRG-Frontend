@@ -1,7 +1,7 @@
 package org.snrg_nyc.ui;
 
 import org.snrg_nyc.model.UI_Interface;
-import org.snrg_nyc.model.UI_InterfaceBuilder;
+import org.snrg_nyc.model.UI_InterfaceFactory;
 
 import javafx.application.Application;
 import javafx.collections.ListChangeListener;
@@ -25,7 +25,7 @@ public class UI_Main extends Application{
 
 	@Override
 	public void start(Stage initStage){
-		ui = new UI_InterfaceBuilder().build();
+		ui = new UI_InterfaceFactory().build();
 		editor = new EditorPage(ui);
 		
 		stage = initStage;

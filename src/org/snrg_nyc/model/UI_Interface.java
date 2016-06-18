@@ -866,9 +866,5 @@ public interface UI_Interface {
 	 */
 	public void layer_setName(int lid, String name) throws UIException;
 
-	
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> a27e8118e70214ad06388ffd3e16eb13118d20d6
+

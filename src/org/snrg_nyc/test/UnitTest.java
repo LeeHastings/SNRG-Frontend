@@ -11,7 +11,7 @@ public class UnitTest {
 	
 	public static void main(String[] args){
 		
-		bl = new UI_InterfaceBuilder().build();
+		bl = new UI_InterfaceFactory().build();
 		System.out.println("Node Property types:");
 		
 		List<String> types = bl.nodeProp_getTypes();
