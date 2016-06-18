@@ -638,8 +638,39 @@ public class EditorPage {
 		else if(pageNumber == 3){
 			title.setText(title.getText()+" - Conditional Distributions");
 			ListView<Integer> distributions = new ListView<>();
+			distributions.setItems(FXCollections.observableArrayList());
+			
 			distributions.setPrefHeight(100);
 			distributions.setMaxWidth(hbar.getEndX());
+			
+			distributions.setCellFactory((ListView<Integer> lv) ->
+				new ListCell<Integer>(){
+					@Override
+					public void updateItem(Integer item, boolean empty){
+						super.updateItem(item, empty);
+						if(empty){
+							setText(null);
+							return;
+						}
+						String name = "Distribution #"+item+": ";
+						try{
+							for(Entry<Integer, Integer> pair :
+								ui.scratch_getDistributionCondition(item).entrySet() 
+								){
+								name += ui.nodeProp_getName(pair.getKey())
+								     +"["
+								     + ui.nodeProp_getRangeLabel(pair.getKey(), pair.getValue())
+								     +"] ";
+							}
+						}
+						catch (Exception e){
+							sendError(e);
+							name = ">ERROR<";
+						}
+						setText(name);
+					}
+				}
+			);
 			
 			Button addDist = new Button("Add");
 			Button rmvDist = new Button("Remove");
@@ -647,7 +678,6 @@ public class EditorPage {
 			final GridPane distCreator = new GridPane();
 			final ScrollPane distMenu = new ScrollPane();
 			final BorderPane distPane = new BorderPane();
-			
 			
 			distCreator.setHgap(20);
 			distCreator.setVgap(10);
@@ -699,13 +729,17 @@ public class EditorPage {
 			
 			cleared.addListener((obs, oldVal, newVal)->{
 				if(newVal){
-					distPane.getChildren().clear();
+					distCreator.getChildren().clear();
 					conditions.clear();
 				}
 			});
 			
 			//You can advance if the page is cleared
 			nextBtn.disableProperty().bind(cleared.not());
+			nextBtn.setOnMouseClicked(event->{
+				pageNumber++;
+				advancePage.set(true);
+			});
 			
 			rmvDist.setOnMouseClicked(event->{
 				if(distributions.getSelectionModel().isEmpty()){
@@ -726,9 +760,6 @@ public class EditorPage {
 			addDist.disableProperty().bind(cleared.not());
 			
 			addDist.setOnMouseClicked(event->{
-				if(!cleared.get()){
-					return;
-				}
 				try {
 					distCreator.add(new Label("Conditions"), 0, 0, 2, 1);
 					distCreator.add(new Label("Probabilities"), 3, 0);
@@ -744,19 +775,17 @@ public class EditorPage {
 						ComboBox<Integer> valueBox = new ComboBox<>();
 						valueBox.setDisable(true);
 						
-						BooleanProperty ready = new SimpleBooleanProperty();
+						distCreator.add(check,    0, row);
+						distCreator.add(valueBox, 1, row);
+						distCreator.add(distMap,  3, 1, 4, 1);
+						row ++;
+						
 						BooleanProperty setCondition = new SimpleBooleanProperty(false);
-						ready.bind(valueBox.disableProperty().not().and(setCondition));
 						
 						conditionsReady = conditionsReady
 						                 .or(valueBox.disableProperty().not()
 						                 .and(setCondition));
-					
-						distCreator.add(check, 0, row);
-						distCreator.add(valueBox, 1, row);
-						row ++;
 
-						distCreator.add(distMap, 3, 1, 4, 1);
 						valueBox.getItems().addAll(ui.nodeProp_getRangeItemIDs(pid));
 						
 						valueBox.setOnAction(e -> 
@@ -804,15 +833,13 @@ public class EditorPage {
 						valueBox.setOnAction(e ->{
 							if(valueBox.getValue() != null){
 								setCondition.set(true);
+								conditions.put(pid, valueBox.getValue());
 							}
 						});
 						
 						check.setOnMouseClicked(e ->{
 							valueBox.setDisable(!check.isSelected());
 							if(!check.isSelected()){
-								conditions.put(pid, valueBox.getValue());
-							}
-							else {
 								conditions.remove(pid);
 							}
 						});
@@ -825,7 +852,6 @@ public class EditorPage {
 							int cid = ui.scratch_addConditionalDistribution(
 									conditions, distMap.getProbMap());
 							distributions.getItems().add(cid);
-							sendInfo("Added condition #"+cid);
 							cleared.set(true);
 						}
 						catch(Exception err){
