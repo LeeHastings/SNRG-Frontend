@@ -1,1 +1,4 @@
 org.snrg_nyc.model
+org.snrg_nyc.persistence
+org.snrg_nyc.test
+org.snrg_nyc.ui
