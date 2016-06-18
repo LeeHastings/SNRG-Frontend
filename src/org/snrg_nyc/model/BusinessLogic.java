@@ -747,12 +747,21 @@ class BusinessLogic implements UI_Interface {
 	@Override
 	public void scratch_removeConditionalDistribution(int cid) throws UIException {
 		assert_scratchExists();
-		// TODO Auto-generated method stub
+		assert_nodeType(scratchProperty, EnumeratorProperty.class);
+		((EnumeratorProperty) scratchProperty).removeConditionalDistribution(cid);
 	}
 	
 	@Override
-	public void scratch_clearDistributions() {
-		// TODO Auto-generated method stub
+	public void scratch_clearDistributions(){
+		
+		try {
+			assert_scratchExists();
+			assert_nodeType(scratchProperty, EnumeratorProperty.class);
+			((EnumeratorProperty) scratchProperty).getConditionalDistributions().clear();
+		} catch (UIException e) {
+			//The only caught exception, since this has no negative side effects if it fails
+			e.printStackTrace();
+		}
 	}
 
 	@Override

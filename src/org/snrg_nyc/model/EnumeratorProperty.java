@@ -53,6 +53,13 @@ class EnumeratorProperty extends NodeProperty {
 		conDistributions.add(cd);
 		return len-1;
 	}
+	public void removeConditionalDistribution(int cid){
+		assert_validCID(cid);
+		conDistributions.set(cid, null);
+	}
+	List<ConditionalDistribution> getConditionalDistributions(){
+		return conDistributions;
+	}
 	
 	@Override
 	public void removeDependency(int pid){
