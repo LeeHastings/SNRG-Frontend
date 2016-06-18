@@ -109,7 +109,10 @@ class BusinessLogic implements UI_Interface {
 		assert_nodeType(scratchProperty, EnumeratorProperty.class);
 		
 		EnumeratorProperty enm = null;
-		for(int pid: dependencyConditions.keySet()){
+		for(Integer pid: dependencyConditions.keySet()){
+			if(pid == null || dependencyConditions.get(pid) == null){
+				throw new UIException("Error in new dependency conditions: some values are null");
+			}
 			assert_validPID(pid);
 			assert_nodeType(nodeProperties.get(pid), EnumeratorProperty.class);
 			if(!scratchProperty.dependsOn(pid)){
@@ -136,6 +139,9 @@ class BusinessLogic implements UI_Interface {
 		assert_scratchExists();
 		assert_nodeType(scratchProperty, EnumeratorProperty.class);
 		for(Entry<Integer, Float> entry : probabilities.entrySet()){
+			if(entry.getValue() == null || entry.getKey() == null){
+				throw new UIException("Error while adding distribution: there are null values");
+			}
 			if(entry.getValue() < 0){
 				throw new UIException("Error while adding distribution: probabilities must be equal to "
 						+ "or greater than zero, found pair ("+entry.getKey()+","+entry.getValue()+").");

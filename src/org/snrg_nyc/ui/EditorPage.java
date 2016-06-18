@@ -2,12 +2,14 @@ package org.snrg_nyc.ui;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.snrg_nyc.model.UIException;
 import org.snrg_nyc.model.UI_Interface;
 
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
@@ -18,6 +20,7 @@ import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldListCell;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.effect.DisplacementMap;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -107,7 +110,7 @@ public class EditorPage {
 		page.getChildren().clear();
 		Text title = new Text("New Node Property");
 		title.setFont(titleFont);
-		page.add(title, 0, 0, 4, 1);
+		page.add(title, 0, 0, 5, 1);
 		
 		Line hbar = new Line();
 		hbar.setStartX(20);
@@ -227,7 +230,8 @@ public class EditorPage {
 					else {
 						int dl = depLvl.getValue();
 						ui.scratch_setDependencyLevel(dl);
-						pageNumber = (dl > 0)? 2 : 4; //Skip dependencies and conditional distributions if the dependency level is 0
+						//Skip dependencies and conditional distributions if the dependency level is 0
+						pageNumber = (dl > 0)? 2 : 4; 
 						advancePage.set(true);
 					}
 				} 
@@ -656,41 +660,52 @@ public class EditorPage {
 			
 			distPane.setCenter(distMenu);
 			distPane.setPrefHeight(200);
-			distPane.setMaxWidth(hbar.getEndX());
+			distPane.setMaxWidth(distributions.getMaxWidth());
+			
+			HBox buttonBar = new HBox();
+			buttonBar.setPrefSize(1000, 25);
+			
+			HBox clearBox = new HBox();
+			clearBox.setPrefWidth(1000);
+			clearBox.setAlignment(Pos.CENTER_LEFT);
+			
+			Button clearBtn = new Button("Clear Distrubition");
+			clearBox.getChildren().add(clearBtn);
+			
+			HBox finBox = new HBox();
+			finBox.setPrefWidth(1000);
+			finBox.setAlignment(Pos.CENTER_RIGHT);
+			Button finBtn = new Button("Finish Distribution");
+			finBox.getChildren().add(finBtn);
+			
+			buttonBar.getChildren().addAll(clearBox, finBox);
+			distPane.setBottom(buttonBar);
 			
 			Line bar = new Line();
 			bar.setStartX(0);
 			bar.setEndX(hbar.getEndX());
 			
 			Map<Integer, Integer> conditions = new HashMap<>();
-			Map<Integer, Float> probMap = new HashMap<>();
 			
 			page.add(distributions, 0, 3, 5, 2);
-			page.add(addDist, 0, 5);
-			page.add(rmvDist, 4, 5);
-			page.add(bar, 0, 6, 5, 1);
-			page.add(distPane, 0, 7, 5, 1);
+			page.add(bar,           0, 6, 5, 1);
+			page.add(distPane,      0, 7, 5, 1);
+			page.add(addDist,       0, 5);
+			page.add(rmvDist,       4, 5);
 			
 			final BooleanProperty cleared = new SimpleBooleanProperty(true);
+			clearBtn.disableProperty().bind(cleared);
+			finBtn.disableProperty().bind(cleared);
 			
-			distributions.setCellFactory(lv ->{
-				ListCell<Integer> cell = new ListCell<>();
-				String name = "Conditions "+cell.getItem()+": ";
-				try{
-					for(Entry<Integer, Integer> pair : ui.scratch_getDistributionCondition(cell.getItem()).entrySet() ){
-						name+=  ui.nodeProp_getName( pair.getKey() )
-								+ "["
-								+ ui.nodeProp_getRangeLabel( pair.getKey(), pair.getValue() )
-								+ "] ";
-					}
-					cell.setText(name);
+			cleared.addListener((obs, oldVal, newVal)->{
+				if(newVal){
+					distPane.getChildren().clear();
+					conditions.clear();
 				}
-				catch (Exception e){
-					sendError(e);
-					cell.setText(">ERROR<");
-				}
-				return cell;
 			});
+			
+			//You can advance if the page is cleared
+			nextBtn.disableProperty().bind(cleared.not());
 			
 			rmvDist.setOnMouseClicked(event->{
 				if(distributions.getSelectionModel().isEmpty()){
@@ -708,26 +723,44 @@ public class EditorPage {
 					
 				}
 			});
+			addDist.disableProperty().bind(cleared.not());
 			
 			addDist.setOnMouseClicked(event->{
 				if(!cleared.get()){
 					return;
 				}
 				try {
-					distCreator.getChildren().clear();
-					conditions.clear();
-					probMap.clear();
-					
 					distCreator.add(new Label("Conditions"), 0, 0, 2, 1);
+					distCreator.add(new Label("Probabilities"), 3, 0);
+					
+					final DistributionTable distMap = new DistributionTable(ui, this, 250, 150);
+
+					BooleanBinding conditionsReady = 
+							new SimpleBooleanProperty(false).or(new SimpleBooleanProperty(false));					
+
 					int row = 1;
 					for(int pid : ui.scratch_getDependencies()){
 						CheckBox check = new CheckBox("Use "+ui.nodeProp_getName(pid));
 						ComboBox<Integer> valueBox = new ComboBox<>();
 						valueBox.setDisable(true);
 						
+						BooleanProperty ready = new SimpleBooleanProperty();
+						BooleanProperty setCondition = new SimpleBooleanProperty(false);
+						ready.bind(valueBox.disableProperty().not().and(setCondition));
+						
+						conditionsReady = conditionsReady
+						                 .or(valueBox.disableProperty().not()
+						                 .and(setCondition));
+					
 						distCreator.add(check, 0, row);
 						distCreator.add(valueBox, 1, row);
 						row ++;
+
+						distCreator.add(distMap, 3, 1, 4, 1);
+						valueBox.getItems().addAll(ui.nodeProp_getRangeItemIDs(pid));
+						
+						valueBox.setOnAction(e -> 
+							conditions.put(pid, valueBox.getValue()) );
 						
 						valueBox.setCellFactory(lv -> {
 							return new ListCell<Integer>(){
@@ -768,11 +801,11 @@ public class EditorPage {
 								}
 							}
 						});
-						
-						valueBox.getItems().addAll(ui.nodeProp_getRangeItemIDs(pid));
-						
-						valueBox.setOnAction(e -> 
-							conditions.put(pid, valueBox.getValue()) );
+						valueBox.setOnAction(e ->{
+							if(valueBox.getValue() != null){
+								setCondition.set(true);
+							}
+						});
 						
 						check.setOnMouseClicked(e ->{
 							valueBox.setDisable(!check.isSelected());
@@ -784,27 +817,23 @@ public class EditorPage {
 							}
 						});
 					}
-					HBox buttonBar = new HBox();
-					buttonBar.setPrefSize(1000, 25);
+					finBtn.disableProperty().bind( 
+							distMap.readyProperty().and(conditionsReady).not() );
 					
-					HBox clearBox = new HBox();
-					clearBox.setPrefWidth(1000);
-					clearBox.setAlignment(Pos.CENTER_LEFT);
-					Button clearBtn = new Button("Clear Distrubition");
-					clearBox.getChildren().add(clearBtn);
-					
-					HBox finBox = new HBox();
-					finBox.setPrefWidth(1000);
-					finBox.setAlignment(Pos.CENTER_RIGHT);
-					Button finBtn = new Button("Finish Distribution");
-					finBox.getChildren().add(finBtn);
-					
-					buttonBar.getChildren().addAll(clearBox, finBox);
-					distPane.setBottom(buttonBar);
+					finBtn.setOnMouseClicked(e->{
+						try{
+							int cid = ui.scratch_addConditionalDistribution(
+									conditions, distMap.getProbMap());
+							distributions.getItems().add(cid);
+							sendInfo("Added condition #"+cid);
+							cleared.set(true);
+						}
+						catch(Exception err){
+							sendError(err);
+						}
+					});
 					
 					clearBtn.setOnMouseClicked(e ->{
-						distMenu.setContent(null);
-						distPane.setBottom(null);
 						cleared.set(true);
 					});
 					
@@ -819,99 +848,33 @@ public class EditorPage {
 		}
 		else if(pageNumber == 4){
 			title.setText(title.getText()+" - Default Distribution");
-			TableView<Entry<Scratch_Range, Float>> distMap = new TableView<>();
-			TableColumn<Entry<Scratch_Range, Float>, String> labelCol = new TableColumn<>("Range");
-			TableColumn<Entry<Scratch_Range, Float>, String> probCol = new TableColumn<>("Probability");
 			
-			distMap.setPrefHeight(150);
-			distMap.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-			distMap.getColumns().addAll(labelCol, probCol);
-			
-			HBox centering = new HBox();
-			centering.setAlignment(Pos.CENTER);
-			centering.getChildren().add(distMap);
-			
-			page.add(centering, 0, 3, 5, 2);
-			
-			
-			Map<Scratch_Range, Float> probMap = new HashMap<>();
 			try {
-				for(int i : ui.scratch_getRangeIDs()){
-					probMap.put(new Scratch_Range(ui, i), null);
-				}
+				final DistributionTable distMap = new DistributionTable(ui, this, 250, 200);
+				HBox centering = new HBox();
+				centering.setAlignment(Pos.CENTER);
+				centering.getChildren().add(distMap);
+
+				page.add(centering, 0, 3, 5, 2);
+
+				nextBtn.disableProperty().bind(distMap.readyProperty().not());
+
+
+				nextBtn.setOnMouseClicked(event->{
+					try {
+						ui.scratch_setDefaultDistribution(distMap.getProbMap());
+						finished.set(true);
+					} 
+					catch (Exception e) {
+						sendError(e);
+					}
+				});
+				nextBtn.setText("Finish");
+
 			} 
-			catch (UIException e) {
-				sendError(e);
+			catch (UIException e1) {
+				sendError(e1);
 			}
-			for(Entry<Scratch_Range, Float> pair : probMap.entrySet()){
-				distMap.getItems().add(pair);
-			}
-			
-			labelCol.setCellValueFactory(col -> {
-				try {
-					return new SimpleStringProperty(col.getValue().getKey().getLabel());
-				} 
-				catch (Exception e) {
-					sendError(e);
-					return new SimpleStringProperty(">ERROR<");
-				}
-			});
-			
-			probCol.setCellValueFactory(col-> {
-				if(col.getValue().getValue() != null){
-					return new SimpleStringProperty(col.getValue().getValue().toString());
-				}
-				else {
-					return null;
-				}
-			});
-			
-			probCol.setCellFactory(TextFieldTableCell.forTableColumn());
-			
-			distMap.setEditable(true);
-			probCol.setEditable(true);
-			
-			checkNext = () ->{ //Enabled once all values are set
-				for(Float f : probMap.values()){
-					if(f == null){
-						nextBtn.setDisable(true);
-						return;
-					}
-				}
-				nextBtn.setDisable(false);
-			};
-			
-			probCol.setOnEditCommit(event->{
-				try{
-					if(!event.getNewValue().matches("[0-9]*\\.?[0-9]+")){
-						throw new NumberFormatException("Value '"
-								+event.getNewValue()+"' is not a floating-point number");
-					}
-					event.getRowValue().setValue(Float.parseFloat(event.getNewValue()));
-				}
-				catch (Exception e){
-					sendError(e);
-				}
-				finally{
-					checkNext.run();
-				}
-			});
-			
-			
-			
-			nextBtn.setOnMouseClicked(event->{
-				Map<Integer, Float> dist = new HashMap<>();
-				for(Entry<Scratch_Range, Float> pair : probMap.entrySet()){
-					dist.put(pair.getKey().rid, pair.getValue());
-				}
-				try {
-					ui.scratch_setDefaultDistribution(dist);
-					finished.set(true);
-				} catch (Exception e) {
-					sendError(e);
-				}
-			});
-			nextBtn.setText("Finish");
 		}
 		else {
 			sendError(new IllegalStateException("Invalid page number: "+pageNumber));

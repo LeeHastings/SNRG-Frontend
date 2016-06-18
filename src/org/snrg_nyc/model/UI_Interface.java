@@ -16,7 +16,6 @@ public interface UI_Interface {
 	 * Save the properties to a persistent structure.  This does not validate the data,
 	 * only preserving the project in its current state.
 	 * @param experimentName The name of the experiment under which to save the data.
-	 * @return The success of the operation.
 	 */
 	public void save(String experimentName);
 	
@@ -248,7 +247,8 @@ public interface UI_Interface {
 	public int nodeProp_getDependencyLevel(int lid, int pid) throws UIException;
 	
 	/**
-	 * Get the initial value of a fraction node property (the same value given in {@link UI_Interface#scratch_disableRandomUseInit}
+	 * Get the initial value of a fraction node property (the same value given in 
+	 * {@link UI_Interface#scratch_setFractionInitValue(float)}
 	 * @param pid The ID of the fraction node property to use, should be from {@link UI_Interface#nodeProp_getPropertyIDs()}
 	 * @return The intitial value which the fraction property was set to use.
 	 * @throws UIException Thrown if the PID is not valid, or if the property is not a fraction property.
@@ -423,7 +423,7 @@ public interface UI_Interface {
 	 * @param pid The ID of the ranged node property, from {@link UI_Interface#nodeProp_getPropertyIDs(int)}
 	 * @return See {@link UI_Interface#nodeProp_getDefaultDistribution(int)}
 	 * @throws UIException Thrown if the layer ID does not point to a layer, or for the reasons listed in
-	 * {@link UI_Interface#nodeProp_getDefalutDistribution(int)}
+	 * {@link UI_Interface#nodeProp_getDefaultDistribution(int)}
 	 */
 	public Map<Integer, Float> nodeProp_getDefaultDistribution(int lid, int pid) throws UIException;
 
@@ -449,8 +449,8 @@ public interface UI_Interface {
 	 * @param lid The ID of the layer to create the property for
 	 * @throws UIException Thrown if the layer ID is not valid, or id the scratch
 	 *  property's name is not unique
-	 * @see {@link UI_Interface#scratch_new(String, String, String)}
-	 * {@link UI_Interface#scratch_commitToNodeProperties()}
+	 * @see UI_Interface#scratch_new(String, String, String)
+	 * @see UI_Interface#scratch_commitToNodeProperties()
 	 */
 	public void scratch_newInLayer(int lid, String name, String type, String description) throws UIException;
 	
@@ -580,7 +580,6 @@ public interface UI_Interface {
 	 * Set the initial value of a fraction node property.  
 	 * Sets the dependency level to zero.
 	 * @param init The static value to use.
-	 * @return The success of the operation.
 	 * @throws UIException Thrown if the scratch property is not a Fractional Property
 	 * , or if the scratch property is currently null, which means
 	 * {@link UI_Interface#scratch_new(String, String, String)} needs to be called.
