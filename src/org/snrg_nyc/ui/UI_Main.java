@@ -1,5 +1,7 @@
 package org.snrg_nyc.ui;
 
+import java.util.Optional;
+
 import org.snrg_nyc.model.UI_Interface;
 import org.snrg_nyc.model.UI_InterfaceFactory;
 
@@ -9,10 +11,12 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.scene.text.*;
+import javafx.stage.Popup;
 import javafx.stage.Stage;
 
 
@@ -29,6 +33,7 @@ public class UI_Main extends Application{
 		editor = new EditorPage(ui);
 		
 		stage = initStage;
+		stage.setTitle("SNRG Frontend");
 		
 		BorderPane mainPane = new BorderPane();
 		scene = new Scene(mainPane, 800, 600);
@@ -43,10 +48,28 @@ public class UI_Main extends Application{
 		topMenu.setPadding(new Insets(0, 10, 0, 10));
 		mainPane.setTop(topMenu);
 		
+		//Save dialog
 		Button save = new Button("Save");
+		
+		TextInputDialog saveDialog = new TextInputDialog();
+		saveDialog.setTitle("Save Experiment");
+		saveDialog.setHeaderText("Name the experiment");
+		saveDialog.setGraphic(null);
+		
 		save.setOnMouseClicked(event->{
-			ui.save("test");
-			editor.sendInfo("Sent info as 'test'");
+			Optional<String> expName = saveDialog.showAndWait();
+			if(expName.isPresent()){
+				try{
+					ui.save(expName.get());
+					editor.sendInfo("The experiment was saved as "+expName.get());
+				}
+				catch (Exception e){
+					editor.sendError(e);
+				}
+			}
+			else {
+				editor.sendInfo("The experiment was NOT saved");
+			}
 		});
 		
 		topMenu.getItems().add(save);
