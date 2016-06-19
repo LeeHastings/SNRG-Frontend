@@ -761,11 +761,11 @@ public class EditorPage {
 			
 			addDist.setOnMouseClicked(event->{
 				try {
+
+					final DistributionTable distMap = new DistributionTable(ui, this, 250, 200);
 					distCreator.add(new Label("Conditions"), 0, 0, 2, 1);
 					distCreator.add(new Label("Probabilities"), 3, 0);
 					
-					final DistributionTable distMap = new DistributionTable(ui, this, 250, 150);
-
 					BooleanBinding conditionsReady = 
 							new SimpleBooleanProperty(false).or(new SimpleBooleanProperty(false));					
 
@@ -777,7 +777,6 @@ public class EditorPage {
 						
 						distCreator.add(check,    0, row);
 						distCreator.add(valueBox, 1, row);
-						distCreator.add(distMap,  3, 1, 4, 1);
 						row ++;
 						
 						BooleanProperty setCondition = new SimpleBooleanProperty(false);
@@ -844,6 +843,9 @@ public class EditorPage {
 							}
 						});
 					}
+
+					distCreator.add(distMap,  3, 1, row, 1);
+					
 					finBtn.disableProperty().bind( 
 							distMap.readyProperty().and(conditionsReady).not() );
 					
