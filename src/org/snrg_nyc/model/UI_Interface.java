@@ -19,6 +19,14 @@ public interface UI_Interface {
 	 */
 	public void save(String experimentName);
 	
+	/**
+	 * Load an experiment with the given name from the persistent structure.
+	 * @param experimentName The name of the experiment (should be the same as when it was saved)
+	 * @throws UIException Thrown if there is no experiment with the given name, or if the 
+	 * experiment saved there is somehow invalid.
+	 */
+	public void load(String experimentName) throws UIException;
+	
 	/*         *\
 	 * Members *
 	\*         */
@@ -673,6 +681,9 @@ public interface UI_Interface {
 	/**
 	 * Delete all conditional distributions and the default distribution.  This must be called
 	 * if distributions have already been added, but the user wants to change the range labels.
+	 * <p>
+	 * This does not throw an exception, since clearing a property without conditional
+	 * distributions is not a serious issue.
 	 */
 	public void scratch_clearDistributions();
 	

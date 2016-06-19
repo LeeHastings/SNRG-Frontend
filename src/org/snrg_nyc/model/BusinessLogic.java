@@ -199,6 +199,11 @@ class BusinessLogic implements UI_Interface {
 		ExperimentSerializer es = new ExperimentSerializer(experimentName, this);
 		es.saveStateToFiles();
 	}
+	
+	@Override 
+	public void load(String experimentName) throws UIException{
+		throw new UIException("Loading is not available yet!");
+	}
 
 	@Override
 	public boolean test_nodePropNameIsUnique(String name) {
@@ -756,7 +761,6 @@ class BusinessLogic implements UI_Interface {
 		
 		try {
 			assert_scratchExists();
-			assert_nodeType(scratchProperty, EnumeratorProperty.class);
 			((EnumeratorProperty) scratchProperty).getConditionalDistributions().clear();
 		} catch (UIException e) {
 			//The only caught exception, since this has no negative side effects if it fails
@@ -767,8 +771,13 @@ class BusinessLogic implements UI_Interface {
 	@Override
 	public void scratch_updateConditionalDistribution(int cid, Map<Integer, Integer> dependencyConditions,
 			Map<Integer, Float> probabilities) throws UIException {
+		
 		assert_scratchExists();
-		// TODO Auto-generated method stub
+		assert_nodeType(scratchProperty, EnumeratorProperty.class);
+		assert_depConds(dependencyConditions);
+		assert_probMap(probabilities);
+		((EnumeratorProperty) scratchProperty).setConditionalDistribution(
+				cid, new ConditionalDistribution(dependencyConditions, probabilities));
 	}
 
 	@Override

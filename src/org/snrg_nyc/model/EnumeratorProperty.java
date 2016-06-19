@@ -57,6 +57,10 @@ class EnumeratorProperty extends NodeProperty {
 		assert_validCID(cid);
 		conDistributions.set(cid, null);
 	}
+	public void setConditionalDistribution(int cid, ConditionalDistribution dist){
+		assert_validCID(cid);
+		conDistributions.set(cid, dist);
+	}
 	List<ConditionalDistribution> getConditionalDistributions(){
 		return conDistributions;
 	}
