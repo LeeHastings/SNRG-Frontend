@@ -1,12 +1,16 @@
 package org.snrg_nyc.model;
 
+import java.io.FileNotFoundException;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.snrg_nyc.persistence.ExperimentDeserializer;
 import org.snrg_nyc.persistence.ExperimentSerializer;
+import org.snrg_nyc.persistence.MalformedSettingsException;
+import org.snrg_nyc.persistence.PersistenceData;
 
 /**
  * The only public class in this package, this is for use by any UI packages,
@@ -202,7 +206,26 @@ class BusinessLogic implements UI_Interface {
 	
 	@Override 
 	public void load(String experimentName) throws UIException{
-		throw new UIException("Loading is not available yet!");
+		//Clear everything
+		scratch_clear();
+		nodeProperties.clear();
+		nodeLayers.clear();
+		
+		try {
+			ExperimentDeserializer ds = new ExperimentDeserializer(this, experimentName);
+			ds.loadFiles();
+		} 
+		catch (FileNotFoundException e) {
+			throw new UIException("Missing file: "+e.getMessage());
+		} 
+		catch (MalformedSettingsException e) {
+			throw new UIException("Malformed Settings: "+e.getMessage());
+		}
+	}
+	
+	@Override
+	public List<String> getExperimentNames(){
+		return PersistenceData.getFileNames();
 	}
 
 	@Override

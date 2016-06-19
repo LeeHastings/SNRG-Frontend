@@ -58,6 +58,28 @@ class NodePropertyReader {
 		useLayer = true;
 		this.ui = ui;
 	}
+	
+	/**
+	 * Search the available node properties for one with the given name, return its
+	 * property ID if it exists, or null if there is no property.
+	 * @param ui The {@link UI_Interface} to search in and read from.
+	 * @param propertyName The name of the property to search for.
+	 * @return The Property ID of the property with the given name.
+	 */
+	public static Integer getPIDFromName(UI_Interface ui, String propertyName){
+		try{
+			for(int pid : ui.nodeProp_getPropertyIDs()){
+				if(ui.nodeProp_getName(pid).equals(propertyName)){
+					return pid;
+				}
+			}
+			return null;
+		}
+		catch (UIException e){
+			e.printStackTrace();
+			return null;
+		}
+	}
 	/**
 	 * @see UI_Interface#nodeProp_getName(int) 
 	 * @see UI_Interface#nodeProp_getName(int, int)

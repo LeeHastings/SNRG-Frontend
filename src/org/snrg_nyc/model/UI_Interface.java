@@ -27,6 +27,12 @@ public interface UI_Interface {
 	 */
 	public void load(String experimentName) throws UIException;
 	
+	/**
+	 * Return the names of experiments stored in the persistent data structure
+	 * @return A list of names of experiments that can be used in {@link UI_Interface#load(String)}
+	 */
+	public List<String> getExperimentNames();
+	
 	/*         *\
 	 * Members *
 	\*         */

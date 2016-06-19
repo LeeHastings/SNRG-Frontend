@@ -43,11 +43,6 @@ public class UI_Main extends Application{
 		menuCol.setPercentWidth(100);
 		leftMenu.getColumnConstraints().add(menuCol);
 		
-		ToolBar topMenu = new ToolBar();
-		topMenu.setPrefHeight(30);
-		topMenu.setPadding(new Insets(0, 10, 0, 10));
-		mainPane.setTop(topMenu);
-		
 		//Save dialog
 		Button save = new Button("Save");
 		
@@ -55,6 +50,7 @@ public class UI_Main extends Application{
 		saveDialog.setTitle("Save Experiment");
 		saveDialog.setHeaderText("Name the experiment");
 		saveDialog.setGraphic(null);
+
 		
 		save.setOnMouseClicked(event->{
 			Optional<String> expName = saveDialog.showAndWait();
@@ -72,7 +68,37 @@ public class UI_Main extends Application{
 			}
 		});
 		
-		topMenu.getItems().add(save);
+		Button load = new Button("Load");
+		ChoiceDialog<String> loadDialog = new ChoiceDialog<>();
+		loadDialog.setTitle("Load Experiment");
+		loadDialog.setHeaderText("Select an experiment to load");
+		loadDialog.setGraphic(null);
+		
+		load.setOnMouseClicked(event->{
+			loadDialog.getItems().setAll(ui.getExperimentNames());
+			Optional<String> expName = loadDialog.showAndWait();
+			try{
+				if(expName.isPresent() ){
+					ui.load(expName.get());
+					editor.sendInfo("The experiment was loaded as "+expName.get());
+					properties.getItems().clear();
+					for(int i : ui.nodeProp_getPropertyIDs()){
+						properties.getItems().add(new SimplePropertyReader(ui, i));
+					}
+				}
+				else {
+					editor.sendInfo("Load cancelled");
+				}
+			}
+			catch (Exception e){
+				editor.sendError(e);
+			}
+		});
+		
+		ToolBar topMenu = new ToolBar(save, load);
+		topMenu.setPrefHeight(30);
+		topMenu.setPadding(new Insets(0, 10, 0, 10));
+		mainPane.setTop(topMenu);
 		
 		leftMenu.setVgap(10);
 		leftMenu.setPadding(new Insets(10));
@@ -154,7 +180,7 @@ public class UI_Main extends Application{
 			@Override
 			public void onChanged(Change<? extends UI_Message> c) {
 				Text t;
-				double w = messagePane.getWidth()-10;
+				double w = messagePane.getWidth()-20;
 				c.next();
 				if(c.getRemovedSize() > 0){
 					messageBox.getChildren().clear();
