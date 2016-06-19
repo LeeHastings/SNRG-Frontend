@@ -3,7 +3,6 @@ package org.snrg_nyc.persistence;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,6 +38,7 @@ public class ExperimentSerializer {
 		JsonObject obj = new JsonObject();
 		JsonArray propList = new JsonArray();
 		JsonArray layerList = new JsonArray();
+		
 		try {
 			for(int pid : ui.nodeProp_getPropertyIDs()){
 				JsonObject np = readNodeProperty(new NodePropertyReader(ui,pid));
@@ -58,6 +58,7 @@ public class ExperimentSerializer {
 			}
 			files.put("nodesettings", settings);
 		}
+		
 		catch(UIException e){
 			e.printStackTrace();
 		}
@@ -162,8 +163,9 @@ public class ExperimentSerializer {
 			return distID;
 		}
 	}
+	
 	void writeFiles(){
-		Path saveDir = Paths.get(name);
+		Path saveDir = PersistenceData.saveLocation.resolve(name);
 		Gson gson = new GsonBuilder()
 				.setPrettyPrinting()
 				.disableHtmlEscaping()
@@ -176,7 +178,7 @@ public class ExperimentSerializer {
 				Files.delete(f.toPath());
 			}
 			for(Entry<String, JsonElement> file : files.entrySet()){
-				Path output = Paths.get(name, file.getKey()+".json" );
+				Path output = saveDir.resolve(file.getKey()+".json" );
 				Files.createFile(output);
 				Files.write(output, gson.toJson(file.getValue()).getBytes(), StandardOpenOption.WRITE);
 			}
