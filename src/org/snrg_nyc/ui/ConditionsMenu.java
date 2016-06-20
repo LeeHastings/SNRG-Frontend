@@ -25,6 +25,8 @@ public class ConditionsMenu extends GridPane{
 		conditions = new HashMap<>();
 		row=0;
 		readyProperty = new SimpleBooleanProperty();
+		setVgap(10);
+		setHgap(5);
 		BooleanBinding conditionsReady = 
 				new SimpleBooleanProperty(false).or(new SimpleBooleanProperty(false));	
 		
