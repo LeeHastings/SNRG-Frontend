@@ -5,17 +5,13 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
-import java.util.function.Consumer;
 
 import org.snrg_nyc.model.UIException;
 import org.snrg_nyc.model.UI_Interface;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -92,7 +88,7 @@ public class ExperimentDeserializer {
 				int dependencylevel = nodeProp.get("Dependency Level").getAsInt();
 				
 				//It's a shame so much work has to be done before checking the dependency level
-				if(dependencylevel == depLevel){
+				if(dependencylevel <= depLevel){
 					assert_hasTag(type, nodeProp, "PropertyName");
 					String propName = nodeProp.get("PropertyName").getAsString();
 					
@@ -172,8 +168,109 @@ public class ExperimentDeserializer {
 	}
 	
 	void createDistribution(String distributionID) throws MalformedSettingsException, UIException{
-		//TODO Implement this method
-		ui.scratch_useUniformDistribution();
+		//First, this checks just enough of the file to see if it's the distribution we're looking for
+		JsonObject distJs = null;
+		String filename = null;
+		for(Map.Entry<String, JsonElement> file : files.entrySet()){
+			JsonObject jsFile = file.getValue().getAsJsonObject();
+			
+			//System.out.println("Searching "+file.getKey()+" for distribution "+distributionID);
+			
+			//Check if it's a distribution, and if it has the correct tag
+
+			assert_tagIs("JSON File "+file.getKey(), jsFile, "ExperimentName", name);
+			assert_hasTag("JSON File "+file.getKey(), jsFile, "Type");
+			assert_hasTag("JSON File "+file.getKey(), jsFile, "Object");
+			
+			if(jsFile.get("Type").getAsString().equals("UnivariatDistribution")){
+				JsonObject tempJs = jsFile.get("Object").getAsJsonObject();
+				assert_hasTag("Json File "+file.getKey(), tempJs,"UnivariatDistributionID");
+				
+				if(tempJs.get("UnivariatDistributionID").getAsString().equals(distributionID)){
+					distJs = tempJs;
+					filename = file.getKey();
+				}
+			}
+		}
+		if(distJs == null){
+			throw new MalformedSettingsException(
+					"Did not find a file for the distribution '"+distributionID+"'");
+		}
+		//Now it validates the file fully
+		assert_tagIs("Distribution "+filename, distJs, "BindToPropertyName", ui.scratch_getName());
+		assert_hasTag("Distribution "+filename, distJs, "DependencyDistributionList");
+		JsonArray distributions = distJs.get("DependencyDistributionList").getAsJsonArray();
+		
+		for(Iterator<JsonElement> itr = distributions.iterator(); itr.hasNext();){
+			JsonObject js = itr.next().getAsJsonObject();
+			assert_hasTag("Distribution "+filename, js, "DistributionSampleList");
+			
+			if(!js.has("PropertyDependencyList") && itr.hasNext()){
+				throw new MalformedSettingsException(
+					"Error in file "+filename+": unconditional distribution "
+					+ "was found before the end of the distributions list");
+			}
+			if(!itr.hasNext() && js.has("PropertyDependencyList")){
+				throw new MalformedSettingsException(
+					"Error in file "+filename+": there was no unconditional "
+					+ "distribution at the end of the distributions list");
+			}
+			
+			Map<Integer, Integer> conditions = null;
+			
+			if(itr.hasNext()){ //Create a conditional Distribution
+				conditions = new HashMap<>();
+				for(JsonElement c : js.get("PropertyDependencyList").getAsJsonArray()){
+					JsonObject condJs = c.getAsJsonObject();
+					assert_hasTag("Distribution Condition"+filename, condJs, "Name");
+					assert_hasTag("Distribution Condition"+filename, condJs, "Value");
+					
+					String propName =condJs.get("Name").getAsString();
+					Integer pid = NodePropertyReader.getPIDfromName(ui, propName);
+					
+					if(pid == null){
+						throw new MalformedSettingsException(
+							"Error in file "+filename+": there is no property with the name"
+							+ " '"+propName+"'");
+					}
+					if(!ui.scratch_getDependencies().contains(pid)){
+						ui.scratch_addDependency(pid);
+					}
+					
+					String propValue = condJs.get("Value").getAsString();
+					Integer rid = NodePropertyReader.getRIDfromLabel(ui, pid, propValue);
+					
+					if(rid == null){
+						throw new MalformedSettingsException(
+							"Error in file "+filename+": there is no range named "
+							+"'"+propValue+"' in property '"+propName+"'");
+					}
+					conditions.put(pid, rid);
+				}
+			}
+			Map<Integer, Float> probMap = new HashMap<>();
+			
+			for(JsonElement p : js.get("DistributionSampleList").getAsJsonArray()){
+				JsonObject probJs = p.getAsJsonObject();
+				assert_hasTag("Distribution Probability "+filename, probJs, "Label");
+				assert_hasTag("Distribution Probability"+filename, probJs, "Value");
+				
+				String label = probJs.get("Label").getAsString();
+				Integer rid = NodePropertyReader.getRIDfromLabel(ui, label);
+				if(rid == null){
+					throw new MalformedSettingsException("Error in file "+filename
+						+": no range label named '"+label+"' in property "
+						+ui.scratch_getName());
+				}
+				probMap.put(rid, probJs.get("Value").getAsFloat());
+			}
+			if(conditions != null){
+				ui.scratch_addConditionalDistribution(conditions, probMap);
+			}
+			else {
+				ui.scratch_setDefaultDistribution(probMap);
+			}
+		}
 	}
 	
 	JsonElement readJsFile(File readfile) throws FileNotFoundException{
@@ -183,20 +280,32 @@ public class ExperimentDeserializer {
 		FileReader reader = new FileReader(readfile);
 		return new JsonParser().parse(reader);
 	}
-	
+	/**
+	 * @param name A name to show in the exception
+	 * @param js The JSON object to check for the tag in
+	 * @param tag The tag to find
+	 * @throws MalformedSettingsException Thrown if the given tag is not present
+	 */
 	void assert_hasTag(String name, JsonObject js, String tag) throws MalformedSettingsException{
 		if(!js.has(tag)){
 			throw new MalformedSettingsException(
-					String.format("JSON element '%s' is missing variable '%s'", name, tag));
+					String.format("JSON element '%s' is missing variable '%s':\n%s", name, tag, js.toString()));
 		}
 	}
-	
+	/**
+	 * @param name The name to show in the exception
+	 * @param js The JSON object to check
+	 * @param tag The tag to search for and compare against
+	 * @param value The value that the tag must be
+	 * @throws MalformedSettingsException Thrown if the tag does not exists, or
+	 * if its value did not match the value given
+	 */
 	void assert_tagIs(String name, JsonObject js, String tag, String value)throws MalformedSettingsException{
 		assert_hasTag(name, js, tag);
 		if(!js.get(tag).getAsString().equals(value)){
 			throw new MalformedSettingsException(
-					String.format("In JSON element '%s', expected variable '%s' to be '%s', but it was '%s'",
-							name, tag, value, js.get(tag)) );
+					String.format("In JSON element '%s', expected variable '%s' to be '%s', but it was '%s':\n%s",
+							name, tag, value, js.get(tag), js.toString()) );
 		}
 	}
 }

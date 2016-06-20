@@ -114,13 +114,16 @@ public class ExperimentSerializer {
 		default:
 			String npName = npr.name().replaceAll("\\W", "").toLowerCase();
 			String distID = npName+"_dist"+distributions;
+			
 			JsonObject js = new JsonObject();
 			js.addProperty("ExperimentName", name);
 			js.addProperty("Type", "UnivariatDistribution");
+			
 			JsonObject obj = new JsonObject();
 			obj.addProperty("UnivariatDistributionID", distID);
 			obj.addProperty("BindToPropertyName", npr.name());
 			JsonArray depDistList = new JsonArray();
+			
 			for(int cid : npr.conditionalDistributionIDs()){
 				JsonObject conDistribution = new JsonObject();
 				JsonArray propDepList = new JsonArray();
@@ -149,7 +152,7 @@ public class ExperimentSerializer {
 			JsonObject distPair;
 			for(Entry<Integer, Float> entry : npr.defaultDistribution().entrySet() ){
 				distPair = new JsonObject();
-				distPair.addProperty("Name", npr.rangeLabel(entry.getKey()));
+				distPair.addProperty("Label", npr.rangeLabel(entry.getKey()));
 				distPair.addProperty("Value", entry.getValue());
 				defaultDistribution.add(distPair);
 			}

@@ -19,7 +19,75 @@ import org.snrg_nyc.model.UI_Interface.DistributionType;
 class NodePropertyReader {
 	private boolean useLayer;
 	private int propID, layerID;
-	private UI_Interface ui;
+	private UI_Interface ui;	
+	
+	/**
+	 * Search the available node properties for one with the given name, return its
+	 * property ID if it exists, or null if there is no property.
+	 * @param ui The {@link UI_Interface} to search in and read from.
+	 * @param propertyName The name of the property to search for.
+	 * @return The Property ID of the property with the given name.
+	 */
+	public static Integer getPIDfromName(UI_Interface ui, String propertyName){
+		try{
+			for(int pid : ui.nodeProp_getPropertyIDs()){
+				if(ui.nodeProp_getName(pid).equals(propertyName)){
+					return pid;
+				}
+			}
+			return null;
+		}
+		catch (UIException e){
+			e.printStackTrace();
+			return null;
+		}
+	}
+	/**
+	 * Search the given property for a range with the given label.
+	 * Return its ID, or null if there was no match
+	 * @param ui The {@link UI_Interface} to search in
+	 * @param pid The property ID of the property to search in
+	 * @param rangeLabel The range label to search for
+	 * @return The range ID for a range item in the given property with 
+	 * that label, or null if there was no match
+	 */
+	public static Integer getRIDfromLabel(UI_Interface ui, int pid, String rangeLabel){
+		try{
+			for(int rid : ui.nodeProp_getRangeItemIDs(pid)){
+				if(ui.nodeProp_getRangeLabel(pid, rid).equals(rangeLabel)){
+					return rid;
+				}
+			}
+			return null;
+		}
+		catch (UIException e){
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	/**
+	 * Search the current scratch property for a range with the given label.
+	 * Return its ID if it exists, or null if it does not
+	 * @param ui The UI_Interface to search in
+	 * @param rangeLabel The label to search for
+	 * @return The ID of the range item in the scratch property with the given 
+	 * range label, or null if there was no match
+	 */
+	public static Integer getRIDfromLabel(UI_Interface ui, String rangeLabel){
+		try{
+			for(int rid : ui.scratch_getRangeIDs()){
+				if(ui.scratch_getRangeLabel(rid).equals(rangeLabel)){
+					return rid;
+				}
+			}
+			return null;
+		}
+		catch (UIException e){
+			e.printStackTrace();
+			return null;
+		}
+	}
 	/**
 	 * Create a new node property reader, which assists in pulling data from node properties
 	 * @param ui An instance of {@link UI_Interface} from which the reader will
@@ -59,27 +127,7 @@ class NodePropertyReader {
 		this.ui = ui;
 	}
 	
-	/**
-	 * Search the available node properties for one with the given name, return its
-	 * property ID if it exists, or null if there is no property.
-	 * @param ui The {@link UI_Interface} to search in and read from.
-	 * @param propertyName The name of the property to search for.
-	 * @return The Property ID of the property with the given name.
-	 */
-	public static Integer getPIDFromName(UI_Interface ui, String propertyName){
-		try{
-			for(int pid : ui.nodeProp_getPropertyIDs()){
-				if(ui.nodeProp_getName(pid).equals(propertyName)){
-					return pid;
-				}
-			}
-			return null;
-		}
-		catch (UIException e){
-			e.printStackTrace();
-			return null;
-		}
-	}
+
 	/**
 	 * @see UI_Interface#nodeProp_getName(int) 
 	 * @see UI_Interface#nodeProp_getName(int, int)

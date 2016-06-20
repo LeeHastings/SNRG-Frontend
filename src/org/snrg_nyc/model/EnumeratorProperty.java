@@ -51,7 +51,7 @@ class EnumeratorProperty extends NodeProperty {
 			}
 		}
 		conDistributions.add(cd);
-		return len-1;
+		return len;
 	}
 	public void removeConditionalDistribution(int cid){
 		assert_validCID(cid);
