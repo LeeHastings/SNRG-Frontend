@@ -17,10 +17,8 @@ class DistributionTable extends TableView<Integer> {
 	private Map<Integer, Float> probMap;
 	private BooleanProperty readyProperty = new SimpleBooleanProperty();
 	
-	public DistributionTable(UI_Interface ui, EditorPage editor, int width, int height) throws UIException{
+	public DistributionTable(UI_Interface ui, EditorPage editor) throws UIException{
 		super();
-		setPrefWidth(width);
-		setPrefHeight(height);
 		readyProperty.set(false);
 
 		this.probMap = new HashMap<>();

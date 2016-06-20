@@ -11,12 +11,10 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.scene.text.*;
-import javafx.stage.Popup;
 import javafx.stage.Stage;
 
 
@@ -31,12 +29,13 @@ public class UI_Main extends Application{
 	public void start(Stage initStage){
 		ui = new UI_InterfaceFactory().build();
 		editor = new EditorPage(ui);
+		editor.setPrefWidth(550);
 		
 		stage = initStage;
 		stage.setTitle("SNRG Frontend");
 		
 		BorderPane mainPane = new BorderPane();
-		scene = new Scene(mainPane, 800, 600);
+		scene = new Scene(mainPane, 900, 600);
 		
 		GridPane leftMenu = new GridPane();
 		ColumnConstraints menuCol = new ColumnConstraints();
@@ -102,8 +101,8 @@ public class UI_Main extends Application{
 		
 		leftMenu.setVgap(10);
 		leftMenu.setPadding(new Insets(10));
-		leftMenu.setMaxWidth(280);
-		leftMenu.setPrefWidth(280);
+		leftMenu.setMaxWidth(300);
+		leftMenu.setPrefWidth(300);
 		
 		Text title = new Text("Node Settings");
 		title.setFont(Font.font("sans", FontWeight.LIGHT, FontPosture.REGULAR, 20));
@@ -161,7 +160,7 @@ public class UI_Main extends Application{
 		});
 		
 		editor.advancePage.addListener(e->{
-			mainPane.setCenter(editor.page);
+			mainPane.setCenter(editor);
 		});
 		
 		editor.finished.addListener(e -> {

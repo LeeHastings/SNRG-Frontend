@@ -1,15 +1,11 @@
 package org.snrg_nyc.ui;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import org.snrg_nyc.model.UIException;
 import org.snrg_nyc.model.UI_Interface;
 
-import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
@@ -20,7 +16,6 @@ import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldListCell;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.effect.DisplacementMap;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -28,10 +23,9 @@ import javafx.scene.shape.Line;
 import javafx.scene.text.*;
 import javafx.util.StringConverter;
 
-public class EditorPage {
+public class EditorPage extends GridPane {
 
 	private int pageNumber = 0;
-	GridPane page = new GridPane();
 	BooleanProperty advancePage = new SimpleBooleanProperty();
 	BooleanProperty finished = new SimpleBooleanProperty();
 	
@@ -51,13 +45,10 @@ public class EditorPage {
 	public EditorPage(UI_Interface ui){
 		this.ui = ui;
 		mode = Mode.Inactive;
-
-		page = new GridPane();
-		page.setPrefWidth(800);
-		page.setAlignment(Pos.TOP_LEFT);
-		page.setVgap(10);
-		page.setHgap(10);
-		page.setPadding(new Insets(15));
+		setAlignment(Pos.TOP_LEFT);
+		setVgap(10);
+		setHgap(10);
+		setPadding(new Insets(15));
 		
 		messages.set( FXCollections.observableArrayList( new ArrayList<>() ));
 		
@@ -67,6 +58,7 @@ public class EditorPage {
 				advancePage.set(false);
 			}
 		});
+		
 		finished.addListener( (o, oldVal, newVal)->{
 			if(newVal){
 				pageNumber = 0;
@@ -102,20 +94,20 @@ public class EditorPage {
 			newPropertyPage();
 			break;
 		default:
-			page.getChildren().clear();
+			getChildren().clear();
 		}
 	}
-	@SuppressWarnings("unchecked")
+	
 	private void newPropertyPage(){
-		page.getChildren().clear();
+		getChildren().clear();
 		Text title = new Text("New Node Property");
 		title.setFont(titleFont);
-		page.add(title, 0, 0, 5, 1);
+		add(title, 0, 0, 5, 1);
 		
 		Line hbar = new Line();
 		hbar.setStartX(20);
-		hbar.setEndX(500);
-		page.add(hbar, 0, 1, 5, 1);
+		hbar.setEndX(getPrefWidth());
+		add(hbar, 0, 1, 5, 1);
 		
 		
 		Button nextBtn = new Button("Next");
@@ -124,10 +116,10 @@ public class EditorPage {
 		HBox nextBox = new HBox();
 		nextBox.setAlignment(Pos.CENTER_RIGHT);
 		nextBox.getChildren().add(nextBtn);
-		page.add(nextBox, 4, 12);
+		add(nextBox, 4, 12);
 		
 		Button cancel = new Button("Cancel");
-		page.add(cancel, 0, 12);
+		add(cancel, 0, 12);
 		
 		cancel.setOnMouseClicked(event ->{
 			ui.scratch_clear();
@@ -142,26 +134,26 @@ public class EditorPage {
 		if(pageNumber == 0){
 			title.setText(title.getText()+" - Basic Properties");
 			Label label = new Label("Name");
-			page.add(label, 0, 2);
+			add(label, 0, 2);
 			
 			TextField propName = new TextField();
-			page.add(propName, 1, 2);
+			add(propName, 1, 2);
 			
 			label = new Label("Type");
-			page.add(label, 0, 3);
+			add(label, 0, 3);
 			
 			ComboBox<String> type = new ComboBox<>();
 			type.getItems().addAll(ui.nodeProp_getTypes());
-			page.add(type, 1, 3);
+			add(type, 1, 3);
 			
 			label = new Label("Description");
-			page.add(label, 0, 4);
+			add(label, 0, 4);
 			TextArea desc = new TextArea();
 			desc.setPrefColumnCount(20);
 			desc.setPrefRowCount(4);
 			desc.setWrapText(true);
 			
-			page.add(desc, 1, 4, 1, 2);
+			add(desc, 1, 4, 1, 2);
 			
 			checkNext = () -> {
 				nextBtn.setDisable(
@@ -204,9 +196,9 @@ public class EditorPage {
 			depLvl.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 100));
 			
 			if(!type.equals("FractionProperty")){
-				page.add(useUniform, 0, 8, 3, 1);
-				page.add(new Label("Dependency Level"), 0, 2);
-				page.add(depLvl, 1, 2);
+				add(useUniform, 0, 8, 3, 1);
+				add(new Label("Dependency Level"), 0, 2);
+				add(depLvl, 1, 2);
 			}
 			
 			useUniform.setOnMouseClicked(event ->{
@@ -282,11 +274,11 @@ public class EditorPage {
 				rmvBox.setAlignment(Pos.CENTER_RIGHT);
 				rmvBox.getChildren().add(rmv);
 				
-				page.add(new Label("Enumerate Items"), 0, 3);
-				page.add(values, 1, 3, 2, 3);
+				add(new Label("Enumerate Items"), 0, 3);
+				add(values, 1, 3, 2, 3);
 				
-				page.add(add, 1, 6);
-				page.add(rmvBox, 2, 6);
+				add(add, 1, 6);
+				add(rmvBox, 2, 6);
 				
 				checkNext = ()->{
 					try {
@@ -351,9 +343,9 @@ public class EditorPage {
 				rmvBox.setAlignment(Pos.CENTER_RIGHT);
 				rmvBox.getChildren().add(rmv);
 
-				page.add(ranges, 1, 3, 2, 2);
-				page.add(add, 1, 5);
-				page.add(rmvBox, 2, 5);
+				add(ranges, 1, 3, 2, 2);
+				add(add, 1, 5);
+				add(rmvBox, 2, 5);
 				
 				labelCol.setCellFactory(TextFieldTableCell.forTableColumn());
 				minCol.setCellFactory(TextFieldTableCell.forTableColumn());
@@ -501,7 +493,7 @@ public class EditorPage {
 				nextBtn.setText("Finish");
 				
 				centering.getChildren().addAll(new Label("Value"), initVal);
-				page.add(centering, 0, 4, 5, 3);
+				add(centering, 0, 4, 5, 3);
 				
 				initVal.textProperty().addListener((o, oldVal, newVal)->{
 					if(!newVal.matches("\\d*\\.?\\d+")){
@@ -547,13 +539,14 @@ public class EditorPage {
 			potentialDependencies.getColumns().addAll(nameCol, depLvlCol);
 			SimplePropertyReader spr;
 			
-			potentialDependencies.setPrefSize(180, 200);
+			potentialDependencies.setPrefSize(220, 200);
+			
+			scratchDependencies.setPrefWidth(potentialDependencies.getPrefWidth());
+			scratchDependencies.setPrefHeight(potentialDependencies.getPrefHeight());
 			
 			
 			scratchDependencies.getColumns().addAll(nameCol2, depLvlCol2);
 			
-			scratchDependencies.setPrefWidth(potentialDependencies.getPrefWidth());
-			scratchDependencies.setPrefHeight(potentialDependencies.getPrefHeight());
 			
 			scratchDependencies.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 			potentialDependencies.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -578,14 +571,14 @@ public class EditorPage {
 			btnBox1.getChildren().add(addDep);
 			btnBox2.getChildren().add(rmvDep);
 			
-			page.add(new Label("Available Dependencies"), 0, 2, 2, 1);
-			page.add(new Label("Added Dependencies"), 3, 2, 2, 1);
+			add(new Label("Available Dependencies"), 0, 2, 2, 1);
+			add(new Label("Added Dependencies"), 3, 2, 2, 1);
 			
-			page.add(potentialDependencies, 0, 3, 2, 4);
-			page.add(scratchDependencies, 3, 3, 2, 4);
+			add(potentialDependencies, 0, 3, 2, 4);
+			add(scratchDependencies, 3, 3, 2, 4);
 			
-			page.add(btnBox1, 2, 4);
-			page.add(btnBox2, 2, 5);
+			add(btnBox1, 2, 4);
+			add(btnBox2, 2, 5);
 			
 			addDep.setOnMouseClicked(event->{
 				if(potentialDependencies.getSelectionModel().isEmpty()){
@@ -715,13 +708,11 @@ public class EditorPage {
 			bar.setStartX(0);
 			bar.setEndX(hbar.getEndX());
 			
-			Map<Integer, Integer> conditions = new HashMap<>();
-			
-			page.add(distributions, 0, 3, 5, 2);
-			page.add(bar,           0, 6, 5, 1);
-			page.add(distPane,      0, 7, 5, 1);
-			page.add(addDist,       0, 5);
-			page.add(rmvDist,       4, 5);
+			add(distributions, 0, 3, 5, 2);
+			add(bar,           0, 6, 5, 1);
+			add(distPane,      0, 7, 5, 1);
+			add(addDist,       0, 5);
+			add(rmvDist,       4, 5);
 			
 			final BooleanProperty cleared = new SimpleBooleanProperty(true);
 			clearBtn.disableProperty().bind(cleared);
@@ -730,7 +721,6 @@ public class EditorPage {
 			cleared.addListener((obs, oldVal, newVal)->{
 				if(newVal){
 					distCreator.getChildren().clear();
-					conditions.clear();
 				}
 			});
 			
@@ -762,98 +752,26 @@ public class EditorPage {
 			addDist.setOnMouseClicked(event->{
 				try {
 
-					final DistributionTable distMap = new DistributionTable(ui, this, 250, 200);
-					distCreator.add(new Label("Conditions"), 0, 0, 2, 1);
-					distCreator.add(new Label("Probabilities"), 3, 0);
+					final DistributionTable distMap = new DistributionTable(ui, this);
+					distMap.setPrefSize(300, 250);
 					
-					BooleanBinding conditionsReady = 
-							new SimpleBooleanProperty(false).or(new SimpleBooleanProperty(false));					
+					final ConditionsMenu condsMenu = new ConditionsMenu(ui, this);
+					condsMenu.setPrefSize(300, 250);
 
-					int row = 1;
-					for(int pid : ui.scratch_getDependencies()){
-						CheckBox check = new CheckBox("Use "+ui.nodeProp_getName(pid));
-						ComboBox<Integer> valueBox = new ComboBox<>();
-						valueBox.setDisable(true);
-						
-						distCreator.add(check,    0, row);
-						distCreator.add(valueBox, 1, row);
-						row ++;
-						
-						BooleanProperty setCondition = new SimpleBooleanProperty(false);
-						
-						conditionsReady = conditionsReady
-						                 .or(valueBox.disableProperty().not()
-						                 .and(setCondition));
-
-						valueBox.getItems().addAll(ui.nodeProp_getRangeItemIDs(pid));
-						
-						valueBox.setOnAction(e -> 
-							conditions.put(pid, valueBox.getValue()) );
-						
-						valueBox.setCellFactory(lv -> {
-							return new ListCell<Integer>(){
-								@Override
-								public void updateItem(Integer item, boolean empty){
-									super.updateItem(item, empty);
-									if(item == null || empty){
-										setText("<empty>");
-									}
-									else {
-										try{
-											setText(ui.nodeProp_getRangeLabel(pid, item));
-										}
-										catch(Exception e){
-											sendError(e);
-											setText(">ERROR<");
-										}
-									}
-								}
-							};
-						});
-						
-						valueBox.setButtonCell( new ListCell<Integer>(){
-							@Override
-							public void updateItem(Integer item, boolean empty){
-								super.updateItem(item, empty);
-								if(item == null || empty){
-									setText("<empty>");
-								}
-								else {
-									try{
-										setText(ui.nodeProp_getRangeLabel(pid, item));
-									}
-									catch(Exception e){
-										sendError(e);
-										setText(">ERROR<");
-									}
-								}
-							}
-						});
-						valueBox.setOnAction(e ->{
-							if(valueBox.getValue() != null){
-								setCondition.set(true);
-								conditions.put(pid, valueBox.getValue());
-							}
-						});
-						
-						check.setOnMouseClicked(e ->{
-							valueBox.setDisable(!check.isSelected());
-							if(!check.isSelected()){
-								conditions.remove(pid);
-							}
-						});
-					}
-
-					distCreator.add(distMap,  3, 1, row, 1);
+					distCreator.add(new Label("Conditions"), 0, 0);
+					distCreator.add(new Label("Probabilities"), 1, 0);
+					distCreator.add(condsMenu, 0, 1);
+					distCreator.add(distMap,  1, 1);
 					
 					finBtn.disableProperty().bind( 
-							distMap.readyProperty().and(conditionsReady).not() );
+							distMap.readyProperty().and(condsMenu.readyProperty()).not() );
 					
 					finBtn.setOnMouseClicked(e->{
 						try{
 							int cid = ui.scratch_addConditionalDistribution(
-									conditions, distMap.getProbMap());
+									condsMenu.getConditions(), distMap.getProbMap());
 							distributions.getItems().add(cid);
+							sendInfo("Created distribution with ID: "+cid);
 							cleared.set(true);
 						}
 						catch(Exception err){
@@ -878,12 +796,13 @@ public class EditorPage {
 			title.setText(title.getText()+" - Default Distribution");
 			
 			try {
-				final DistributionTable distMap = new DistributionTable(ui, this, 250, 200);
+				final DistributionTable distMap = new DistributionTable(ui, this);
+				distMap.setPrefSize(300, 250);
 				HBox centering = new HBox();
 				centering.setAlignment(Pos.CENTER);
 				centering.getChildren().add(distMap);
 
-				page.add(centering, 0, 3, 5, 2);
+				add(centering, 0, 3, 5, 2);
 
 				nextBtn.disableProperty().bind(distMap.readyProperty().not());
 
