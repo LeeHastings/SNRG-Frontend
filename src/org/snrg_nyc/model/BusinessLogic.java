@@ -112,6 +112,9 @@ class BusinessLogic implements UI_Interface {
 		assert_scratchExists();
 		assert_nodeType(scratchProperty, EnumeratorProperty.class);
 		
+		if(dependencyConditions.isEmpty()){
+			throw new UIException("The set of dependency conditions cannot be empty!");
+		}
 		EnumeratorProperty enm = null;
 		for(Integer pid: dependencyConditions.keySet()){
 			if(pid == null || dependencyConditions.get(pid) == null){
@@ -175,7 +178,8 @@ class BusinessLogic implements UI_Interface {
 		}
 	}
 	
-	void print(){
+	@SuppressWarnings("unused")
+	private void print(){
 		System.out.println("\nPrinting Node Layers");
 		System.out.println("------------============------------");
 		for(int lid : layer_getLayerIDs()){
@@ -206,10 +210,7 @@ class BusinessLogic implements UI_Interface {
 	
 	@Override 
 	public void load(String experimentName) throws UIException{
-		//Clear everything
-		scratch_clear();
-		nodeProperties.clear();
-		nodeLayers.clear();
+		clear();
 		
 		try {
 			ExperimentDeserializer ds = new ExperimentDeserializer(this, experimentName);
@@ -221,6 +222,13 @@ class BusinessLogic implements UI_Interface {
 		catch (MalformedSettingsException e) {
 			throw new UIException("Malformed Settings: "+e.getMessage());
 		}
+	}
+	
+	@Override
+	public void clear(){
+		scratch_clear();
+		nodeProperties.clear();
+		nodeLayers.clear();
 	}
 	
 	@Override
@@ -254,6 +262,16 @@ class BusinessLogic implements UI_Interface {
 		return nodeLayers.get(lid).validPID(pid);
 	}
 
+	@Override
+	public boolean test_layerNameIsUnique(String name){
+		for(NodeLayer l : nodeLayers){
+			if(l.getName().equals(name)){
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	@Override
 	public boolean test_layerIDExists(int lid) {
 		return(lid >= 0 && lid < nodeLayers.size() && nodeLayers.get(lid) != null);
@@ -383,7 +401,7 @@ class BusinessLogic implements UI_Interface {
 	public List<Integer> nodeProp_getConditionalDistributionIDs(int pid) throws UIException {
 		assert_validPID(pid);
 		assert_nodeType(nodeProperties.get(pid), EnumeratorProperty.class);
-		return ((EnumeratorProperty) nodeProperties.get(pid)).getConditionalDistributionIDs();
+		return ((EnumeratorProperty) nodeProperties.get(pid)).getOrderedContitions();
 	}
 
 	@Override
@@ -497,7 +515,7 @@ class BusinessLogic implements UI_Interface {
 		assert_validPID(lid, pid);
 		NodeProperty np = nodeLayers.get(lid).getProperty(pid);
 		assert_nodeType(np, EnumeratorProperty.class);
-		return ((EnumeratorProperty) np).getConditionalDistributionIDs();
+		return ((EnumeratorProperty) np).getOrderedContitions();
 	}
 
 	@Override
@@ -766,10 +784,9 @@ class BusinessLogic implements UI_Interface {
 		assert_depConds(dependencyConditions);
 		assert_probMap(probabilities);
 		
-		((EnumeratorProperty) scratchProperty).addConditionalDistribution(
+		return ((EnumeratorProperty) scratchProperty).addConditionalDistribution(
 				new ConditionalDistribution(dependencyConditions, probabilities) );
-		
-		return 0;
+
 	}
 
 	@Override
@@ -806,8 +823,8 @@ class BusinessLogic implements UI_Interface {
 	@Override
 	public void scratch_reorderConditionalDistributions(List<Integer> ordering) throws UIException {
 		assert_scratchExists();
-		// TODO Auto-generated method stub
-
+		assert_nodeType(scratchProperty, EnumeratorProperty.class);
+		((EnumeratorProperty) scratchProperty).setConditionsOrder(ordering);
 	}
 
 	@Override

@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.snrg_nyc.model.UIException;
-import org.snrg_nyc.model.UI_Interface;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -17,10 +16,9 @@ class DistributionTable extends TableView<Integer> {
 	private Map<Integer, Float> probMap;
 	private BooleanProperty readyProperty = new SimpleBooleanProperty();
 	
-	public DistributionTable(UI_Interface ui, EditorPage editor) throws UIException{
+	@SuppressWarnings("unchecked")
+	public DistributionTable(EditorPage editor) throws UIException{
 		super();
-		readyProperty.set(false);
-
 		this.probMap = new HashMap<>();
 		
 		TableColumn<Integer, String> nameCol = new TableColumn<>("Range");
@@ -30,7 +28,7 @@ class DistributionTable extends TableView<Integer> {
 		
 		setEditable(true);
 		probCol.setEditable(true);
-		for(int i : ui.scratch_getRangeIDs()){
+		for(int i : editor.ui.scratch_getRangeIDs()){
 			probMap.put(i, null);
 			this.getItems().add(i);
 		}
@@ -38,8 +36,9 @@ class DistributionTable extends TableView<Integer> {
 		setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 		nameCol.setCellValueFactory(col ->{
 			try {
-				return new SimpleStringProperty(ui.scratch_getRangeLabel(col.getValue()));
+				return new SimpleStringProperty(editor.ui.scratch_getRangeLabel(col.getValue()));
 			} catch (Exception e) {
+				editor.sendError(e);
 				return new SimpleStringProperty(">ERROR<");
 			}
 		});
@@ -65,26 +64,42 @@ class DistributionTable extends TableView<Integer> {
 				editor.sendError(e);
 			}
 			finally{
-				for(Float f : probMap.values()){
-					if(f == null){
-						readyProperty.set(false);
-						return;
-					}
-				}
-				readyProperty.set(true);
+				setReady();
 			}
 		});
-
-		
-		
 	}
+	
 	public Map<Integer, Float> getProbMap(){
 		return probMap;
 	}
+	public void setPropMap(Map<Integer, Float> newMap){
+		if(newMap.size() != probMap.size()){
+			throw new IllegalArgumentException("The new probMap is of a different size!");
+		}
+		for(int rid : newMap.keySet()){
+			if(!probMap.containsKey(rid)){
+				throw new IllegalArgumentException("Unknown range ID: "+rid);
+			}
+			probMap.put(rid, newMap.get(rid));
+		}
+		setReady();
+	}
+	
 	public BooleanProperty readyProperty(){
 		return readyProperty;
 	}
+	
 	public boolean isReady(){
 		return readyProperty.get();
+	}
+	
+	private void setReady(){
+		for(Float f : probMap.values()){
+			if(f == null){
+				readyProperty.set(false);
+				return;
+			}
+		}
+		readyProperty.set(true);
 	}
 }

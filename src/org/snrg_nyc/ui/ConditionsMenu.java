@@ -1,54 +1,54 @@
 package org.snrg_nyc.ui;
 
-
 import java.util.HashMap;
 import java.util.Map;
 
 import org.snrg_nyc.model.UIException;
 import org.snrg_nyc.model.UI_Interface;
 
-import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.layout.GridPane;
 
-public class ConditionsMenu extends GridPane{
+class ConditionsMenu extends GridPane{
 	
 	private int row;
 	private BooleanProperty readyProperty;
+	private EditorPage editor;
 	Map<Integer, Integer> conditions;
 	
 	public ConditionsMenu(UI_Interface ui, EditorPage editor) throws UIException{
+		this.editor = editor;
 		conditions = new HashMap<>();
 		row=0;
 		readyProperty = new SimpleBooleanProperty();
 		setVgap(10);
 		setHgap(5);
-		BooleanBinding conditionsReady = 
-				new SimpleBooleanProperty(false).or(new SimpleBooleanProperty(false));	
 		
 		for(int pid : ui.scratch_getDependencies()){
 			CheckBox check = new CheckBox("Use "+ui.nodeProp_getName(pid));
+			check.setId(pid+"_check");
+			
 			ComboBox<Integer> valueBox = new ComboBox<>();
-			valueBox.setDisable(true);
+			
+			valueBox.setId(pid+"_value");
 			
 			add(check,    0, row);
 			add(valueBox, 1, row);
 			row ++;
 			
-			BooleanProperty setCondition = new SimpleBooleanProperty(false);
+			valueBox.disableProperty().bind(check.selectedProperty().not());
 			
-			conditionsReady = conditionsReady
-			                 .or(valueBox.disableProperty().not()
-			                 .and(setCondition));
-
 			valueBox.getItems().addAll(ui.nodeProp_getRangeItemIDs(pid));
 			
-			valueBox.setOnAction(e -> 
-				conditions.put(pid, valueBox.getValue()) );
+			valueBox.setOnAction(e ->{ 
+				conditions.put(pid, valueBox.getValue()); 
+				updateReady();
+			});
 			
 			valueBox.setCellFactory(lv -> {
 				return new ListCell<Integer>(){
@@ -88,23 +88,31 @@ public class ConditionsMenu extends GridPane{
 					}
 				}
 			});
-			valueBox.setOnAction(e ->{
-				if(valueBox.getValue() != null){
-					setCondition.set(true);
-					conditions.put(pid, valueBox.getValue());
-				}
+			valueBox.valueProperty().addListener((o, old, newVal)->{
+				conditions.put(pid, newVal);
+				updateReady();
 			});
 			
-			check.setOnMouseClicked(e ->{
-				valueBox.setDisable(!check.isSelected());
-				if(!check.isSelected()){
+			check.selectedProperty().addListener((o, old, selected)->{
+				if(!selected){
 					conditions.remove(pid);
 				}
+				else {
+					conditions.put(pid, valueBox.getValue());
+				}
+				updateReady();
 			});
 		}
-		readyProperty.bind(conditionsReady);
 	}
-	
+	private void updateReady(){
+		boolean ready = !conditions.isEmpty();
+		if(ready){
+			for(Integer i : conditions.values()){
+				ready = ready && i!= null;
+			}
+		}
+		readyProperty.set(ready);
+	}
 	public BooleanProperty readyProperty(){
 		return readyProperty;
 	}
@@ -113,5 +121,28 @@ public class ConditionsMenu extends GridPane{
 	}
 	public Map<Integer, Integer> getConditions(){
 		return conditions;
+	}
+	public void setCondiditions(Map<Integer, Integer> newConds) throws UIException{
+		conditions.clear();
+		
+		for(int pid : newConds.keySet()){
+			Node checkN = editor.lookup("#"+pid+"_check");
+			Node valN= editor.lookup("#"+pid+"_value");
+			
+			if(checkN == null || valN == null){
+				throw new IllegalArgumentException("Found an unknown property ID: "+pid);
+			}
+			if(!(checkN instanceof CheckBox) || !(valN instanceof ComboBox)){
+				throw new IllegalArgumentException("Found menu items are of unknown types: "
+						+checkN.getClass().getName()+", "+valN.getClass().getName());
+			}
+			CheckBox c = (CheckBox) checkN;
+			@SuppressWarnings("unchecked")
+			ComboBox<Integer> v = (ComboBox<Integer>) valN;
+			
+			c.setSelected(true);
+			v.setValue(newConds.get(pid));
+		}
+		updateReady();
 	}
 }

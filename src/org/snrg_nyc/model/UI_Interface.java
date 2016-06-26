@@ -28,6 +28,11 @@ public interface UI_Interface {
 	public void load(String experimentName) throws UIException;
 	
 	/**
+	 * Clear the experiment of all properties and settings, leaving the UI in its initial state
+	 */
+	public void clear();
+	
+	/**
 	 * Return the names of experiments stored in the persistent data structure
 	 * @return A list of names of experiments that can be used in {@link UI_Interface#load(String)}
 	 */
@@ -91,6 +96,14 @@ public interface UI_Interface {
 	 * @throws UIException Thrown if the layer ID is invalid.
 	 */
 	public boolean test_nodePropIDExists(int lid, int pid) throws UIException;
+	
+	/**
+	 * Test if a name for a layer is taken
+	 * @param name The name to check
+	 * @return True if the name can be used for a new layer 
+	 * (as there is no other layer with this name), false otherwise
+	 */
+	public boolean test_layerNameIsUnique(String name);
 	
 	/**
 	 * Test if the given layer ID points to a non-null layer

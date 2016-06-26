@@ -17,3 +17,8 @@
 .message-text{
 	-fx-background-color:white;
 }
+
+.distribution-viewer{
+	-fx-background-color:#f8f8f8;
+	-fx-border-color:lightgrey;
+}

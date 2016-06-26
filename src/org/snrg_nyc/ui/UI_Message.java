@@ -3,7 +3,7 @@ package org.snrg_nyc.ui;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
-public class UI_Message {
+class UI_Message {
 	private String msg;
 	private Color color;
 	private Type msgType;
@@ -14,7 +14,7 @@ public class UI_Message {
 		Error
 	}
 	public UI_Message(String message, Type messageType){
-		msg = message;
+		msg = message != null? message : ">ERROR NO MESSAGE<";
 		msgType = messageType;
 		
 		switch(msgType){
@@ -33,5 +33,8 @@ public class UI_Message {
 		Text tx = new Text(msg);
 		tx.setFill(color);
 		return tx;
+	}
+	public String getText(){
+		return msgType.name()+": "+msg;
 	}
 }

@@ -1,6 +1,8 @@
 package org.snrg_nyc.ui;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.snrg_nyc.model.UIException;
@@ -13,7 +15,6 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableColumn.CellEditEvent;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldListCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.BorderPane;
@@ -23,28 +24,34 @@ import javafx.scene.shape.Line;
 import javafx.scene.text.*;
 import javafx.util.StringConverter;
 
-public class EditorPage extends GridPane {
+class EditorPage extends GridPane {
 
+	public final UI_Interface ui;
+	
 	private int pageNumber = 0;
-	BooleanProperty advancePage = new SimpleBooleanProperty();
-	BooleanProperty finished = new SimpleBooleanProperty();
+	private PropertyID propViewerID;
+	private Text title;
+	private Line hbar;
+	private Button nextBtn, cancel;
 	
-	ListProperty<UI_Message> messages = new SimpleListProperty<UI_Message>();
+	final BooleanProperty advancePage = new SimpleBooleanProperty();
+	final BooleanProperty finished = new SimpleBooleanProperty();
+	final StringProperty layerName = new SimpleStringProperty();
 	
-	final UI_Interface ui;	
-	
+	final ListProperty<UI_Message> messages = new SimpleListProperty<UI_Message>();
 	final Font titleFont = Font.font("sans", FontWeight.LIGHT, FontPosture.REGULAR, 20);
 	
 	enum Mode{
-		Editing,
-		Viewing,
-		Inactive
+		NEW_PROP,
+		NEW_LAYER,
+		VIEW_PROP,
+		IDLE
 	}
 	private Mode mode;
 	
 	public EditorPage(UI_Interface ui){
 		this.ui = ui;
-		mode = Mode.Inactive;
+		mode = Mode.IDLE;
 		setAlignment(Pos.TOP_LEFT);
 		setVgap(10);
 		setHgap(10);
@@ -62,21 +69,14 @@ public class EditorPage extends GridPane {
 		finished.addListener( (o, oldVal, newVal)->{
 			if(newVal){
 				pageNumber = 0;
-				mode = Mode.Inactive;
+				mode = Mode.IDLE;
 				advancePage.set(true);
 			}
 		});
 	}
 	
-	public void startEditing(){
-		finished.set(false);
-		pageNumber = 0;
-		mode = Mode.Editing;
-		advancePage.set(true);
-	}
-	
 	public void sendError(Exception e){
-		messages.add(new UI_Message("Error: "+e.getMessage(), UI_Message.Type.Error));
+		messages.add(new UI_Message(e.getMessage(), UI_Message.Type.Error));
 		e.printStackTrace();
 	}
 	
@@ -88,29 +88,55 @@ public class EditorPage extends GridPane {
 		messages.add(new UI_Message(s, UI_Message.Type.Info));
 	}
 	
-	private void updatePage(){
-		switch(mode){
-		case Editing:
-			newPropertyPage();
-			break;
-		default:
-			getChildren().clear();
+	public void createProperty(){
+		if(mode != Mode.IDLE){
+			sendWarning("Cannot create a property while creating a layer/property!");
+		}
+		else {
+			finished.set(false);
+			pageNumber = 0;
+			mode = Mode.NEW_PROP;
+			advancePage.set(true);
 		}
 	}
 	
-	private void newPropertyPage(){
+	public void createLayer(){
+		if(mode == Mode.NEW_PROP){
+			sendWarning("Cannot create a layer while creating a property!");
+		}
+		else {
+			finished.set(false);
+			pageNumber = 0;
+			mode = Mode.NEW_LAYER;
+			advancePage.set(true);
+		}
+	}
+	
+	public void viewProperty(PropertyID pid){
+		if(mode == Mode.NEW_PROP || mode == Mode.NEW_LAYER){
+			sendWarning("You cannot view node properties while"
+					+ " editing a property/layer!");
+		}
+		propViewerID = pid;
+		finished.set(false);
+		pageNumber = 0;
+		mode = Mode.VIEW_PROP;
+		advancePage.set(true);
+	}
+	
+	private void updatePage(){
 		getChildren().clear();
-		Text title = new Text("New Node Property");
-		title.setFont(titleFont);
-		add(title, 0, 0, 5, 1);
 		
-		Line hbar = new Line();
+		title = new Text();
+		title.setFont(titleFont);
+		add(title, 0,0,5,1);
+		
+		hbar = new Line();
 		hbar.setStartX(20);
 		hbar.setEndX(getPrefWidth());
 		add(hbar, 0, 1, 5, 1);
 		
-		
-		Button nextBtn = new Button("Next");
+		nextBtn = new Button("Next");
 		nextBtn.setDisable(true);
 
 		HBox nextBox = new HBox();
@@ -118,42 +144,625 @@ public class EditorPage extends GridPane {
 		nextBox.getChildren().add(nextBtn);
 		add(nextBox, 4, 12);
 		
-		Button cancel = new Button("Cancel");
+		cancel = new Button("Cancel");
 		add(cancel, 0, 12);
 		
 		cancel.setOnMouseClicked(event ->{
 			ui.scratch_clear();
 			pageNumber = 0;
-			mode = Mode.Inactive;
+			mode = Mode.IDLE;
 			advancePage.set(true);
 		});
+		
+		switch(mode){
+		case NEW_PROP:
+			newPropertyPage();
+			break;
+		case VIEW_PROP:
+			propertyViewerPage();
+			break;
+		case NEW_LAYER:
+			newLayerPage();
+			break;
+		default:
+			getChildren().clear();
+		}
+	}
+	
+	private void newLayerPage(){
+		title.setText("New Layer");
+
+		TextField layerTx = new TextField();
+		
+		add(new Label("Layer Name"), 0, 2);
+		add(layerTx, 1, 2);
+		
+		layerTx.setOnAction(event->{
+			nextBtn.setDisable(
+				layerTx.getText() == null
+				|| layerTx.getText().equals("")
+				|| !ui.test_layerNameIsUnique(layerTx.getText())
+				);
+		});
+		
+		nextBtn.setOnMouseClicked(event->{
+			layerName.set(layerTx.getText());
+			mode = Mode.IDLE;
+			advancePage.set(true);
+		});
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void propertyViewerPage(){
+		title.setText("Node Property Viewer");
+		cancel.setText("Exit");
+		PropertyID id = propViewerID;
+		
+		nextBtn.setOnMouseClicked(event->{
+			pageNumber++;
+			advancePage.set(true);
+		});
+		
+		String propType = ">ERROR<";
+		int depLvl = -1;
+		String propName = ">ERROR<";
+		try{
+			if(id.usesLayer()){
+				propType = ui.nodeProp_getType(id.lid(), id.pid());
+				depLvl = ui.nodeProp_getDependencyLevel(id.lid(), id.pid());
+				propName = ui.nodeProp_getName(id.lid(), id.pid());
+			}
+			else {
+				propType = ui.nodeProp_getType(id.pid());
+				depLvl = ui.nodeProp_getDependencyLevel(id.pid());
+				propName = ui.nodeProp_getName(id.pid());
+			}
+		}
+		catch(Exception e){
+			sendError(e);
+		}
+		
+		switch(pageNumber){
+		case 0:
+			
+			try {
+				if(id.usesLayer()){
+					nextBtn.setDisable(!ui.nodeProp_isRangedProperty(id.lid(), id.pid()));
+				}
+				else {
+					nextBtn.setDisable(!ui.nodeProp_isRangedProperty(id.pid()));
+				}
+			} catch (UIException e1) {
+				sendError(e1);
+			}
+			
+			Text name, type, description, dependencyLevel;
+			double w = 300;
+			
+			name = new Text(propName);
+			name.setWrappingWidth(w);
+			
+			type=new Text(propType);
+			type.setWrappingWidth(w);
+			
+			description=new Text();
+			description.setWrappingWidth(w);
+			try{
+				if(id.usesLayer()){
+					description.setText(ui.nodeProp_getDescription(id.lid(), id.pid()));
+				}
+				else {
+					description.setText(ui.nodeProp_getDescription(id.pid()));
+				}
+			}
+			catch(Exception e){
+				sendError(e);
+				description.setText(">ERROR<");
+			}
+			
+			dependencyLevel=new Text();
+			dependencyLevel.setWrappingWidth(w);
+			try{
+				if(id.usesLayer()){
+					depLvl = ui.nodeProp_getDependencyLevel(id.lid(), id.pid());
+				}
+				else {
+					depLvl = ui.nodeProp_getDependencyLevel(id.pid());
+				}
+				dependencyLevel.setText(Integer.toString(depLvl));
+			}
+			catch(Exception e){
+				sendError(e);
+				dependencyLevel.setText(">ERROR<");
+			}
+			
+			add(new Label("Name"),             0, 2);
+			add(new Label("Type"),             0, 3);
+			add(new Label("Description"),      0, 4);
+			add(new Label("Dependency Level"), 0, 5);
+			
+			add(name,            1, 2, 2, 1);
+			add(type,            1, 3, 2, 1);
+			add(description,     1, 4, 2, 1);
+			add(dependencyLevel, 1, 5, 2, 1);
+			
+			if(depLvl > 0){
+				Text dependencies = new Text();
+				dependencies.setWrappingWidth(w);
+
+				add(new Label("Dependencies"), 0, 6);
+				add(dependencies, 1, 6, 2, 1);
+				
+				String depString = "";
+				try{
+					List<Integer> deps;
+					if(id.usesLayer()){
+						deps = ui.nodeProp_getDependencyIDs(id.lid(), id.pid());
+					}
+					else{
+						deps = ui.nodeProp_getDependencyIDs(id.pid());
+					}
+					if(deps.size() == 0){
+						depString = "(None)";
+					}
+					for(int i : deps){
+						String space = 
+							(deps.indexOf(i) == deps.size()-1) ? "" : ", ";
+						depString += ui.nodeProp_getName(i)+space;
+					}
+				}
+				catch(Exception e){
+					depString=">ERROR<";
+					sendError(e);
+				}
+				dependencies.setText(depString);
+			}
+
+			List<Integer> rangeIDs = null;
+			if(!type.equals("FractionProperty")){
+				try {
+					if(id.usesLayer()){
+						rangeIDs = ui.nodeProp_getRangeItemIDs(id.lid(),id.pid());
+					}
+					else {
+						rangeIDs = ui.nodeProp_getRangeItemIDs(id.pid());
+					}
+				}
+				catch(Exception e){
+					sendError(e);
+					rangeIDs = new ArrayList<>();
+				}
+			}
+			
+			
+			switch(propType){
+			case "EnumeratorProperty":
+				ListView<String> enumValues = new ListView<>();
+				enumValues.setPrefSize(100, 140);
+				
+				for(int rid : rangeIDs){
+					try {
+						if(id.usesLayer()){
+							enumValues.getItems().add(
+								ui.nodeProp_getRangeLabel(id.lid(), id.pid(), rid));
+						}
+						else {
+							enumValues.getItems().add(
+								ui.nodeProp_getRangeLabel(id.pid(), rid));
+						}
+						
+					} catch (UIException e) {
+						sendError(e);
+						enumValues.getItems().add(">ERROR<");
+					}
+				}
+				add(new Label("Enum Values"), 0, 8);
+				add(enumValues, 1, 8, 2, 2);
+				break;
+				
+			case "IntegerRangeProperty":
+				TableView<Integer> rangeItems = new TableView<>();
+				TableColumn<Integer, String> labelCol = new TableColumn<>("Label");
+				TableColumn<Integer, String> minCol = new TableColumn<>("Min");
+				TableColumn<Integer, String> maxCol = new TableColumn<>("Max");
+				
+				rangeItems.setPrefHeight(140);
+				rangeItems.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+				rangeItems.getColumns().addAll(labelCol, minCol, maxCol);
+				
+				labelCol.setCellValueFactory(col->{
+					int rid = col.getValue();
+					try{
+						if(id.usesLayer()){
+							return new SimpleStringProperty(
+									ui.nodeProp_getRangeLabel(id.lid(), id.pid(), rid));
+						}
+						else {
+							return new SimpleStringProperty(
+									ui.nodeProp_getRangeLabel(id.pid(), rid));
+						}
+						
+					}
+					catch(Exception e){
+						sendError(e);
+						return new SimpleStringProperty(">ERROR<");
+					}
+				});
+				minCol.setCellValueFactory(col->{
+					int rid = col.getValue();
+					try {
+						int min;
+						if(id.usesLayer()){
+							min = ui.nodeProp_getRangeMin(id.lid(), id.pid(), rid);
+						}
+						else {
+							min = ui.nodeProp_getRangeMin(id.pid(), rid);
+						}
+						return new SimpleStringProperty(Integer.toString(min));
+					} catch (Exception e) {
+						sendError(e);
+						return new SimpleStringProperty(">ERROR<");
+					}
+				});
+				maxCol.setCellValueFactory(col->{
+					int rid = col.getValue();
+					try{
+						int max;
+						if(id.usesLayer()){
+							max = ui.nodeProp_getRangeMax(id.lid(), id.pid(), rid);
+						}
+						else {
+							max = ui.nodeProp_getRangeMax(id.pid(), rid);
+						}
+						return new SimpleStringProperty(Integer.toString(max));
+					}
+					catch(Exception e){
+						sendError(e);
+						return new SimpleStringProperty(">ERROR<");
+					}
+				});
+				
+				try{
+					for(int i : rangeIDs){
+						rangeItems.getItems().add(i);
+					}
+				}
+				catch(Exception e){
+					sendError(e);
+				}
+				add(new Label("Range Items"), 0, 8);
+				add(rangeItems, 1, 8, 2, 2);
+				
+				break;
+			case "FractionProperty":
+				add(new Label("Init Value"), 0, 8);
+				String initVal;
+				try{
+					float init;
+					if(id.usesLayer()){
+						init = ui.nodeProp_getInitValue(id.lid(), id.pid());
+					}
+					else {
+						init = ui.nodeProp_getInitValue(id.lid());
+					}
+					initVal = Float.toString(init);
+				}
+				catch(Exception e){
+					sendError(e);
+					initVal = ">ERROR<";
+				}
+				add(new Text(initVal), 1, 8);
+				break;
+			}
+			
+			break;
+		case 1:
+			title.setText(title.getText()+" - Distributions");
+			
+			nextBtn.setText("Finish");
+			nextBtn.setDisable(false);
+			
+			nextBtn.setOnMouseClicked(event->{
+				mode = Mode.IDLE;
+				pageNumber = 0;
+				advancePage.set(true);
+			});
+			
+			boolean hasDistributions = false;
+			final List<Integer> cids = new ArrayList<>();
+			
+			try {
+				if(depLvl > 0){
+					if(id.usesLayer()){
+						cids.addAll(ui.nodeProp_getConditionalDistributionIDs(id.lid(), id.pid()) );
+					}
+					else {
+						cids.addAll(ui.nodeProp_getConditionalDistributionIDs(id.pid()) );
+					}
+					hasDistributions = !cids.isEmpty();
+				}
+				else {
+					hasDistributions = false;
+				}
+			} catch (UIException e) {
+				sendError(e);
+			}
+			
+			int row = 2;
+			if(hasDistributions){
+				BorderPane distBPane = new BorderPane();
+				GridPane distGPane = new GridPane();
+				distGPane.setAlignment(Pos.CENTER);
+				
+				distBPane.getStyleClass().add("distribution-viewer");
+				distBPane.setPadding(new Insets(5));
+
+				distGPane.setPadding(new Insets(5));
+				distGPane.setHgap(20);
+				distGPane.setVgap(10);
+				
+				distBPane.setCenter(distGPane);
+				
+				//Conditional Distribution navigation
+				final IntegerProperty indexProperty = new SimpleIntegerProperty(0);
+				
+				HBox buttonBar = new HBox();
+				buttonBar.setAlignment(Pos.CENTER);
+				buttonBar.setPrefWidth(1000);
+
+				Button backBtn = new Button("<< Back");
+				HBox backBox = new HBox();
+				backBox.setAlignment(Pos.CENTER_LEFT);
+				backBox.getChildren().add(backBtn);
+				backBox.setPrefWidth(1000);
+				
+				Button fwdBtn = new Button("Next >>");
+				HBox fwdBox = new HBox();
+				fwdBox.setAlignment(Pos.CENTER_RIGHT);
+				fwdBox.getChildren().add(fwdBtn);
+				fwdBox.setPrefWidth(1000);
+				
+				Text condMessage = new Text();
+
+				TableView<Entry<Integer, Integer>> conditions = new TableView<>();
+				conditions.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+				conditions.setPrefSize(200, 120);
+				
+				TableColumn<Entry<Integer, Integer>, String> depCol = new TableColumn<>("Dependency");
+				TableColumn<Entry<Integer, Integer>, String> valCol = new TableColumn<>("Value");
+				conditions.getColumns().addAll(depCol, valCol);
+				
+				depCol.setCellValueFactory(col->{
+					int PID = col.getValue().getKey();
+					try{
+						return new SimpleStringProperty(
+								ui.nodeProp_getName(PID));
+					}
+					catch(Exception e){
+						sendError(e);
+						return new SimpleStringProperty(">ERROR<");
+					}
+				});
+				
+				valCol.setCellValueFactory(col->{
+					int PID = col.getValue().getKey();
+					int RID = col.getValue().getValue();
+					try{
+						return new SimpleStringProperty(
+								ui.nodeProp_getRangeLabel(PID, RID));
+					}
+					catch(Exception e){
+						sendError(e);
+						return new SimpleStringProperty(">ERROR<");
+					}
+				});
+
+				TableView<Entry<Integer, Float>> distribution = new TableView<>();
+				distribution.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+				distribution.setPrefSize(250, 120);
+				
+				TableColumn<Entry<Integer, Float>, String> rangeCol = new TableColumn<>("Range");
+				TableColumn<Entry<Integer, Float>, Number> probCol = new TableColumn<>("Probability");
+				
+				distribution.getColumns().addAll(rangeCol, probCol);
+				
+				rangeCol.setCellValueFactory(col->{
+					int rid = col.getValue().getKey();
+					try{
+						if(id.usesLayer()){
+							return new SimpleStringProperty(
+									ui.nodeProp_getRangeLabel(id.lid(),id.pid(), rid));
+						}
+						else {
+							return new SimpleStringProperty(
+									ui.nodeProp_getRangeLabel(id.pid(), rid));
+						}
+					}
+					catch(Exception e){
+						sendError(e);
+						return new SimpleStringProperty(">ERROR<");
+					}
+				});
+				probCol.setCellValueFactory(col->{
+					return new SimpleFloatProperty(
+							col.getValue().getValue());
+				});
+				distGPane.add(new Label("Conditions"),   0, 0);
+				distGPane.add(new Label("Distribution"), 2, 0);
+				distGPane.add(conditions,   0, 1);
+				distGPane.add(distribution, 2, 1);
+				
+				Runnable updateDist = ()->{
+					if(indexProperty.get() == 0){
+						backBtn.setDisable(true);
+					}
+					else {
+						backBtn.setDisable(false);
+					}
+					if(indexProperty.get()  >= cids.size()-1){
+						fwdBtn.setDisable(true);
+					}
+					else {
+						fwdBtn.setDisable(false);
+					}
+					int cid = cids.get(indexProperty.get() );
+					
+					conditions.getItems().clear();
+					try {
+						if(id.usesLayer()){
+							conditions.getItems().addAll(
+								ui.nodeProp_getDistributionConditions(
+									id.lid(), id.pid(), cid).entrySet());
+						}
+						else {
+							conditions.getItems().addAll(
+								ui.nodeProp_getDistributionConditions(id.pid(), cid).entrySet());
+						}
+					} 
+					catch (UIException e) {
+						sendError(e);
+					}
+					
+					distribution.getItems().clear();
+					try {
+						if(id.usesLayer()){
+							distribution.getItems().addAll(
+								ui.nodeProp_getDistribution(id.lid(),id.pid(), cid).entrySet());
+						}
+						else {
+							distribution.getItems().addAll(
+									ui.nodeProp_getDistribution(id.pid(), cid).entrySet());
+						}
+					} catch (UIException e) {
+						sendError(e);
+					}
+					
+					String msg = String.format(
+							"Conditional Distribution #%d [%d of %d]", 
+							cid, indexProperty.get()+1, cids.size() );
+					condMessage.setText(msg);
+				};
+				
+				fwdBtn.setOnMouseClicked(event->{
+					indexProperty.set(indexProperty.get()+1);
+					updateDist.run();
+				});
+				backBtn.setOnMouseClicked(event->{
+					indexProperty.set(indexProperty.get()-1);
+					updateDist.run();
+				});
+				updateDist.run();
+				
+				buttonBar.getChildren().addAll(backBox, condMessage, fwdBox);
+				distBPane.setBottom(buttonBar);
+				
+				add(new Label("Conditional Distributions"), 0, row++);
+				add(distBPane, 0, row++, 5, 1);
+				
+				Line l = new Line();
+				l.setEndX(200);
+				
+				add(l, 0, row++);
+			}
+			
+			//Create default distribution table
+			HBox centering = new HBox();
+			centering.setAlignment(Pos.TOP_CENTER);
+			
+			TableView<Entry<Integer, Float>> distribution = new TableView<>();
+			TableColumn<Entry<Integer, Float>, String> rangeCol = new TableColumn<>("Range");
+			TableColumn<Entry<Integer, Float>, Number> probCol = new TableColumn<>("Probability");
+			
+			distribution.setPrefSize(250, 140);
+			distribution.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+			
+			distribution.getColumns().addAll(rangeCol, probCol);
+			
+			rangeCol.setCellValueFactory(col->{
+				int rid = col.getValue().getKey();
+				try {
+					if(id.usesLayer()){
+						return new SimpleStringProperty(
+								ui.nodeProp_getRangeLabel(id.lid(), id.pid(), rid));
+					}
+					else {
+						return new SimpleStringProperty(
+								ui.nodeProp_getRangeLabel(id.pid(), rid));
+					}
+				} 
+				catch (Exception e) {
+					sendError(e);
+					return new SimpleStringProperty(">ERROR<");
+				}
+			});
+			probCol.setCellValueFactory(col->{
+				return new SimpleFloatProperty(
+						col.getValue().getValue());
+			});
+			
+			centering.getChildren().add(distribution);
+			
+			try {
+				if(id.usesLayer()){
+					distribution.getItems().addAll(
+							ui.nodeProp_getDefaultDistribution(id.lid(), id.pid()).entrySet());
+				}
+				else {
+					distribution.getItems().addAll(
+							ui.nodeProp_getDefaultDistribution(id.pid()).entrySet());
+				}
+				
+			} catch (UIException e) {
+				sendError(e);
+			}
+			add(new Label("Default Distribution"), 0, row++);
+			add(centering, 0, row++, 5, 1);
+			
+			break;
+		default:
+			messages.add(new UI_Message("Unknown page number: "+pageNumber, UI_Message.Type.Error));
+			break;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private void newPropertyPage(){
+		title.setText("New Node Property");
 		
 		//Function to see if the next button should be enabled
 		Runnable checkNext;
 		
 		if(pageNumber == 0){
 			title.setText(title.getText()+" - Basic Properties");
-			Label label = new Label("Name");
-			add(label, 0, 2);
 			
 			TextField propName = new TextField();
-			add(propName, 1, 2);
-			
-			label = new Label("Type");
-			add(label, 0, 3);
 			
 			ComboBox<String> type = new ComboBox<>();
 			type.getItems().addAll(ui.nodeProp_getTypes());
-			add(type, 1, 3);
 			
-			label = new Label("Description");
-			add(label, 0, 4);
 			TextArea desc = new TextArea();
 			desc.setPrefColumnCount(20);
 			desc.setPrefRowCount(4);
 			desc.setWrapText(true);
 			
+			ComboBox<LayerID> layerSelect = new ComboBox<>();
+			layerSelect.setCellFactory(lv-> new LayerCell(this) );
+			layerSelect.setButtonCell(new LayerCell(this));
+			
+			layerSelect.getItems().add(new LayerID());
+			for(int i: ui.layer_getLayerIDs()){
+				layerSelect.getItems().add(new LayerID(i));
+			}
+			
+			add(new Label("Name"), 0, 2);
+			add(new Label("Type"), 0, 3);
+			add(new Label("Description"), 0, 4);
+			add(new Label("Layer"), 0, 6);
+			
+			add(propName, 1, 2);
+			add(type, 1, 3);
 			add(desc, 1, 4, 1, 2);
+			add(layerSelect, 1, 6);
 			
 			checkNext = () -> {
 				nextBtn.setDisable(
@@ -172,7 +781,19 @@ public class EditorPage extends GridPane {
 			nextBtn.setOnMouseClicked(event->{
 				pageNumber ++;
 				try {
-					ui.scratch_new(propName.getText(), type.getValue(), desc.getText());
+					if(layerSelect.getValue().used()){
+						ui.scratch_newInLayer(
+								layerSelect.getValue().get(), 
+								propName.getText(), 
+								type.getValue(), 
+								desc.getText());
+					}
+					else {
+						ui.scratch_new(
+								propName.getText(), 
+								type.getValue(), 
+								desc.getText());
+					}
 				} catch (Exception e1) {
 					sendError(e1);
 				}
@@ -520,32 +1141,30 @@ public class EditorPage extends GridPane {
 		}
 		else if(pageNumber == 2){
 			title.setText(title.getText() + " - Add Dependencies");
-			TableView<SimplePropertyReader> potentialDependencies = new TableView<>();
-			TableColumn<SimplePropertyReader, String> nameCol = new TableColumn<>("Name");
-			TableColumn<SimplePropertyReader, String> depLvlCol = new TableColumn<>("Type");
+			TableView<PropertyID> potentialDependencies = new TableView<>();
+			TableColumn<PropertyID, String> nameCol = new TableColumn<>("Name");
+			TableColumn<PropertyID, String> typeCol = new TableColumn<>("Type");
 			
-			nameCol.setCellValueFactory(new PropertyValueFactory<SimplePropertyReader, String>("name"));
-			depLvlCol.setCellValueFactory(new PropertyValueFactory<SimplePropertyReader, String>("simpleType"));
+			nameCol.setCellValueFactory(new PropertyNameFactory(this));
+			typeCol.setCellValueFactory(new PropertyTypeFactory(this));
 			
-			TableView<SimplePropertyReader> scratchDependencies = new TableView<>();
+			TableView<PropertyID> scratchDependencies = new TableView<>();
 
-			TableColumn<SimplePropertyReader, String> nameCol2 = new TableColumn<>("Name");
-			TableColumn<SimplePropertyReader, String> depLvlCol2 = new TableColumn<>("Type");
+			TableColumn<PropertyID, String> nameCol2 = new TableColumn<>("Name");
+			TableColumn<PropertyID, String> typeCol2 = new TableColumn<>("Type");
 			
-			nameCol2.setCellValueFactory(new PropertyValueFactory<SimplePropertyReader, String>("name"));
-			depLvlCol2.setCellValueFactory(new PropertyValueFactory<SimplePropertyReader, String>("simpleType"));
+			nameCol2.setCellValueFactory(new PropertyNameFactory(this));
+			typeCol2.setCellValueFactory(new PropertyTypeFactory(this));
 			
 			
-			potentialDependencies.getColumns().addAll(nameCol, depLvlCol);
-			SimplePropertyReader spr;
-			
+			potentialDependencies.getColumns().addAll(nameCol, typeCol);
 			potentialDependencies.setPrefSize(220, 200);
 			
 			scratchDependencies.setPrefWidth(potentialDependencies.getPrefWidth());
 			scratchDependencies.setPrefHeight(potentialDependencies.getPrefHeight());
 			
 			
-			scratchDependencies.getColumns().addAll(nameCol2, depLvlCol2);
+			scratchDependencies.getColumns().addAll(nameCol2, typeCol2);
 			
 			
 			scratchDependencies.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -553,8 +1172,7 @@ public class EditorPage extends GridPane {
 			
 			try{
 				for(int pid : ui.scratch_getPotentialDependencies()){
-					spr = new SimplePropertyReader(ui, pid);
-					potentialDependencies.getItems().add(spr);
+					potentialDependencies.getItems().add( new PropertyID(pid));
 				}
 			}
 			catch(Exception e){
@@ -586,10 +1204,10 @@ public class EditorPage extends GridPane {
 				}
 				else {
 					int i = potentialDependencies.getSelectionModel().getSelectedIndex();
-					SimplePropertyReader s = potentialDependencies.getItems().get(i);
+					PropertyID pid = potentialDependencies.getItems().get(i);
 					try{
-						ui.scratch_addDependency(s.getID());
-						scratchDependencies.getItems().add(s);
+						ui.scratch_addDependency(pid.pid());
+						scratchDependencies.getItems().add(pid);
 						potentialDependencies.getItems().remove(i);
 					}
 					catch(Exception e){
@@ -603,11 +1221,11 @@ public class EditorPage extends GridPane {
 				}
 				else {
 					int i = scratchDependencies.getSelectionModel().getSelectedIndex();
-					SimplePropertyReader s = scratchDependencies.getItems().get(i);
+					PropertyID pid= scratchDependencies.getItems().get(i);
 					try{
-						ui.scratch_removeDependency(s.getID());
+						ui.scratch_removeDependency(pid.pid());
 						scratchDependencies.getItems().remove(i);
-						potentialDependencies.getItems().add(s);
+						potentialDependencies.getItems().add(pid);
 					}
 					catch (Exception e){
 						sendError(e);
@@ -636,34 +1254,7 @@ public class EditorPage extends GridPane {
 			distributions.setPrefHeight(100);
 			distributions.setMaxWidth(hbar.getEndX());
 			
-			distributions.setCellFactory((ListView<Integer> lv) ->
-				new ListCell<Integer>(){
-					@Override
-					public void updateItem(Integer item, boolean empty){
-						super.updateItem(item, empty);
-						if(empty){
-							setText(null);
-							return;
-						}
-						String name = "Distribution #"+item+": ";
-						try{
-							for(Entry<Integer, Integer> pair :
-								ui.scratch_getDistributionCondition(item).entrySet() 
-								){
-								name += ui.nodeProp_getName(pair.getKey())
-								     +"["
-								     + ui.nodeProp_getRangeLabel(pair.getKey(), pair.getValue())
-								     +"] ";
-							}
-						}
-						catch (Exception e){
-							sendError(e);
-							name = ">ERROR<";
-						}
-						setText(name);
-					}
-				}
-			);
+			distributions.setCellFactory(lv -> new ConditionsCell(this));
 			
 			Button addDist = new Button("Add");
 			Button rmvDist = new Button("Remove");
@@ -721,12 +1312,18 @@ public class EditorPage extends GridPane {
 			cleared.addListener((obs, oldVal, newVal)->{
 				if(newVal){
 					distCreator.getChildren().clear();
+					distributions.getSelectionModel().clearSelection();
 				}
 			});
 			
 			//You can advance if the page is cleared
 			nextBtn.disableProperty().bind(cleared.not());
 			nextBtn.setOnMouseClicked(event->{
+				try {
+					ui.scratch_reorderConditionalDistributions(distributions.getItems());
+				} catch (Exception e) {
+					sendError(e);
+				}
 				pageNumber++;
 				advancePage.set(true);
 			});
@@ -749,14 +1346,16 @@ public class EditorPage extends GridPane {
 			});
 			addDist.disableProperty().bind(cleared.not());
 			
-			addDist.setOnMouseClicked(event->{
+			final Runnable updateMenu = () ->{
 				try {
 
-					final DistributionTable distMap = new DistributionTable(ui, this);
+					final DistributionTable distMap = new DistributionTable(this);
 					distMap.setPrefSize(300, 250);
+					distMap.setId("distMap");
 					
 					final ConditionsMenu condsMenu = new ConditionsMenu(ui, this);
 					condsMenu.setPrefSize(300, 250);
+					condsMenu.setId("condMenu");
 
 					distCreator.add(new Label("Conditions"), 0, 0);
 					distCreator.add(new Label("Probabilities"), 1, 0);
@@ -771,7 +1370,6 @@ public class EditorPage extends GridPane {
 							int cid = ui.scratch_addConditionalDistribution(
 									condsMenu.getConditions(), distMap.getProbMap());
 							distributions.getItems().add(cid);
-							sendInfo("Created distribution with ID: "+cid);
 							cleared.set(true);
 						}
 						catch(Exception err){
@@ -789,14 +1387,52 @@ public class EditorPage extends GridPane {
 				catch(Exception e){
 					sendError(e);
 				}
+			};
+			
+			distributions.getSelectionModel().
+				selectedItemProperty().addListener((o, oldVal, cid)->{
+					
+				if(cleared.get() && cid != null){
+					updateMenu.run();
+					DistributionTable distMap = (DistributionTable) lookup("#distMap");
+					ConditionsMenu condMenu = (ConditionsMenu) lookup("#condMenu");
+					
+					try{
+						if(distMap == null || condMenu == null){
+							throw new IllegalStateException("Missing distribution map/conditions menu!");
+						}
+						
+						Map<Integer, Float> probMap = ui.scratch_getDistribution(cid);
+						Map<Integer, Integer> conditions = ui.scratch_getDistributionCondition(cid);
+						distMap.setPropMap(probMap);
+						condMenu.setCondiditions(conditions);
+						distMap.refresh();
+					}
+					catch(Exception e){
+						sendError(e);
+					}
+					finBtn.setOnMouseClicked(event->{
+						try {
+							ui.scratch_updateConditionalDistribution(
+									cid, condMenu.getConditions() , distMap.getProbMap());
+							sendInfo("Updated conditional distribution "+cid);
+							distributions.refresh();
+							cleared.set(true);
+						} catch (Exception e) {
+							sendError(e);
+						}
+					});
+				}
 			});
+			
+			addDist.setOnMouseClicked(event->updateMenu.run());
 			
 		}
 		else if(pageNumber == 4){
 			title.setText(title.getText()+" - Default Distribution");
 			
 			try {
-				final DistributionTable distMap = new DistributionTable(ui, this);
+				final DistributionTable distMap = new DistributionTable(this);
 				distMap.setPrefSize(300, 250);
 				HBox centering = new HBox();
 				centering.setAlignment(Pos.CENTER);

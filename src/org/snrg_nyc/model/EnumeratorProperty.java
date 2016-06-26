@@ -9,12 +9,14 @@ import org.snrg_nyc.model.UI_Interface.DistributionType;
 class EnumeratorProperty extends NodeProperty {
 	protected List<String> values;
 	protected List<ConditionalDistribution> conDistributions;
+	protected List<Integer> condOrder;
 	protected Distribution defaultDist;
 	
 	public EnumeratorProperty(){
 		super();
 		values = new ArrayList<>();
 		conDistributions = new ArrayList<>();
+		condOrder = new ArrayList<>();
 		defaultDist=null;
 		distType = DistributionType.Conditional;
 	}
@@ -39,6 +41,7 @@ class EnumeratorProperty extends NodeProperty {
 		return len;
 	}
 	public int addConditionalDistribution(ConditionalDistribution cd){
+		int ID = -1;
 		if(distType != DistributionType.Conditional){
 			throw new IllegalStateException("Cannot add conditional distributions to "
 					+ "a distribution of type "+distType.toString());
@@ -47,15 +50,20 @@ class EnumeratorProperty extends NodeProperty {
 		for(int cid = 0; cid < len; cid ++){
 			if(conDistributions.get(cid) == null){
 				conDistributions.set(cid, cd);
-				return cid;
+				ID = cid;
 			}
 		}
-		conDistributions.add(cd);
-		return len;
+		if(ID == -1){
+			conDistributions.add(cd);
+			ID = len;
+		}
+		condOrder.add(ID);
+		return ID;
 	}
 	public void removeConditionalDistribution(int cid){
 		assert_validCID(cid);
 		conDistributions.set(cid, null);
+		condOrder.remove(condOrder.indexOf(cid));
 	}
 	public void setConditionalDistribution(int cid, ConditionalDistribution dist){
 		assert_validCID(cid);
@@ -63,6 +71,19 @@ class EnumeratorProperty extends NodeProperty {
 	}
 	List<ConditionalDistribution> getConditionalDistributions(){
 		return conDistributions;
+	}
+	public void setConditionsOrder(List<Integer> order){
+		if(condOrder.size() != order.size()){
+			throw new IllegalArgumentException("The new conditions order "
+					+ "does not have the right number of distributions!");
+		}
+		for(int cid : order){
+			if(!condOrder.contains(cid)){
+				throw new IllegalArgumentException(
+					"Unknown conditional distribution ID given: "+cid);
+			}
+		}
+		condOrder = order;
 	}
 	
 	@Override
@@ -143,6 +164,9 @@ class EnumeratorProperty extends NodeProperty {
 			}
 		}
 		return ls;
+	}
+	public List<Integer> getOrderedContitions(){
+		return condOrder;
 	}
 	/**
 	 * Get the dependency conditions for a conditional distribution.

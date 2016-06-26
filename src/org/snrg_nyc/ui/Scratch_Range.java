@@ -3,7 +3,7 @@ package org.snrg_nyc.ui;
 import org.snrg_nyc.model.UIException;
 import org.snrg_nyc.model.UI_Interface;
 
-public class Scratch_Range {
+class Scratch_Range {
 	private UI_Interface ui;
 	final int rid;
 	
