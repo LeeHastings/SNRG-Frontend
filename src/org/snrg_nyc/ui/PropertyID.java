@@ -3,6 +3,7 @@ package org.snrg_nyc.ui;
 class PropertyID {
 	private int pid;
 	private LayerID lid;
+	
 	public PropertyID(int pid){
 		this.pid = pid;
 		lid = new LayerID();

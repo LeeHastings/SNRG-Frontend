@@ -218,9 +218,6 @@ class BusinessLogic implements UI_Interface {
 		} 
 		catch (FileNotFoundException e) {
 			throw new UIException("Missing file: "+e.getMessage());
-		} 
-		catch (MalformedSettingsException e) {
-			throw new UIException("Malformed Settings: "+e.getMessage());
 		}
 	}
 	

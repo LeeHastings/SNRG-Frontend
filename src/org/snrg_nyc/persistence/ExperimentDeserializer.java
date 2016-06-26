@@ -62,109 +62,156 @@ public class ExperimentDeserializer {
 		//Create the properties, one at a time, in order of dependency levels
 		JsonArray properties = obj.get("PropertyDefinitionList").getAsJsonArray();
 		int depLevel = 0;
+		
 		while(properties.size() > 0){
 			for( Iterator<JsonElement> itr = properties.iterator(); itr.hasNext(); ){
 				JsonObject nodePropWrapper = itr.next().getAsJsonObject();
 				
-				if(nodePropWrapper.entrySet().size() != 1){
-					throw new MalformedSettingsException("Invalid node property: "+nodePropWrapper);
-				}
-				String type = null;
-				JsonObject nodeProp = null;
-				
-				for(String t : ui.nodeProp_getTypes()){
-					if(nodePropWrapper.has(t)){
-						type = t;
-						nodeProp = nodePropWrapper.get(t).getAsJsonObject();
-						break;
-					}
-				}
-				if(type == null || nodeProp == null){
-					throw new MalformedSettingsException(
-							"Unknown node property type: "+nodePropWrapper);
-				}
-				
-				assert_hasTag(type, nodeProp, "Dependency Level");
-				int dependencylevel = nodeProp.get("Dependency Level").getAsInt();
-				
-				//It's a shame so much work has to be done before checking the dependency level
-				if(dependencylevel <= depLevel){
-					assert_hasTag(type, nodeProp, "PropertyName");
-					String propName = nodeProp.get("PropertyName").getAsString();
-					
-					assert_hasTag(type+": "+propName, nodeProp, "Description");
-					String propDesc = nodeProp.get("Description").getAsString();
-					
-					assert_hasTag(type+": "+propName, nodeProp, "DistributionID");
-					String distID = nodeProp.get("DistributionID").getAsString();
-					
-					try{
-						ui.scratch_new(propName, type, propDesc);
-						ui.scratch_setDependencyLevel(dependencylevel);
-						
-						switch(type){
-						case "EnumeratorProperty":
-							assert_hasTag(type+": "+propName, nodeProp, "EnumValues");
-							JsonArray enums = nodeProp.get("EnumValues").getAsJsonArray();
-							
-							for(JsonElement val : enums){
-								ui.scratch_addRange(val.getAsString());
-							}
-							break;
-							
-						case "IntegerRangeProperty": //Add our ranges
-							assert_hasTag(type+": "+propName, nodeProp, "IntegerRangeList");
-							JsonArray ranges = nodeProp.get("IntegerRangeList").getAsJsonArray();
-							
-							for(JsonElement val : ranges){
-								JsonObject range = val.getAsJsonObject();
-								assert_hasTag(type+": "+propName, range, "RangeID");
-								assert_hasTag(type+": "+propName, range, "Min");
-								assert_hasTag(type+": "+propName, range, "Max");
-								
-								String label = range.get("RangeID").getAsString();
-								int min = range.get("Min").getAsInt();
-								int max = range.get("Max").getAsInt();
-								
-								int rid = ui.scratch_addRange(label);
-								ui.scratch_setRangeMin(rid, min);
-								ui.scratch_setRangeMax(rid, max);
-							}
-							break;
-							
-						case "FractionProperty":
-							assert_hasTag(type+": "+propName, nodeProp, "DisableRandom_UseInitValue");
-							float initVal = nodeProp.get("DisableRandom_UseInitValue").getAsFloat();
-							ui.scratch_setFractionInitValue(initVal);
-							break;
-						}
-						switch(distID){
-						case "uniform":
-							ui.scratch_useUniformDistribution();
-							break;
-						case "null":
-							if(!type.equals("FractionProperty")){
-								throw new MalformedSettingsException(
-										String.format("Bad setting on %s '%s', only FractionProperty"
-										+ "can have a null distribution.", type, propName));
-							}
-							break;
-						default:
-							createDistribution(distID);
-							break;
-						}
-						ui.scratch_commitToNodeProperties();
-					}
-					catch(UIException e){
-						throw new MalformedSettingsException("New Property error: "+e.getMessage());
-					}
-					
+				if(makeProperty(depLevel, nodePropWrapper, null)){
 					itr.remove();
 				}
 			}
 			depLevel++;
 		}
+		JsonArray layers = obj.get("LayerAttributesList").getAsJsonArray();
 		
+		for(JsonElement js : layers){
+			JsonObject layerJs = js.getAsJsonObject();
+			
+			assert_hasTag("Layer", layerJs, "LayerID");
+			String layerID = layerJs.get("LayerID").getAsString();
+			
+			assert_hasTag("Layer "+layerID, layerJs, "PropertyDefinitionList");
+			JsonArray layerProps = layerJs.get("PropertyDefinitionList").getAsJsonArray();
+			
+			try {
+				int lid = ui.layer_new(layerID);
+				for (JsonElement propjs : layerProps){
+					JsonObject layerPropWrapper = propjs.getAsJsonObject();
+					makeProperty(Integer.MAX_VALUE, layerPropWrapper, lid);
+				}
+			} catch (UIException e) {
+				throw new MalformedSettingsException("Layer error: "+e.getMessage());
+			}
+		}
+		
+	}
+	/**
+	 * Make a scratch property
+	 * @param nodePropWrapper The property wrapper (the type maps to the rest of the object)
+	 * @param maxDepLvl The dependency level that the object must be equal to or less than 
+	 * to be made
+	 * @param layerID The layer to build the property in, or null for no layer
+	 * @return If the property could be made at this time
+	 * @throws MalformedSettingsException Thrown if a property has some invalid setting
+	 */
+	boolean makeProperty(int maxDepLvl, JsonObject nodePropWrapper, Integer layerID) 
+			throws MalformedSettingsException
+	{
+		
+		if(nodePropWrapper.entrySet().size() != 1){
+			throw new MalformedSettingsException("Invalid node property: "+nodePropWrapper);
+		}
+		String type = null;
+		JsonObject nodeProp = null;
+		
+		for(String t : ui.nodeProp_getTypes()){
+			if(nodePropWrapper.has(t)){
+				type = t;
+				nodeProp = nodePropWrapper.get(t).getAsJsonObject();
+				break;
+			}
+		}
+		if(type == null || nodeProp == null){
+			throw new MalformedSettingsException(
+					"Unknown node property type: "+nodePropWrapper);
+		}
+		
+		assert_hasTag(type, nodeProp, "Dependency Level");
+		int dependencylevel = nodeProp.get("Dependency Level").getAsInt();
+		
+		//It's a shame so much work has to be done before checking the dependency level
+		if(dependencylevel <= maxDepLvl){
+			assert_hasTag(type, nodeProp, "PropertyName");
+			String propName = nodeProp.get("PropertyName").getAsString();
+			
+			assert_hasTag(type+": "+propName, nodeProp, "Description");
+			String propDesc = nodeProp.get("Description").getAsString();
+			
+			assert_hasTag(type+": "+propName, nodeProp, "DistributionID");
+			String distID = nodeProp.get("DistributionID").getAsString();
+			
+			try{
+				if(layerID == null){
+					ui.scratch_new(propName, type, propDesc);
+				}
+				else {
+					ui.scratch_newInLayer(layerID, propName, type, propDesc);
+				}
+				ui.scratch_setDependencyLevel(dependencylevel);
+				
+				switch(type){
+				case "EnumeratorProperty":
+					assert_hasTag(type+": "+propName, nodeProp, "EnumValues");
+					JsonArray enums = nodeProp.get("EnumValues").getAsJsonArray();
+					
+					for(JsonElement val : enums){
+						ui.scratch_addRange(val.getAsString());
+					}
+					break;
+					
+				case "IntegerRangeProperty": //Add our ranges
+					assert_hasTag(type+": "+propName, nodeProp, "IntegerRangeList");
+					JsonArray ranges = nodeProp.get("IntegerRangeList").getAsJsonArray();
+					
+					for(JsonElement val : ranges){
+						JsonObject range = val.getAsJsonObject();
+						assert_hasTag(type+": "+propName, range, "RangeID");
+						assert_hasTag(type+": "+propName, range, "Min");
+						assert_hasTag(type+": "+propName, range, "Max");
+						
+						String label = range.get("RangeID").getAsString();
+						int min = range.get("Min").getAsInt();
+						int max = range.get("Max").getAsInt();
+						
+						int rid = ui.scratch_addRange(label);
+						ui.scratch_setRangeMin(rid, min);
+						ui.scratch_setRangeMax(rid, max);
+					}
+					break;
+					
+				case "FractionProperty":
+					assert_hasTag(type+": "+propName, nodeProp, "DisableRandom_UseInitValue");
+					float initVal = nodeProp.get("DisableRandom_UseInitValue").getAsFloat();
+					ui.scratch_setFractionInitValue(initVal);
+					break;
+				}
+				switch(distID){
+				case "uniform":
+					ui.scratch_useUniformDistribution();
+					break;
+				case "null":
+					if(!type.equals("FractionProperty")){
+						throw new MalformedSettingsException(
+								String.format("Bad setting on %s '%s', only FractionProperty"
+								+ "can have a null distribution.", type, propName));
+					}
+					break;
+				default:
+					createDistribution(distID);
+					break;
+				}
+				ui.scratch_commitToNodeProperties();
+			}
+			catch(UIException e){
+				throw new MalformedSettingsException("New Property error: "+e.getMessage());
+			}
+			
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 	
 	void createDistribution(String distributionID) throws MalformedSettingsException, UIException{

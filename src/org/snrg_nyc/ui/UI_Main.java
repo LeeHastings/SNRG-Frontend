@@ -7,7 +7,9 @@ import org.snrg_nyc.model.UI_Interface;
 import org.snrg_nyc.model.UI_InterfaceFactory;
 
 import javafx.application.Application;
+import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -23,7 +25,8 @@ public class UI_Main extends Application{
 	UI_Interface ui;
 	Stage stage;
 	Scene scene;
-	TableView<PropertyID> properties;
+	ObservableList<PropertyID> properties = FXCollections.observableArrayList();
+	ObservableList<LayerID> layers = FXCollections.observableArrayList();
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -98,6 +101,11 @@ public class UI_Main extends Application{
 					ui.load(expName.get());
 					editor.sendInfo("The experiment was loaded as "+expName.get());
 					updateProperties(null);
+					layers.clear();
+					layers.add(new LayerID());
+					for(int i : ui.layer_getLayerIDs()){
+						layers.add(new LayerID(i));
+					}
 				}
 			}
 			catch (Exception e){
@@ -113,7 +121,8 @@ public class UI_Main extends Application{
 		Text title = new Text("Node Properties");
 		title.setFont(Font.font("sans", FontWeight.LIGHT, FontPosture.REGULAR, 20));
 		
-		properties = new TableView<>();
+		TableView<PropertyID> propertyTable = new TableView<>();
+		propertyTable.setItems(properties);
 		TableColumn<PropertyID, String> nameCol = new TableColumn<>("Name");
 		TableColumn<PropertyID, String> typeCol = new TableColumn<>("Type");
 		TableColumn<PropertyID, String> depCol = new TableColumn<>("Dependency Level");
@@ -132,14 +141,14 @@ public class UI_Main extends Application{
 			}
 		});
 		
-		properties.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-		properties.setPrefHeight(200);
-		properties.getColumns().addAll(nameCol, typeCol, depCol);
+		propertyTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+		propertyTable.setPrefHeight(200);
+		propertyTable.getColumns().addAll(nameCol, typeCol, depCol);
 		
 		//Listen to if there is a selection
-		properties.getSelectionModel().selectedIndexProperty().addListener((o, oldVal, newVal)->{
+		propertyTable.getSelectionModel().selectedIndexProperty().addListener((o, oldVal, newVal)->{
 			if(newVal.intValue() != -1){
-				PropertyID pid = properties.getItems().get(newVal.intValue());
+				PropertyID pid = propertyTable.getItems().get(newVal.intValue());
 				editor.viewProperty(pid);
 			}
 		});
@@ -148,17 +157,22 @@ public class UI_Main extends Application{
 		
 		layerSelect.setCellFactory(lv->new LayerCell(editor));
 		layerSelect.setButtonCell(new LayerCell(editor));
-		layerSelect.getItems().add(new LayerID());
+		layerSelect.setItems(layers);
+		
+		layers.add(new LayerID());
 		
 		for(int i : ui.layer_getLayerIDs()){
-			layerSelect.getItems().add(new LayerID(i));
+			layers.add(new LayerID(i));
 		}
 		
 		layerSelect.valueProperty().addListener((o, oldVal, newVal)->{
-			properties.getItems().clear();
 			if(newVal != null && newVal.used()){
 				try {
-					title.setText(ui.layer_getName(newVal.get())+" Properties");
+					//A lot of work just to capitalize the layer!
+					String name = ui.layer_getName(newVal.get())+" Properties";
+					Character c = name.charAt(0);
+					title.setText(Character.toUpperCase(c)+ name.substring(1));
+					
 				} catch (Exception e1) {
 					editor.sendError(e1);
 				}
@@ -221,7 +235,7 @@ public class UI_Main extends Application{
 
 		leftMenu.add(title,      0, 0);
 		leftMenu.add(layerBox,   0, 1);
-		leftMenu.add(properties, 0, 2);
+		leftMenu.add(propertyTable, 0, 2);
 		leftMenu.add(buttonBox,  0, 3);
 		
 		leftMenu.add(new Label("Messages:"), 0, 4);
@@ -294,15 +308,15 @@ public class UI_Main extends Application{
 	}
 	
 	void updateProperties(LayerID lid) throws UIException{
-		properties.getItems().clear();
+		properties.clear();
 		if(lid != null && lid.used()){
 			for(int i : ui.nodeProp_getPropertyIDs(lid.get())){
-				properties.getItems().add(new PropertyID(i, lid.get()));
+				properties.add(new PropertyID(i, lid.get()));
 			}
 		}
 		else {
 			for(int i : ui.nodeProp_getPropertyIDs()){
-				properties.getItems().add(new PropertyID(i));
+				properties.add(new PropertyID(i));
 			}
 		}
 	}
