@@ -9,7 +9,6 @@ import java.util.Map.Entry;
 
 import org.snrg_nyc.persistence.ExperimentDeserializer;
 import org.snrg_nyc.persistence.ExperimentSerializer;
-import org.snrg_nyc.persistence.MalformedSettingsException;
 import org.snrg_nyc.persistence.PersistenceData;
 
 /**

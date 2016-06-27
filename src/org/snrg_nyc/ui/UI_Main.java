@@ -25,6 +25,8 @@ public class UI_Main extends Application{
 	UI_Interface ui;
 	Stage stage;
 	Scene scene;
+	Alert quitAlert;
+	String experimentName = null;
 	ObservableList<PropertyID> properties = FXCollections.observableArrayList();
 	ObservableList<LayerID> layers = FXCollections.observableArrayList();
 
@@ -59,16 +61,11 @@ public class UI_Main extends Application{
 		MenuItem quit = new MenuItem("Quit");
 		fileM.getItems().addAll(quit, save, load);
 		
-		Alert quitAlert = new Alert(Alert.AlertType.CONFIRMATION);
+		quitAlert = new Alert(Alert.AlertType.CONFIRMATION);
 		quitAlert.setTitle("Quit");
 		quitAlert.setHeaderText("Are you sure you want to quit?");
 		
-		quit.setOnAction(event->{
-			Optional<ButtonType> input = quitAlert.showAndWait();
-			if(input.isPresent() && input.get() == ButtonType.OK){
-				stage.close();
-			}
-		});
+		quit.setOnAction(event-> quit());
 		
 		TextInputDialog saveDialog = new TextInputDialog();
 		saveDialog.setTitle("Save Experiment");
@@ -76,6 +73,7 @@ public class UI_Main extends Application{
 		saveDialog.setGraphic(null);
 		
 		save.setOnAction(event->{
+			saveDialog.getEditor().setText(experimentName);
 			Optional<String> expName = saveDialog.showAndWait();
 			if(expName.isPresent()){
 				try{
@@ -98,6 +96,7 @@ public class UI_Main extends Application{
 			Optional<String> expName = loadDialog.showAndWait();
 			try{
 				if(expName.isPresent() ){
+					experimentName = expName.get();
 					ui.load(expName.get());
 					editor.sendInfo("The experiment was loaded as "+expName.get());
 					updateProperties(null);
@@ -191,7 +190,7 @@ public class UI_Main extends Application{
 			if(newVal!= null && !newVal.equals("")){
 				try {
 					int lid = ui.layer_new(newVal);
-					layerSelect.getItems().add(new LayerID(lid));
+					layers.add(new LayerID(lid));
 				} catch (Exception e1) {
 					editor.sendError(e1);
 				}
@@ -303,6 +302,8 @@ public class UI_Main extends Application{
 			}
 		});
 		
+		stage.setOnCloseRequest(event-> quit() );
+		
 		stage.setScene(scene);
 		stage.show();
 	}
@@ -311,13 +312,20 @@ public class UI_Main extends Application{
 		properties.clear();
 		if(lid != null && lid.used()){
 			for(int i : ui.nodeProp_getPropertyIDs(lid.get())){
-				properties.add(new PropertyID(i, lid.get()));
+				properties.add(new PropertyID(lid.get(), i));
 			}
 		}
 		else {
 			for(int i : ui.nodeProp_getPropertyIDs()){
 				properties.add(new PropertyID(i));
 			}
+		}
+	}
+	
+	void quit(){
+		Optional<ButtonType> input = quitAlert.showAndWait();
+		if(input.isPresent() && input.get() == ButtonType.OK){
+			stage.close();
 		}
 	}
 	

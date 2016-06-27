@@ -41,11 +41,10 @@ class NodeLayer {
 		for(int i = 0;  i < layerAttributes.size();i++ ){
 			if(layerAttributes.get(i) == null){
 				layerAttributes.set(i, np);
-				return i;
 			}
 		}
 		layerAttributes.add(np);
-		return layerAttributes.size()-1;
+		return layerAttributes.indexOf(np);
 	}
 	public List<Integer> getPropertyIDs(){
 		List<Integer> ids = new ArrayList<>();
@@ -86,7 +85,7 @@ class NodeLayer {
 	 * @return If it exists and is non-null
 	 */
 	public boolean validPID(int pid){
-		return (pid >= 0 || pid < layerAttributes.size() || layerAttributes.get(pid) != null);
+		return (pid >= 0 && pid < layerAttributes.size() && layerAttributes.get(pid) != null);
 	}
 	
 	public boolean nameIsUnique(String name){

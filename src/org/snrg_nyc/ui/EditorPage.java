@@ -177,11 +177,11 @@ class EditorPage extends GridPane {
 		add(new Label("Layer Name"), 0, 2);
 		add(layerTx, 1, 2);
 		
-		layerTx.setOnAction(event->{
+		layerTx.textProperty().addListener((o, oldVal, newVal)->{
 			nextBtn.setDisable(
-				layerTx.getText() == null
-				|| layerTx.getText().equals("")
-				|| !ui.test_layerNameIsUnique(layerTx.getText())
+				newVal == null
+				|| newVal.equals("")
+				|| !ui.test_layerNameIsUnique(newVal)
 				);
 		});
 		
