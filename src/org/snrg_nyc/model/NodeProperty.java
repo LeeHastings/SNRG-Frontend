@@ -1,28 +1,79 @@
 package org.snrg_nyc.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
-import org.snrg_nyc.model.UI_Interface.DistributionType;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * The base class for all node properties
  * @author Devin
  *
  */
-abstract class NodeProperty {
+public abstract class NodeProperty implements Serializable {
+	private static final long serialVersionUID = 1L;
+	
+	enum DistType{
+		NULL,
+		UNIFORM,
+		UNIVARIAT
+	}
+	static class Distribution {
+		protected Map<Integer, Float> probabilities;
+		
+		public Distribution(Map<Integer, Float> probabilities){
+			this.probabilities = new HashMap<>(probabilities);
+		}
+		
+		/** @return A copy of the probabilities map */
+		public Map<Integer, Float> getProbabilities() {
+			return new HashMap<>(probabilities);
+		}
+		
+		public void print(){
+			System.out.println("\tProbabilities");
+			for(Entry<Integer, Float> p : probabilities.entrySet()){
+				System.out.printf("\t\tValue: %d\tProbability: %.2f\n", p.getKey(), p.getValue());
+			}
+		}
+	}
+
+	static class ConditionalDistribution extends Distribution{
+		private Map<Integer, Integer> conditions;
+		
+		public ConditionalDistribution(Map<Integer, Integer> conditions, Map<Integer, Float> probabilities){
+			super(probabilities);
+			this.conditions = new HashMap<>(conditions);
+		}
+		
+		/** @return A copy of the conditions map */
+		public Map<Integer, Integer> getConditions() {
+			return new HashMap<>(conditions);
+		}
+		
+		@Override
+		public void print(){
+			System.out.println("\tConditions: ");
+			for(Entry<Integer, Integer> c : conditions.entrySet()){
+				System.out.printf("\t\tProp ID: %d\tRange ID: %d\n", c.getKey(), c.getValue());
+			}
+			super.print();
+		}
+	}
+	
 	protected String name;
 	protected int dependencyLevel;
 	protected String description;
 	protected List<Integer> dependencies;
-	protected DistributionType distType;
+	protected DistType distType;
 	
 	public NodeProperty(){
 		name = null;
 		description = null;
 		dependencyLevel = -1;
 		dependencies = new ArrayList<Integer>();
-		distType = DistributionType.Null;
 	}
 	public NodeProperty(String name, String description){
 		this();
@@ -95,9 +146,10 @@ abstract class NodeProperty {
 	}
 	
 	public void useUniformDistribution(){
-		distType = DistributionType.Uniform;
+		distType = DistType.UNIFORM;
+		dependencyLevel = 0;
 	}
-	public DistributionType getDistributionType(){
+	public DistType getDistributionType(){
 		return distType;
 	}
 	
@@ -105,25 +157,17 @@ abstract class NodeProperty {
 		return dependencies.contains(pid);
 	}
 	
-	/**
-	 * Print a description of the node property.
-	 */
-	public void print(){
-		System.out.println("Name: "+name);
-		System.out.println("Dependency Level: "+dependencyLevel);
-		System.out.println("Type: "+this.getClass().getSimpleName());
-		System.out.println("Description: "+this.description);
-		System.out.print("Dependencies: ");
-		if(dependencies.size() == 0){
-			System.out.println("None");
+	public String getDistributionID(){
+		switch(distType){
+		case UNIFORM:
+			return "uniform";
+		case NULL:
+			return "null";
+		case UNIVARIAT:
+			return name.replace(' ', '_').toLowerCase()+"_unidist";
+		default:
+			return name.replace(' ', '_').toLowerCase()+"_dist";
 		}
-		for(int i: dependencies){
-			if(dependencies.lastIndexOf(i)!=dependencies.size()-1){
-				System.out.print("Property #"+i+", ");
-			}
-			else {
-				System.out.print("Property #"+i+"\n");
-			}
-		}
+		
 	}
 }

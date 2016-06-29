@@ -1,15 +1,19 @@
 package org.snrg_nyc.model;
 
-import java.io.FileNotFoundException;
+import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.snrg_nyc.persistence.ExperimentDeserializer;
+import org.snrg_nyc.model.NodeProperty.ConditionalDistribution;
+import org.snrg_nyc.model.NodeProperty.Distribution;
 import org.snrg_nyc.persistence.ExperimentSerializer;
-import org.snrg_nyc.persistence.PersistenceData;
+import org.snrg_nyc.persistence.PersistenceException;
+import org.snrg_nyc.persistence.SimpleJsonSerializer;
+
 
 /**
  * The only public class in this package, this is for use by any UI packages,
@@ -24,7 +28,7 @@ class BusinessLogic implements UI_Interface {
 	\*         */
 
 	/** Node Property classes that can be created in the editor */
-	private static final Class<?>[] nodePropertyTypes = {
+	static final Class<?>[] nodePropertyTypes = {
 			EnumeratorProperty.class, 
 			IntegerRangeProperty.class, 
 			BooleanProperty.class,
@@ -42,6 +46,10 @@ class BusinessLogic implements UI_Interface {
 	
 	private Integer scratchLayerID;
 	
+	private ExperimentSerializer serializer = new SimpleJsonSerializer();
+	
+	private NodeSettings nodeSettings = new NodeSettings();
+	
 	/*         *\
 	 * Methods *
 	\*         */
@@ -49,6 +57,10 @@ class BusinessLogic implements UI_Interface {
 	public BusinessLogic(){
 		nodeProperties = new ArrayList<>();
 		nodeLayers = new ArrayList<>();
+		
+		nodeSettings.setLayerAttributesList(nodeLayers);
+		nodeSettings.setPropertyDefinitionList(nodeProperties);
+		
 		scratchProperty = null;
 		scratchLayerID = null;
 	}
@@ -177,46 +189,47 @@ class BusinessLogic implements UI_Interface {
 		}
 	}
 	
-	@SuppressWarnings("unused")
-	private void print(){
-		System.out.println("\nPrinting Node Layers");
-		System.out.println("------------============------------");
-		for(int lid : layer_getLayerIDs()){
-			System.out.printf("Node Layer #%d:\n",lid);
-			nodeLayers.get(lid).print();
-		}
-		System.out.println("\nPrinting Node Properties");
-		System.out.println("------------============------------");
-		if(scratchProperty != null){
-			System.out.println("\nScratch Property:\n------------");
-			scratchProperty.print();
-		}
-		for(Integer pid : nodeProp_getPropertyIDs()){
-			System.out.println("\nNode Property #"+pid+":\n------------");
-			nodeProperties.get(pid).print();
-		}
-	}
-	
 	/*                   *\
 	 * Interface Methods *
 	\*                   */
 	@Override
-	public void save(String experimentName) { //Currently prints all node properties
-		//print();
-		ExperimentSerializer es = new ExperimentSerializer(experimentName, this);
-		es.saveStateToFiles();
+	public void save(String experimentName) throws UIException {
+		Map<String, Serializable> e = new HashMap<>();
+		e.put("nodesettings", nodeSettings);
+		
+		for(NodeProperty np : nodeProperties){
+			if(np instanceof EnumeratorProperty
+			   && ((EnumeratorProperty) np).getDistributionType() 
+			      == NodeProperty.DistType.UNIVARIAT
+			){
+				e.put(np.getDistributionID(), new UnivariatDistribution(this,np));
+			}
+		}
+		try {
+			serializer.storeExperiment(experimentName, e);
+		} catch (PersistenceException e1) {
+			e1.printStackTrace();
+		}
 	}
 	
 	@Override 
 	public void load(String experimentName) throws UIException{
 		clear();
-		
+		Map<String, Serializable> e = null;
 		try {
-			ExperimentDeserializer ds = new ExperimentDeserializer(this, experimentName);
-			ds.loadFiles();
-		} 
-		catch (FileNotFoundException e) {
-			throw new UIException("Missing file: "+e.getMessage());
+			e = serializer.loadExperiment(experimentName);
+		} catch (PersistenceException e1) {
+			throw new UIException("Error while loading "
+					+experimentName+": "+e1.getMessage());
+		}
+		
+		if(!e.containsKey("nodesettings")){
+			throw new UIException("Problem with new project: missing nodesettings!");
+		}
+		else {
+			nodeSettings = (NodeSettings) e.get("nodesettings");
+			nodeLayers = nodeSettings.getLayerAttributesList();
+			nodeProperties = nodeSettings.getPropertyDefinitionList();
 		}
 	}
 	
@@ -229,7 +242,7 @@ class BusinessLogic implements UI_Interface {
 	
 	@Override
 	public List<String> getExperimentNames(){
-		return PersistenceData.getFileNames();
+		return serializer.savedExperiments();
 	}
 
 	@Override
@@ -274,7 +287,7 @@ class BusinessLogic implements UI_Interface {
 	}
 	
 	@Override
-	public List<String> nodeProp_getTypes() {
+	public List<String> getPropertyTypes() {
 		ArrayList<String> li = new ArrayList<>();
 		for(Class<?> c : nodePropertyTypes){
 			li.add(c.getSimpleName());
@@ -379,18 +392,6 @@ class BusinessLogic implements UI_Interface {
 	public boolean nodeProp_isRangedProperty(int pid) throws UIException {
 		assert_validPID(pid);
 		return (nodeProperties.get(pid) instanceof EnumeratorProperty);
-	}
-	
-	@Override
-	public DistributionType nodeProp_getDistributionType(int pid) throws UIException {
-		assert_validPID(pid);
-		return nodeProperties.get(pid).getDistributionType();
-	}
-
-	@Override
-	public DistributionType nodeProp_getDistributionType(int lid, int pid) throws UIException {
-		assert_validLID(lid);
-		return nodeLayers.get(lid).getProperty(pid).getDistributionType();
 	}
 	
 	@Override
@@ -684,11 +685,6 @@ class BusinessLogic implements UI_Interface {
 		}
 		return irp.getRangeMax(rid);
 	}
-	
-	@Override
-	public DistributionType scratch_getDistributionType() {
-		return scratchProperty.getDistributionType();
-	}
 
 	@Override
 	public float scratch_getInitValue() throws UIException {
@@ -848,7 +844,7 @@ class BusinessLogic implements UI_Interface {
 		}
 		if(scratchProperty instanceof EnumeratorProperty){
 			EnumeratorProperty ep = (EnumeratorProperty)scratchProperty;
-			if( !ep.hasDefaultDistribution() && ep.getDistributionType() == DistributionType.Conditional ){
+			if( !ep.hasDefaultDistribution() && ep.getDistributionType() == NodeProperty.DistType.UNIVARIAT ){
 				throw new UIException("Tried to add a scratch property without a default distribution.");
 			}
 			if(ep instanceof IntegerRangeProperty){
@@ -976,6 +972,31 @@ class BusinessLogic implements UI_Interface {
 			}
 		}
 		nodeLayers.get(lid).setName(name);
+	}
+
+	@Override
+	public Integer search_nodePropWithName(String name) {
+		for(int i : nodeProp_getPropertyIDs()){
+			if(nodeProperties.get(i).getName().equals(name)){
+				return i;
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public Integer search_rangeWithLabel(int pid, String label) throws UIException {
+		assert_validPID(pid);
+		assert_nodeType(nodeProperties.get(pid), EnumeratorProperty.class);
+		
+		EnumeratorProperty en = (EnumeratorProperty) nodeProperties.get(pid);
+		
+		for(int i:en.getUnSortedRangeIDs()){
+			if(en.getRangeLabel(i).equals(label)){
+				return i;
+			}
+		}
+		return null;
 	}
 
 }

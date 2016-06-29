@@ -3,12 +3,15 @@ package org.snrg_nyc.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gson.annotations.SerializedName;
+
 class NodeLayer {
+	@SerializedName("LayerID")
 	private String name;
-	/**
-	 * A nullable list of node properties
-	 */
+	
+	@SerializedName("PropertyDefinitionList")
 	private List<NodeProperty> layerAttributes;
+	
 	public NodeLayer(String name){
 		this.name = name;
 		layerAttributes = new ArrayList<>();
@@ -95,12 +98,5 @@ class NodeLayer {
 			}
 		}
 		return true;
-	}
-	public void print(){
-		System.out.println("Name: "+name);
-		System.out.println("Properties:\n---------------");
-		for(int pid : getPropertyIDs()){
-			layerAttributes.get(pid).print();
-		}
 	}
 }

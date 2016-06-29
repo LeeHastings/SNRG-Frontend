@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.snrg_nyc.model.UI_Interface.DistributionType;
 
 class EnumeratorProperty extends NodeProperty {
+	private static final long serialVersionUID = 1L;
+	
 	protected List<String> values;
 	protected List<ConditionalDistribution> conDistributions;
 	protected List<Integer> condOrder;
@@ -18,7 +19,7 @@ class EnumeratorProperty extends NodeProperty {
 		conDistributions = new ArrayList<>();
 		condOrder = new ArrayList<>();
 		defaultDist=null;
-		distType = DistributionType.Conditional;
+		distType = DistType.UNIVARIAT;
 	}
 	public EnumeratorProperty(String name, String description){
 		this();
@@ -42,7 +43,7 @@ class EnumeratorProperty extends NodeProperty {
 	}
 	public int addConditionalDistribution(ConditionalDistribution cd){
 		int ID = -1;
-		if(distType != DistributionType.Conditional){
+		if(distType != DistType.UNIVARIAT){
 			throw new IllegalStateException("Cannot add conditional distributions to "
 					+ "a distribution of type "+distType.toString());
 		}
@@ -147,13 +148,13 @@ class EnumeratorProperty extends NodeProperty {
 	}
 	@Override
 	public void useUniformDistribution(){
-		distType = DistributionType.Uniform;
+		distType = DistType.UNIFORM;
 		defaultDist = null;
 		conDistributions = null;
 	}
 	
 	public List<Integer> getConditionalDistributionIDs(){
-		if(distType != DistributionType.Conditional){
+		if(distType != DistType.UNIVARIAT){
 			throw new IllegalStateException("No conditional distributions in a distribution"
 					+ "of type "+distType.toString());
 		}
@@ -175,7 +176,7 @@ class EnumeratorProperty extends NodeProperty {
 	 * @throws IllegalArgumentException Thrown if there is no conditional distribution with the given cid
 	 */
 	public Map<Integer, Integer> getConDistributionConditions(int cid) throws IllegalArgumentException{
-		if(distType != DistributionType.Conditional){
+		if(distType != DistType.UNIVARIAT){
 			throw new IllegalStateException("There are no conditional distributions in a uniform distribution");
 		}
 		assert_validCID(cid);
@@ -188,7 +189,7 @@ class EnumeratorProperty extends NodeProperty {
 	 * @throws IllegalArgumentException Thrown if there is no conditional distribution with the given cid
 	 */
 	public Map<Integer, Float> getConDistributionProbMap(int cid) throws IllegalArgumentException{
-		if(distType != DistributionType.Conditional){
+		if(distType != DistType.UNIVARIAT){
 			throw new IllegalStateException("There are no conditional distributions in a distribution"
 					+ " of type "+distType.toString());
 		}
@@ -208,7 +209,7 @@ class EnumeratorProperty extends NodeProperty {
 		return (values.get(rid) != null);
 	}
 	public void setDefaultDistribution(Distribution distribution){
-		if(distType != DistributionType.Conditional){
+		if(distType != DistType.UNIVARIAT){
 			throw new IllegalStateException("There is no default distribution on a distribution of type "
 					+distType.toString());
 		}
@@ -221,7 +222,7 @@ class EnumeratorProperty extends NodeProperty {
 	 * (as opposed to a {@link NullPointerException})
 	 */
 	public Map<Integer, Float> getDefaultDistribution() throws IllegalStateException{
-		if(distType != DistributionType.Conditional){
+		if(distType != DistType.UNIVARIAT){
 			throw new IllegalStateException("There is no default distribution on a distribution of type "
 					+distType.toString());
 		}
@@ -244,30 +245,6 @@ class EnumeratorProperty extends NodeProperty {
 			}
 		}
 		return -1;
-	}
-	
-	@Override
-	public void print(){
-		super.print();
-		for(int rid : getSortedRangeIDs()){
-			printRangeItem(rid);
-		}
-		if(distType !=DistributionType.Conditional){
-			System.out.println("Distribution: "+distType.toString());
-		}
-		else {
-			for(int cid : getConditionalDistributionIDs()){
-				System.out.println("Conditional Distribution "+cid);
-				conDistributions.get(cid).print();
-			}
-			System.out.println("Default Distribution: ");
-			if(defaultDist == null){
-				System.out.println("\t<<NULL>>");
-			}
-			else {
-				defaultDist.print();
-			}
-		}
 	}
 	public void printRangeItem(int rid) throws IllegalStateException{
 		if(!rangeIsSet(rid)){

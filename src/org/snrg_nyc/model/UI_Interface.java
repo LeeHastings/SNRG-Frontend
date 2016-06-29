@@ -16,8 +16,9 @@ public interface UI_Interface {
 	 * Save the properties to a persistent structure.  This does not validate the data,
 	 * only preserving the project in its current state.
 	 * @param experimentName The name of the experiment under which to save the data.
+	 * @throws UIException Thrown if there was some error while saving (the message will likely have details)
 	 */
-	public void save(String experimentName);
+	public void save(String experimentName) throws UIException;
 	
 	/**
 	 * Load an experiment with the given name from the persistent structure.
@@ -37,28 +38,6 @@ public interface UI_Interface {
 	 * @return A list of names of experiments that can be used in {@link UI_Interface#load(String)}
 	 */
 	public List<String> getExperimentNames();
-	
-	/*         *\
-	 * Members *
-	\*         */
-	/**
-	 * An enumeration of the possible distribution types in a node property.
-	 * <ul>
-	 * <li>Conditional: The common type of distribution, it is assumed a property will be of this type
-	 * until specific methods are called.  Most methods involving default or conditional distributions 
-	 * will throw an exception if the property is not of this distribution type.</li>
-	 * <li>Uniform: The distribution type of a property after calling 
-	 * {@link UI_Interface#scratch_useUniformDistribution()} </li>
-	 * <li>Null: The distribution type of a property upon calling 
-	 * {@link UI_Interface#scratch_setFractionInitValue(float)}</li>
-	 * </ul>
-	 * @author Devin Hastings
-	 */
-	public enum DistributionType{
-		Conditional,
-		Uniform,
-		Null
-	}
 	
 	/*                            *\
 	 * Node Property test methods * 
@@ -112,6 +91,25 @@ public interface UI_Interface {
 	 */
 	public boolean test_layerIDExists(int lid);
 	
+	/*                *\
+	 * Search methods *
+    \*                */
+	
+	/**
+	 * Search for a property with the given name
+	 * @param name The name of the property
+	 * @return The ID of a property with the given name, or null if there is no match
+	 */
+	public Integer search_nodePropWithName(String name);
+	
+	/**
+	 * Search for a range in the given property with the given label
+	 * @param pid The ID of the proeprty to seatch in
+	 * @param label The label of the range to search for
+	 * @return The range ID of a range with the requested label, or null if there was no match
+	 * @throws UIException Thrown if the property ID is invalid
+	 */
+	public Integer search_rangeWithLabel(int pid, String label) throws UIException;
 	
 	/*                       *\
 	 * Node Property Getters *
@@ -121,7 +119,7 @@ public interface UI_Interface {
 	 * Get all the valid node property types
 	 * @return A list of all valid Node Property types for use in {@link UI_Interface#scratch_new}
 	 */
-	public List<String> nodeProp_getTypes();
+	public List<String> getPropertyTypes();
 	
 	/**
 	 * Get the IDs of all the node properties, which are used by most methods beginning with the
@@ -251,7 +249,7 @@ public interface UI_Interface {
 	 * Get the type of a layer property
 	 * @param lid The ID of the layer, from {@link UI_Interface#layer_getLayerIDs()}
 	 * @param pid The ID of the ranged node property, from {@link UI_Interface#nodeProp_getPropertyIDs(int)}.
-	 * @return The type of the property, which is one of {@link UI_Interface#nodeProp_getTypes()}
+	 * @return The type of the property, which is one of {@link UI_Interface#getPropertyTypes()}
 	 * @throws UIException Thrown if the layer or property ID does not point to a non-null item.
 	 */
 	public String nodeProp_getType(int lid, int pid) throws UIException;
@@ -345,22 +343,6 @@ public interface UI_Interface {
 	 * @throws UIException Thrown if the layer or property ID does not point to a non-null item.
 	 */
 	public boolean nodeProp_isRangedProperty(int lid, int pid) throws UIException;
-	
-	/**
-	 * Get the {@link DistributionType} of the property.
-	 * @param pid The property ID of the property to check, from {@link UI_Interface#nodeProp_getPropertyIDs()}.
-	 * @return A value from the {@link DistributionType} enumeration.
-	 * @throws UIException Thrown if the PID does not point to a valid property.
-	 */
-	public DistributionType nodeProp_getDistributionType(int pid) throws UIException;
-	/**
-	 * Identical to {@link UI_Interface#nodeProp_getDistributionType(int)}, but for layer properties.
-	 * @param lid The ID of the layer, from {@link UI_Interface#layer_getLayerIDs()}
-	 * @param pid The ID of the node property, from {@link UI_Interface#nodeProp_getPropertyIDs(int)}
-	 * @return The {@link DistributionType} of a property.
-	 * @throws UIException Thrown if the layer ID or property ID is invalid.
-	 */
-	public DistributionType nodeProp_getDistributionType(int lid, int pid) throws UIException;
 	
 	/**
 	 * Get a list of valid Conditional Distribution IDs for the given node property.
@@ -464,7 +446,7 @@ public interface UI_Interface {
 	 * 
 	 * @param name Name of the property, must be unique (use 
 	 * {@link UI_Interface#test_nodePropNameIsUnique(String)} to check this)
-	 * @param type Type of the property, call {@link UI_Interface#nodeProp_getTypes()}
+	 * @param type Type of the property, call {@link UI_Interface#getPropertyTypes()}
 	 *  for a list of valid types
 	 * @param description A brief description of the property
 	 * @throws UIException Thrown if the name is not unique, or the type given is invalid.
@@ -660,12 +642,6 @@ public interface UI_Interface {
 	 *  {@link UI_Interface#scratch_new(String, String, String)} needs to be called.
 	 */
 	public List<Integer> scratch_getDependencies() throws UIException;
-
-	/**
-	 * Get the {@link DistributionType} of the scratch property
-	 * @return A value from the {@link DistributionType} enumeration
-	 */
-	public DistributionType scratch_getDistributionType();
 	
 	/**
 	 * Add a conditional Distribution to the current scratch property

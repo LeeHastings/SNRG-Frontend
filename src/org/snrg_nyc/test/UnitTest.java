@@ -6,6 +6,9 @@ import java.util.Map;
 
 import org.snrg_nyc.model.*;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 public class UnitTest {
 	static UI_Interface bl;
 	
@@ -14,7 +17,7 @@ public class UnitTest {
 		bl = new UI_InterfaceFactory().build();
 		System.out.println("Node Property types:");
 		
-		List<String> types = bl.nodeProp_getTypes();
+		List<String> types = bl.getPropertyTypes();
 		for(String type : types){
 			System.out.println("\t" + type);
 		}
@@ -143,8 +146,13 @@ public class UnitTest {
 			
 			bl.scratch_setDefaultDistribution(probmap);
 			bl.scratch_commitToNodeProperties();
+
+			Gson g = new GsonBuilder().setPrettyPrinting().create();
 			
+			System.out.println("============ SAVED EXPERIMENT ==========");
 			bl.save("hcv_project");
+			bl.load("hcv_project");
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

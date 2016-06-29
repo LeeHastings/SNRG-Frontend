@@ -4,9 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 class IntegerRangeProperty extends EnumeratorProperty {
+	private static final long serialVersionUID = 1L;
 	protected List<Range<Integer>> ranges;
+	
 	public IntegerRangeProperty(){
 		super();
+		ranges = new ArrayList<Range<Integer>>();
 	}
 	public IntegerRangeProperty(String name, String desc){
 		super(name, desc);

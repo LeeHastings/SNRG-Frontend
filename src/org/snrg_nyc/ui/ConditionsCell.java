@@ -65,7 +65,7 @@ class ConditionsCell extends ListCell<Integer> {
 				int draggedId = items.indexOf(cid);
 				int droppedId = items.indexOf(getItem());
 				
-				//TODO Decide on a dragging scheme.
+				//TODO Implement proper insertion 
 				items.set(draggedId, getItem());
 				items.set(droppedId, cid);
 				
@@ -81,7 +81,7 @@ class ConditionsCell extends ListCell<Integer> {
 			setText(null);
 			return;
 		}
-		String name = "Distribution #"+item+": ";
+		String name = "Distribution: ";
 		try{
 			for(Entry<Integer, Integer> pair :
 				editor.ui.scratch_getDistributionCondition(item).entrySet() 

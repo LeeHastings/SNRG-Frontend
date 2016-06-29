@@ -638,8 +638,8 @@ class EditorPage extends GridPane {
 					}
 					
 					String msg = String.format(
-							"Conditional Distribution #%d [%d of %d]", 
-							cid, indexProperty.get()+1, cids.size() );
+							"Conditional Distribution [%d of %d]", 
+							 indexProperty.get()+1, cids.size() );
 					condMessage.setText(msg);
 				};
 				
@@ -738,7 +738,7 @@ class EditorPage extends GridPane {
 			TextField propName = new TextField();
 			
 			ComboBox<String> type = new ComboBox<>();
-			type.getItems().addAll(ui.nodeProp_getTypes());
+			type.getItems().addAll(ui.getPropertyTypes());
 			
 			TextArea desc = new TextArea();
 			desc.setPrefColumnCount(20);
@@ -781,7 +781,7 @@ class EditorPage extends GridPane {
 			nextBtn.setOnMouseClicked(event->{
 				pageNumber ++;
 				try {
-					if(layerSelect.getValue().used()){
+					if(layerSelect.getValue() != null && layerSelect.getValue().used()){
 						ui.scratch_newInLayer(
 								layerSelect.getValue().get(), 
 								propName.getText(), 

@@ -1,6 +1,7 @@
 package org.snrg_nyc.model;
 
 class FractionProperty extends NodeProperty {
+	private static final long serialVersionUID = 1L;
 	private Float init;
 	
 	public FractionProperty(){
@@ -21,9 +22,5 @@ class FractionProperty extends NodeProperty {
 	}
 	public boolean hasInitValue(){
 		return init != null;
-	}
-	public void print(){
-		super.print();
-		System.out.println("Initial Value: "+init);
 	}
 }
