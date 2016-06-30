@@ -65,9 +65,20 @@ class ConditionsCell extends ListCell<Integer> {
 				int draggedId = items.indexOf(cid);
 				int droppedId = items.indexOf(getItem());
 				
-				//TODO Implement proper insertion 
-				items.set(draggedId, getItem());
-				items.set(droppedId, cid);
+				boolean up = draggedId > droppedId; //Dragged item was moved up list
+				
+				if(up){ //Push items down
+					for(int i = draggedId; i > droppedId; i--){
+						items.set(i, items.get(i-1));
+					}
+					items.set(droppedId, cid);
+				}
+				else { //Pull items up
+					for(int i = draggedId; i < droppedId; i++){
+						items.set(i, items.get(i+1));
+					}
+					items.set(droppedId, cid);
+				}
 				
 			}
 			

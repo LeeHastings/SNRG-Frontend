@@ -10,14 +10,9 @@ import java.util.Map.Entry;
 
 import org.snrg_nyc.model.NodeProperty.ConditionalDistribution;
 import org.snrg_nyc.model.NodeProperty.Distribution;
-import org.snrg_nyc.model.UnivariatDistribution.Condition;
-import org.snrg_nyc.model.UnivariatDistribution.ConditionalDistList;
-import org.snrg_nyc.model.UnivariatDistribution.DistributionList;
-import org.snrg_nyc.model.UnivariatDistribution.ValuePair;
 import org.snrg_nyc.persistence.ExperimentSerializer;
 import org.snrg_nyc.persistence.PersistenceException;
-import org.snrg_nyc.persistence.PersistentDataEntry;
-import org.snrg_nyc.persistence.SimpleJsonSerializer;
+import org.snrg_nyc.persistence.JsonFileSerializer;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -72,15 +67,13 @@ class BusinessLogic implements UI_Interface{
 		scratchProperty = null;
 		scratchLayerID = null;
 		
-		Gson g = new GsonBuilder()
+		GsonBuilder g = new GsonBuilder()
                 .setPrettyPrinting()
                 .disableHtmlEscaping()
                 .registerTypeAdapter(UnivariatDistribution.DistributionList.class, new DistributionDeserializer())
-                .registerTypeAdapter(NodeProperty.class, new NodePropertyAdapter())
-                .registerTypeAdapter(PersistentDataEntry.class, new PersistentDataEntry.JsonAdapter())
-                .create();
+                .registerTypeAdapter(NodeProperty.class, new NodePropertyAdapter());
 		
-		serializer = new SimpleJsonSerializer(g);
+		serializer = new JsonFileSerializer(g);
 	}
 	
 	/**
@@ -215,8 +208,22 @@ class BusinessLogic implements UI_Interface{
 		Map<String, Serializable> e = new HashMap<>();
 		e.put("nodesettings", nodeSettings);
 		
+		for(NodeLayer l : nodeLayers){
+			if(l == null){
+				continue;
+			}
+			for(NodeProperty np : l.getProperties()){
+				if(np != null && np instanceof EnumeratorProperty
+				   && ((EnumeratorProperty) np).getDistributionType() 
+				      == NodeProperty.DistType.UNIVARIAT
+				){
+					UnivariatDistribution u = new UnivariatDistribution(this,np);
+					e.put(np.getDistributionID(), u);
+				}
+			}
+		}
 		for(NodeProperty np : nodeProperties){
-			if(np instanceof EnumeratorProperty
+			if(np != null && np instanceof EnumeratorProperty
 			   && ((EnumeratorProperty) np).getDistributionType() 
 			      == NodeProperty.DistType.UNIVARIAT
 			){
@@ -253,14 +260,35 @@ class BusinessLogic implements UI_Interface{
 
 			e.remove("nodesettings");
 			
-			for(Serializable obj : e.values()){
-				if(obj instanceof UnivariatDistribution){
-					UnivariatDistribution uniD = (UnivariatDistribution) obj;
+			for(String key : e.keySet()){
+				if(e.get(key) instanceof UnivariatDistribution){
+					UnivariatDistribution uniD = (UnivariatDistribution) e.get(key);
 					
-					NodeProperty np = nodeProperties.get(
-							search_nodePropWithName(uniD.getPropName()));
+					Integer pid = search_nodePropWithName(uniD.getPropName());
+					Integer lid = null;
+					if(pid == null){
+						for(int l : layer_getLayerIDs()){
+							pid = search_nodePropWithName(uniD.getPropName(), l);
+							if(pid != null){
+								lid = l;
+								break;
+							}
+						}
+						if(pid == null){
+							throw new UIException("Error in "+uniD.getName()
+								+": no property with name "+uniD.getPropName());
+						}
+					}
+					NodeProperty np;
 					
+					if(lid == null){
+						np = nodeProperties.get(pid);
+					}
+					else {
+						np = nodeLayers.get(lid).getProperty(pid);
+					}
 					uniD.addToProperty(this, np);
+					
 				}
 				else{
 					System.out.println("Tried to load unsupported object: "+e.getClass().getName());
@@ -1014,6 +1042,17 @@ class BusinessLogic implements UI_Interface{
 	public Integer search_nodePropWithName(String name) {
 		for(int i : nodeProp_getPropertyIDs()){
 			if(nodeProperties.get(i).getName().equals(name)){
+				return i;
+			}
+		}
+		return null;
+	}
+	
+	@Override
+	public Integer search_nodePropWithName(String name, int lid) throws UIException {
+		assert_validLID(lid);
+		for(int i : nodeLayers.get(lid).getPropertyIDs()){
+			if(nodeLayers.get(lid).getProperty(i).getName().equals(name)){
 				return i;
 			}
 		}

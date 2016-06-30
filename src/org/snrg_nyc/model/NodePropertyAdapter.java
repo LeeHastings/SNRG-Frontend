@@ -131,8 +131,21 @@ class NodePropertyAdapter implements JsonSerializer<NodeProperty>, JsonDeseriali
 			((FractionProperty) nodeProp).setInitValue(
 					innerJs.get(initValLabel).getAsFloat());
 		}
-		//TODO change this
-		nodeProp.useUniformDistribution();
+		
+		switch(innerJs.get(distIDLabel).getAsString()){
+		case "null":
+			if(!(nodeProp instanceof FractionProperty)){
+				throw new IllegalStateException(
+						"A null distribution on an invalid node property: "+nodeProp.getName());
+			}
+			break;
+		case "uniform":
+			nodeProp.useUniformDistribution();
+			break;
+		default:
+			nodeProp.distType = NodeProperty.DistType.UNIVARIAT;
+			break;
+		}
 		return nodeProp;
 	}
 

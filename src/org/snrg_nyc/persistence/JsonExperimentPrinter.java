@@ -8,12 +8,18 @@ import java.util.Map;
 
 import com.google.gson.Gson;
 
-public class SimpleJsonSerializer implements ExperimentSerializer {
+/**
+ * Simple class to test JSON serialization.  Prints directly to the console.
+ * @author Devin Hastings
+ *
+ */
+@Deprecated
+public class JsonExperimentPrinter implements ExperimentSerializer {
 	
 	private Map<String, Map<String, String>> experiments = new HashMap<>();
 	private Gson gson;
 	
-	public SimpleJsonSerializer(Gson g){
+	public JsonExperimentPrinter(Gson g){
 		super();
 		gson = g;
 	}

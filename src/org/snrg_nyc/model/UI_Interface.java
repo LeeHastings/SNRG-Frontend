@@ -103,8 +103,17 @@ public interface UI_Interface {
 	public Integer search_nodePropWithName(String name);
 	
 	/**
+	 * Search for a property with the given name within a layer
+	 * @param name The name of the property
+	 * @param lid The layer to search in
+	 * @return The property ID of the matching property, or null if there was no match
+	 * @throws UIException Thrown if the Layer ID is invalid
+	 */
+	public Integer search_nodePropWithName(String name, int lid) throws UIException;
+	
+	/**
 	 * Search for a range in the given property with the given label
-	 * @param pid The ID of the proeprty to seatch in
+	 * @param pid The ID of the property to search in
 	 * @param label The label of the range to search for
 	 * @return The range ID of a range with the requested label, or null if there was no match
 	 * @throws UIException Thrown if the property ID is invalid

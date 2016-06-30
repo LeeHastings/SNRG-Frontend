@@ -18,11 +18,11 @@ import com.google.gson.annotations.SerializedName;
  * 
  * @author Devin
  */
-public class PersistentDataEntry implements Serializable {
+class PersistentDataEntry implements Serializable {
 	/**
 	 * A list of package names to search in for the simpleName of a class
 	 */
-	public static String[] searchPackages = {
+	static String[] searchPackages = {
 		UI_Interface.class.getPackage().getName(),
 		ExperimentSerializer.class.getPackage().getName(),
 		"java.lang",
@@ -30,9 +30,9 @@ public class PersistentDataEntry implements Serializable {
 		"java.io"
 	};
 	
-	private static final long serialVersionUID = 1L;
+	static final long serialVersionUID = 1L;
 	
-	public static class JsonAdapter implements JsonDeserializer<PersistentDataEntry>{
+	static class JsonAdapter implements JsonDeserializer<PersistentDataEntry>{
 		@Override
 		public PersistentDataEntry deserialize(JsonElement js, Type type, JsonDeserializationContext context)
 				throws JsonParseException {
@@ -71,11 +71,11 @@ public class PersistentDataEntry implements Serializable {
 		this.object = object;
 	}
 	
-	public String getExperimentName() {
+	String getExperimentName() {
 		return name;
 	}
 
-	public String getType() {
+	String getType() {
 		return type;
 	}
 

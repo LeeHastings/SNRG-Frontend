@@ -132,6 +132,10 @@ public class UI_Main extends Application{
 		depCol.setCellValueFactory(col->{
 			PropertyID id = col.getValue();
 			try{
+				if(id.usesLayer()){
+					return new SimpleStringProperty(
+							""+ui.nodeProp_getDependencyLevel(id.lid(), id.pid()) );
+				}
 				return new SimpleStringProperty(""+ui.nodeProp_getDependencyLevel(id.pid()));
 			} 
 			catch(Exception e){
