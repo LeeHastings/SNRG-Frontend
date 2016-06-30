@@ -43,6 +43,9 @@ class EnumeratorProperty extends NodeProperty {
 	}
 	public int addConditionalDistribution(ConditionalDistribution cd){
 		int ID = -1;
+		if(conDistributions == null){
+			conDistributions = new ArrayList<>();
+		}
 		if(distType != DistType.UNIVARIAT){
 			throw new IllegalStateException("Cannot add conditional distributions to "
 					+ "a distribution of type "+distType.toString());

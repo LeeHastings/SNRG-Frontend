@@ -10,8 +10,10 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 
-class DistributionDeserializer implements JsonDeserializer<DistributionList>{
+class DistributionDeserializer implements JsonDeserializer<DistributionList>, JsonSerializer<DistributionList>{
 
 	@Override
 	public DistributionList deserialize(JsonElement js, Type type, JsonDeserializationContext context)
@@ -22,6 +24,17 @@ class DistributionDeserializer implements JsonDeserializer<DistributionList>{
 		else {
 			Gson g = new Gson();
 			return g.fromJson(js, DistributionList.class);
+		}
+	}
+
+	@Override
+	public JsonElement serialize(DistributionList input, Type type, JsonSerializationContext context) {
+		Gson g = new Gson();
+		if(input instanceof ConditionalDistList){
+			return g.toJsonTree(input, ConditionalDistList.class);
+		}
+		else {
+			return g.toJsonTree(input, DistributionList.class);
 		}
 	}
 

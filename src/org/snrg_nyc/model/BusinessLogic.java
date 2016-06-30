@@ -10,6 +10,10 @@ import java.util.Map.Entry;
 
 import org.snrg_nyc.model.NodeProperty.ConditionalDistribution;
 import org.snrg_nyc.model.NodeProperty.Distribution;
+import org.snrg_nyc.model.UnivariatDistribution.Condition;
+import org.snrg_nyc.model.UnivariatDistribution.ConditionalDistList;
+import org.snrg_nyc.model.UnivariatDistribution.DistributionList;
+import org.snrg_nyc.model.UnivariatDistribution.ValuePair;
 import org.snrg_nyc.persistence.ExperimentSerializer;
 import org.snrg_nyc.persistence.PersistenceException;
 import org.snrg_nyc.persistence.PersistentDataEntry;
@@ -216,13 +220,11 @@ class BusinessLogic implements UI_Interface{
 			   && ((EnumeratorProperty) np).getDistributionType() 
 			      == NodeProperty.DistType.UNIVARIAT
 			){
-				e.put(np.getDistributionID(), new UnivariatDistribution(this,np));
+				UnivariatDistribution u = new UnivariatDistribution(this,np);
+				e.put(np.getDistributionID(), u);
 			}
 		}
 		
-		Gson g = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
-		System.out.println("==========CURRENT PROPERTY==========");
-		System.out.println(g.toJson(e));
 		try {
 			serializer.storeExperiment(experimentName, e);
 		} catch (PersistenceException e1) {
@@ -240,6 +242,7 @@ class BusinessLogic implements UI_Interface{
 			throw new UIException("Error while loading "
 					+experimentName+": "+e1.getMessage());
 		}
+		
 		Gson g = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
 		System.out.println("==========LOADED PROPERTY==========");
 		System.out.println(g.toJson(e));

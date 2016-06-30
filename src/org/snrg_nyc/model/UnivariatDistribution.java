@@ -59,7 +59,7 @@ class UnivariatDistribution implements Serializable {
 	private String propName;
 	
 	@SerializedName("DependencyDistributionList")
-	private List<DistributionList> distributions;
+	List<DistributionList> distributions;
 	
 	UnivariatDistribution(UI_Interface ui, NodeProperty np) throws UIException{
 	
@@ -74,11 +74,10 @@ class UnivariatDistribution implements Serializable {
 		distributions = new ArrayList<>();
 		EnumeratorProperty ep = (EnumeratorProperty) np;
 
-		List<Condition> conds = new ArrayList<>();
-		List<ValuePair> pairs = new ArrayList<>();
+		
 		for(int i : ep.getOrderedConditions()){
-			conds.clear();
-			pairs.clear();
+			List<Condition> conds = new ArrayList<>();
+			List<ValuePair> pairs = new ArrayList<>();
 			
 			for(Map.Entry<Integer, Integer> idPair : 
 				ep.getConDistributionConditions(i).entrySet()
@@ -98,8 +97,7 @@ class UnivariatDistribution implements Serializable {
 			}
 			distributions.add(new ConditionalDistList(pairs, conds));
 		}
-		
-		pairs.clear();
+		List<ValuePair> pairs = new ArrayList<>();
 		for(Map.Entry<Integer, Float> keyPair : ep.getDefaultDistribution().entrySet()){
 			pairs.add(new ValuePair(
 					ep.getRangeLabel(keyPair.getKey()), keyPair.getValue())
@@ -107,10 +105,7 @@ class UnivariatDistribution implements Serializable {
 		}
 		distributions.add(new DistributionList(pairs));
 	}
-	String getDistributionID(){
-		return name;
-	}
-	
+
 	NodeProperty addToProperty(UI_Interface ui, NodeProperty np) throws UIException{
 		if(!np.getName().equals(propName)){
 			throw new IllegalArgumentException("This distribution is for property '"+propName
