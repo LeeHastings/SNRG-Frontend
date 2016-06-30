@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import org.snrg_nyc.model.UIException;
 import org.snrg_nyc.model.UI_Interface;
-import org.snrg_nyc.model.UI_InterfaceFactory;
+import org.snrg_nyc.model.UI_Model;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -33,7 +33,7 @@ public class UI_Main extends Application{
 	@SuppressWarnings("unchecked")
 	@Override
 	public void start(Stage initStage){
-		ui = new UI_InterfaceFactory().build();
+		ui = new UI_Model();
 		EditorPage editor = new EditorPage(ui);
 		editor.setPrefWidth(550);
 		

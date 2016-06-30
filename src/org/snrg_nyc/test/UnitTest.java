@@ -6,15 +6,12 @@ import java.util.Map;
 
 import org.snrg_nyc.model.*;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 public class UnitTest {
 	static UI_Interface bl;
 	
 	public static void main(String[] args){
 		
-		bl = new UI_InterfaceFactory().build();
+		bl = new UI_Model();
 		System.out.println("Node Property types:");
 		
 		List<String> types = bl.getPropertyTypes();

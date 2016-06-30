@@ -83,7 +83,7 @@ class NodePropertyAdapter implements JsonSerializer<NodeProperty>, JsonDeseriali
 		NodeProperty nodeProp = null;
 		JsonObject innerJs = null;
 		
-		for(Class<?> propClass : BusinessLogic.nodePropertyTypes){
+		for(Class<?> propClass : UI_Model.nodePropertyTypes){
 			if(nodePropJs.has(propClass.getSimpleName())){
 				innerJs = nodePropJs
 						             .get(propClass.getSimpleName())

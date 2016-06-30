@@ -24,6 +24,12 @@ public class JsonFileSerializer implements ExperimentSerializer {
 	public static final Path savePath = Paths.get("save_data");
 	private Gson gson;
 	
+	static {
+		if(!Files.exists(savePath)){
+			savePath.toFile().mkdir();
+		}
+	}
+	
 	/**
 	 * @param gBuilder A GsonBuilder with any settings that the user requires,
 	 *  such as type adapters and style settings.
@@ -34,7 +40,7 @@ public class JsonFileSerializer implements ExperimentSerializer {
 		gson = gBuilder
 			   .registerTypeAdapter(
 					   PersistentDataEntry.class, 
-					   PersistentDataEntry.JsonAdapter.class)
+					   new PersistentDataEntry.JsonAdapter())
 			   .create();
 	}
 	@Override
