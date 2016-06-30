@@ -6,24 +6,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.snrg_nyc.model.NodeProperty;
-import org.snrg_nyc.model.NodePropertyAdapter;
-
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonParser;
 
 public class SimpleJsonSerializer implements ExperimentSerializer {
 	
 	private Map<String, Map<String, String>> experiments = new HashMap<>();
-	private Gson gson  = new GsonBuilder()
-	                     .setPrettyPrinting()
-	                     .disableHtmlEscaping()
-	                     .registerTypeAdapter(NodeProperty.class, new NodePropertyAdapter())
-	                     .registerTypeAdapter(PersistentDataEntry.class, new PersistentDataEntry.JsonAdapter())
-	                     .create();
+	private Gson gson;
 	
-	
+	public SimpleJsonSerializer(Gson g){
+		super();
+		gson = g;
+	}
 	@Override
 	public void storeExperiment(String name, Map<String, Serializable> dataEntries) 
 			throws PersistenceException 

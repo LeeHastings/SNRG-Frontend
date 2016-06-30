@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.snrg_nyc.model.NodeProperty.ConditionalDistribution;
+import org.snrg_nyc.model.NodeProperty.Distribution;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -34,14 +36,14 @@ class UnivariatDistribution implements Serializable {
 			Value = v;
 		}
 	}
-	class DistributionList {
+	static class DistributionList {
 		@SerializedName("DistributionSampleList")
 		List<ValuePair> values;
 		DistributionList(List<ValuePair> vals){
 			values = vals;
 		}
 	}
-	class ConditionalDistList extends DistributionList{
+	static class ConditionalDistList extends DistributionList{
 		@SerializedName("PropertyDependencyList")
 		List<Condition> conditions;
 		
@@ -66,6 +68,7 @@ class UnivariatDistribution implements Serializable {
 					"Cannot make a univariat distribution for a property with a "
 					+np.getDistributionType().name()+" distribution.");
 		}
+		
 		propName = np.getName();
 		name = np.getDistributionID();
 		distributions = new ArrayList<>();
@@ -73,9 +76,10 @@ class UnivariatDistribution implements Serializable {
 
 		List<Condition> conds = new ArrayList<>();
 		List<ValuePair> pairs = new ArrayList<>();
-		for(int i : ep.getOrderedContitions()){
+		for(int i : ep.getOrderedConditions()){
 			conds.clear();
 			pairs.clear();
+			
 			for(Map.Entry<Integer, Integer> idPair : 
 				ep.getConDistributionConditions(i).entrySet()
 			){
@@ -84,11 +88,12 @@ class UnivariatDistribution implements Serializable {
 						ui.nodeProp_getRangeLabel(idPair.getKey(), idPair.getValue())) 
 						);
 			}
+			
 			for(Map.Entry<Integer, Float> probPair : 
 				ep.getConDistributionProbMap(i).entrySet()
 			){
 				pairs.add(new ValuePair(
-						ep.getRangeLabel(probPair.getKey()),probPair.getValue())
+						ep.getRangeLabel(probPair.getKey()), probPair.getValue())
 						);
 			}
 			distributions.add(new ConditionalDistList(pairs, conds));
@@ -106,14 +111,22 @@ class UnivariatDistribution implements Serializable {
 		return name;
 	}
 	
-	NodeProperty addToProperty(UI_Interface ui, NodeProperty np){
+	NodeProperty addToProperty(UI_Interface ui, NodeProperty np) throws UIException{
+		if(!np.getName().equals(propName)){
+			throw new IllegalArgumentException("This distribution is for property '"+propName
+					+"', tried to bind it to property '"+np.getName()+"'");
+		}
+		
 		EnumeratorProperty ep;
+		
 		if(np instanceof EnumeratorProperty){
 			ep = (EnumeratorProperty) np;
 		}
 		else {
 			throw new IllegalArgumentException("The given property must be able to use distributions!");
 		}
+		ep.distType = NodeProperty.DistType.UNIVARIAT;
+		
 		Map<Integer, Integer> conds = new HashMap<>();
 		Map<Integer, Float> rangeProbs = new HashMap<>();
 		
@@ -121,12 +134,54 @@ class UnivariatDistribution implements Serializable {
 			conds.clear();
 			rangeProbs.clear();
 			
+			for(ValuePair pair : dist.values){
+				Integer rid = ep.getRangeWithLabel(pair.Label);
+				if(rid == null){
+					throw new IllegalArgumentException("No range with label '"+pair.Label
+							+"' in node property '"+ep.getName()+"'");
+				}
+				rangeProbs.put(rid, pair.Value);
+			}
 			if(dist instanceof ConditionalDistList){
 				ConditionalDistList cDist = (ConditionalDistList) dist;
 				for(Condition c : cDist.conditions){
+					Integer pid = ui.search_nodePropWithName(c.Name);
+					if(pid == null){
+						throw new IllegalArgumentException(
+								"There is no property with the given name: "+c.Name);
+					}
+					Integer rid = ui.search_rangeWithLabel(pid, c.Value);
+					if(rid == null){
+						throw new IllegalArgumentException(
+								"There is no range named '"+c.Value+"'in the property '"
+								+c.Name+"'");
+					}
+					conds.put(pid,rid);
 				}
+				ep.addConditionalDistribution(new ConditionalDistribution(conds, rangeProbs));
+			}
+			else {
+				if(distributions.indexOf(dist) != distributions.size()-1){
+					throw new IllegalArgumentException(
+							"Found a default distribution before the end of the "
+							+ "distribution list in Univariat Distribution "+name);
+				}
+				ep.setDefaultDistribution(new Distribution(rangeProbs));
 			}
 		}
 		return np;
 	}
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+	public String getName() {
+		return name;
+	}
+	public String getPropName() {
+		return propName;
+	}
+	public List<DistributionList> getDistributions() {
+		return distributions;
+	}
+	
 }

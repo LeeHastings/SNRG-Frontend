@@ -12,7 +12,11 @@ import org.snrg_nyc.model.NodeProperty.ConditionalDistribution;
 import org.snrg_nyc.model.NodeProperty.Distribution;
 import org.snrg_nyc.persistence.ExperimentSerializer;
 import org.snrg_nyc.persistence.PersistenceException;
+import org.snrg_nyc.persistence.PersistentDataEntry;
 import org.snrg_nyc.persistence.SimpleJsonSerializer;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 
 /**
@@ -21,7 +25,7 @@ import org.snrg_nyc.persistence.SimpleJsonSerializer;
  * @author Devin Hastings
  *
  */
-class BusinessLogic implements UI_Interface {
+class BusinessLogic implements UI_Interface{
 	
 	/*         *\
 	 * Members *
@@ -46,7 +50,7 @@ class BusinessLogic implements UI_Interface {
 	
 	private Integer scratchLayerID;
 	
-	private ExperimentSerializer serializer = new SimpleJsonSerializer();
+	private ExperimentSerializer serializer;
 	
 	private NodeSettings nodeSettings = new NodeSettings();
 	
@@ -63,6 +67,16 @@ class BusinessLogic implements UI_Interface {
 		
 		scratchProperty = null;
 		scratchLayerID = null;
+		
+		Gson g = new GsonBuilder()
+                .setPrettyPrinting()
+                .disableHtmlEscaping()
+                .registerTypeAdapter(UnivariatDistribution.DistributionList.class, new DistributionDeserializer())
+                .registerTypeAdapter(NodeProperty.class, new NodePropertyAdapter())
+                .registerTypeAdapter(PersistentDataEntry.class, new PersistentDataEntry.JsonAdapter())
+                .create();
+		
+		serializer = new SimpleJsonSerializer(g);
 	}
 	
 	/**
@@ -189,9 +203,9 @@ class BusinessLogic implements UI_Interface {
 		}
 	}
 	
-	/*                   *\
-	 * Interface Methods *
-	\*                   */
+	/*                      *\
+	 * UI_Interface Methods *
+	\*                      */
 	@Override
 	public void save(String experimentName) throws UIException {
 		Map<String, Serializable> e = new HashMap<>();
@@ -205,6 +219,10 @@ class BusinessLogic implements UI_Interface {
 				e.put(np.getDistributionID(), new UnivariatDistribution(this,np));
 			}
 		}
+		
+		Gson g = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
+		System.out.println("==========CURRENT PROPERTY==========");
+		System.out.println(g.toJson(e));
 		try {
 			serializer.storeExperiment(experimentName, e);
 		} catch (PersistenceException e1) {
@@ -222,6 +240,9 @@ class BusinessLogic implements UI_Interface {
 			throw new UIException("Error while loading "
 					+experimentName+": "+e1.getMessage());
 		}
+		Gson g = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
+		System.out.println("==========LOADED PROPERTY==========");
+		System.out.println(g.toJson(e));
 		
 		if(!e.containsKey("nodesettings")){
 			throw new UIException("Problem with new project: missing nodesettings!");
@@ -230,6 +251,22 @@ class BusinessLogic implements UI_Interface {
 			nodeSettings = (NodeSettings) e.get("nodesettings");
 			nodeLayers = nodeSettings.getLayerAttributesList();
 			nodeProperties = nodeSettings.getPropertyDefinitionList();
+
+			e.remove("nodesettings");
+			
+			for(Serializable obj : e.values()){
+				if(obj instanceof UnivariatDistribution){
+					UnivariatDistribution uniD = (UnivariatDistribution) obj;
+					
+					NodeProperty np = nodeProperties.get(
+							search_nodePropWithName(uniD.getPropName()));
+					
+					uniD.addToProperty(this, np);
+				}
+				else{
+					System.out.println("Tried to load unsupported object: "+e.getClass().getName());
+				}
+			}
 		}
 	}
 	
@@ -398,7 +435,7 @@ class BusinessLogic implements UI_Interface {
 	public List<Integer> nodeProp_getConditionalDistributionIDs(int pid) throws UIException {
 		assert_validPID(pid);
 		assert_nodeType(nodeProperties.get(pid), EnumeratorProperty.class);
-		return ((EnumeratorProperty) nodeProperties.get(pid)).getOrderedContitions();
+		return ((EnumeratorProperty) nodeProperties.get(pid)).getOrderedConditions();
 	}
 
 	@Override
@@ -512,7 +549,7 @@ class BusinessLogic implements UI_Interface {
 		assert_validPID(lid, pid);
 		NodeProperty np = nodeLayers.get(lid).getProperty(pid);
 		assert_nodeType(np, EnumeratorProperty.class);
-		return ((EnumeratorProperty) np).getOrderedContitions();
+		return ((EnumeratorProperty) np).getOrderedConditions();
 	}
 
 	@Override

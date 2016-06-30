@@ -18,7 +18,7 @@ import com.google.gson.annotations.SerializedName;
  * 
  * @author Devin
  */
-class PersistentDataEntry implements Serializable {
+public class PersistentDataEntry implements Serializable {
 	/**
 	 * A list of package names to search in for the simpleName of a class
 	 */
@@ -32,7 +32,7 @@ class PersistentDataEntry implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	
-	static class JsonAdapter implements JsonDeserializer<PersistentDataEntry>{
+	public static class JsonAdapter implements JsonDeserializer<PersistentDataEntry>{
 		@Override
 		public PersistentDataEntry deserialize(JsonElement js, Type type, JsonDeserializationContext context)
 				throws JsonParseException {

@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.google.gson.annotations.SerializedName;
 
-public class NodeSettings implements Serializable {
+class NodeSettings implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	@SerializedName("PropertyDefinitionList")

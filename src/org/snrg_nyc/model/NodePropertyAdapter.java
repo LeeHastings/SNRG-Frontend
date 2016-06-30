@@ -17,7 +17,7 @@ import com.google.gson.JsonSerializer;
  * @author Devin Hastings
  *
  */
-public class NodePropertyAdapter implements JsonSerializer<NodeProperty>, JsonDeserializer<NodeProperty> {
+class NodePropertyAdapter implements JsonSerializer<NodeProperty>, JsonDeserializer<NodeProperty> {
 	//Passing strings as parameters multiple times is too error-prone for me
 	final static String nameLabel = "PropertyName";
 	final static String descLabel = "Description";

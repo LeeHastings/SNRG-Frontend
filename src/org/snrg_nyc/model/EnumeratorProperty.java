@@ -104,6 +104,14 @@ class EnumeratorProperty extends NodeProperty {
 		assert_validRID(rid);
 		values.set(rid, null);
 	}
+	public Integer getRangeWithLabel(String label){
+		for(String s : values){
+			if(s != null && s.equals(label)){
+				return values.indexOf(s);
+			}
+		}
+		return null;
+	}
 	public String getRangeLabel(int rid){
 		assert_validRID(rid);
 		return values.get(rid);
@@ -166,7 +174,7 @@ class EnumeratorProperty extends NodeProperty {
 		}
 		return ls;
 	}
-	public List<Integer> getOrderedContitions(){
+	public List<Integer> getOrderedConditions(){
 		return condOrder;
 	}
 	/**

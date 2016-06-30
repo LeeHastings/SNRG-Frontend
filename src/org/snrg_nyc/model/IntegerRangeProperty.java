@@ -55,6 +55,15 @@ class IntegerRangeProperty extends EnumeratorProperty {
 	}
 	
 	@Override
+	public Integer getRangeWithLabel(String label){
+		for(Range r : ranges){
+			if(r != null && r.getLabel().equals(label)){
+				return ranges.indexOf(r);
+			}
+		}
+		return null;
+	}
+	@Override
 	public String getRangeLabel(int rid){
 		return ranges.get(rid).getLabel();
 	}
