@@ -243,10 +243,6 @@ class BusinessLogic implements UI_Interface{
 					+experimentName+": "+e1.getMessage());
 		}
 		
-		Gson g = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
-		System.out.println("==========LOADED PROPERTY==========");
-		System.out.println(g.toJson(e));
-		
 		if(!e.containsKey("nodesettings")){
 			throw new UIException("Problem with new project: missing nodesettings!");
 		}

@@ -147,9 +147,6 @@ public class UnitTest {
 			bl.scratch_setDefaultDistribution(probmap);
 			bl.scratch_commitToNodeProperties();
 
-			Gson g = new GsonBuilder().setPrettyPrinting().create();
-			
-			System.out.println("============ SAVED EXPERIMENT ==========");
 			bl.save("hcv_project");
 			bl.load("hcv_project");
 			

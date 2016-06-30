@@ -106,7 +106,7 @@ class UnivariatDistribution implements Serializable {
 		distributions.add(new DistributionList(pairs));
 	}
 
-	NodeProperty addToProperty(UI_Interface ui, NodeProperty np) throws UIException{
+	void addToProperty(UI_Interface ui, NodeProperty np) throws UIException{
 		if(!np.getName().equals(propName)){
 			throw new IllegalArgumentException("This distribution is for property '"+propName
 					+"', tried to bind it to property '"+np.getName()+"'");
@@ -141,6 +141,9 @@ class UnivariatDistribution implements Serializable {
 				ConditionalDistList cDist = (ConditionalDistList) dist;
 				for(Condition c : cDist.conditions){
 					Integer pid = ui.search_nodePropWithName(c.Name);
+					if(!ep.dependsOn(pid)){
+						ep.addDependency(pid);
+					}
 					if(pid == null){
 						throw new IllegalArgumentException(
 								"There is no property with the given name: "+c.Name);
@@ -164,7 +167,6 @@ class UnivariatDistribution implements Serializable {
 				ep.setDefaultDistribution(new Distribution(rangeProbs));
 			}
 		}
-		return np;
 	}
 	public static long getSerialversionuid() {
 		return serialVersionUID;
