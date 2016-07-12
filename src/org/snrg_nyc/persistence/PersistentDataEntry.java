@@ -3,7 +3,8 @@ package org.snrg_nyc.persistence;
 import java.io.Serializable;
 import java.lang.reflect.Type;
 
-import org.snrg_nyc.model.UI_Interface;
+import org.snrg_nyc.model.PropertiesEditor;
+import org.snrg_nyc.model.node.NodeEditor;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -23,7 +24,8 @@ class PersistentDataEntry implements Serializable {
 	 * A list of package names to search in for the simpleName of a class
 	 */
 	static String[] searchPackages = {
-		UI_Interface.class.getPackage().getName(),
+		PropertiesEditor.class.getPackage().getName(),
+		NodeEditor.class.getPackage().getName(),
 		ExperimentSerializer.class.getPackage().getName(),
 		"java.lang",
 		"java.util",

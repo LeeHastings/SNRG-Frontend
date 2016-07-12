@@ -1,6 +1,6 @@
-package org.snrg_nyc.model.node;
+package org.snrg_nyc.model;
 
-class FractionProperty extends NodeProperty {
+public class FractionProperty extends NodeProperty {
 	private static final long serialVersionUID = 1L;
 	private Float init;
 	

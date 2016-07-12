@@ -3,6 +3,9 @@ package org.snrg_nyc.model.node;
 import java.io.Serializable;
 import java.util.List;
 
+import org.snrg_nyc.model.NodeLayer;
+import org.snrg_nyc.model.NodeProperty;
+
 import com.google.gson.annotations.SerializedName;
 
 class NodeSettings implements Serializable {

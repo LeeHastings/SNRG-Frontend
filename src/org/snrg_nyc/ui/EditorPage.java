@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.snrg_nyc.model.UIException;
-import org.snrg_nyc.model.UI_Interface;
+import org.snrg_nyc.model.EditorException;
+import org.snrg_nyc.model.PropertiesEditor;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
@@ -50,7 +50,7 @@ import javafx.util.StringConverter;
 
 class EditorPage extends GridPane {
 
-	public final UI_Interface ui;
+	public final PropertiesEditor ui;
 	
 	private int pageNumber = 0;
 	private PropertyID propViewerID;
@@ -73,7 +73,7 @@ class EditorPage extends GridPane {
 	}
 	private Mode mode;
 	
-	public EditorPage(UI_Interface ui){
+	public EditorPage(PropertiesEditor ui){
 		this.ui = ui;
 		mode = Mode.IDLE;
 		setAlignment(Pos.TOP_LEFT);
@@ -256,7 +256,7 @@ class EditorPage extends GridPane {
 				else {
 					nextBtn.setDisable(!ui.nodeProp_isRangedProperty(id.pid()));
 				}
-			} catch (UIException e1) {
+			} catch (EditorException e1) {
 				sendError(e1);
 			}
 			
@@ -372,7 +372,7 @@ class EditorPage extends GridPane {
 								ui.nodeProp_getPathogenType(id.pid()));
 					}
 				}
-				catch(UIException e){
+				catch(EditorException e){
 					pathogenType.setText(">ERROR<");
 					sendError(e);
 				}
@@ -394,7 +394,7 @@ class EditorPage extends GridPane {
 								ui.nodeProp_getRangeLabel(id.pid(), rid));
 						}
 						
-					} catch (UIException e) {
+					} catch (EditorException e) {
 						sendError(e);
 						enumValues.getItems().add(">ERROR<");
 					}
@@ -527,7 +527,7 @@ class EditorPage extends GridPane {
 				else {
 					hasDistributions = false;
 				}
-			} catch (UIException e) {
+			} catch (EditorException e) {
 				sendError(e);
 			}
 			
@@ -662,7 +662,7 @@ class EditorPage extends GridPane {
 								ui.nodeProp_getDistributionConditions(id.pid(), cid).entrySet());
 						}
 					} 
-					catch (UIException e) {
+					catch (EditorException e) {
 						sendError(e);
 					}
 					
@@ -676,7 +676,7 @@ class EditorPage extends GridPane {
 							distribution.getItems().addAll(
 									ui.nodeProp_getDistribution(id.pid(), cid).entrySet());
 						}
-					} catch (UIException e) {
+					} catch (EditorException e) {
 						sendError(e);
 					}
 					
@@ -755,7 +755,7 @@ class EditorPage extends GridPane {
 							ui.nodeProp_getDefaultDistribution(id.pid()).entrySet());
 				}
 				
-			} catch (UIException e) {
+			} catch (EditorException e) {
 				sendError(e);
 			}
 			add(new Label("Default Distribution"), 0, row++);
@@ -909,7 +909,7 @@ class EditorPage extends GridPane {
 							Scratch_Range r = cell.getItem();
 							try {
 								r.setLabel(newVal);
-							} catch (UIException e) {
+							} catch (EditorException e) {
 								sendError(e);
 							}
 							return r;
@@ -918,7 +918,7 @@ class EditorPage extends GridPane {
 						public String toString(Scratch_Range range) {
 							try {
 								return range.getLabel();
-							} catch (UIException e) {
+							} catch (EditorException e) {
 								sendError(e);
 								return null;
 							}
@@ -1162,7 +1162,7 @@ class EditorPage extends GridPane {
 				nextBtn.armedProperty().addListener((o, ov, nv)->{
 					try {
 						ui.scratch_setPathogenType(pathogenInput.getText());
-					} catch (UIException e1) {
+					} catch (EditorException e1) {
 						sendError(e1);
 					}
 				});
@@ -1520,7 +1520,7 @@ class EditorPage extends GridPane {
 				nextBtn.setText("Finish");
 
 			} 
-			catch (UIException e1) {
+			catch (EditorException e1) {
 				sendError(e1);
 			}
 		}

@@ -1,4 +1,4 @@
-package org.snrg_nyc.model.node;
+package org.snrg_nyc.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -12,15 +12,15 @@ import java.util.Map.Entry;
  * @author Devin
  *
  */
-abstract class NodeProperty implements Serializable {
+public abstract class NodeProperty implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
-	enum DistType{
+	public enum DistType{
 		NULL,
 		UNIFORM,
 		UNIVARIAT
 	}
-	static class Distribution {
+	public static class Distribution {
 		protected Map<Integer, Float> probabilities;
 		
 		public Distribution(Map<Integer, Float> probabilities){
@@ -40,7 +40,7 @@ abstract class NodeProperty implements Serializable {
 		}
 	}
 
-	static class ConditionalDistribution extends Distribution{
+	public static class ConditionalDistribution extends Distribution{
 		private Map<Integer, Integer> conditions;
 		
 		public ConditionalDistribution(Map<Integer, Integer> conditions, Map<Integer, Float> probabilities){
@@ -151,6 +151,9 @@ abstract class NodeProperty implements Serializable {
 	}
 	public DistType getDistributionType(){
 		return distType;
+	}
+	public void setDistributionType(DistType type){
+		this.distType = type;
 	}
 	
 	public boolean dependsOn(int pid){

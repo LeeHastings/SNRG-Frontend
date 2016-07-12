@@ -3,8 +3,8 @@ package org.snrg_nyc.ui;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.snrg_nyc.model.UIException;
-import org.snrg_nyc.model.UI_Interface;
+import org.snrg_nyc.model.EditorException;
+import org.snrg_nyc.model.PropertiesEditor;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -21,7 +21,7 @@ class ConditionsMenu extends GridPane{
 	private EditorPage editor;
 	Map<Integer, Integer> conditions;
 	
-	public ConditionsMenu(UI_Interface ui, EditorPage editor) throws UIException{
+	public ConditionsMenu(PropertiesEditor ui, EditorPage editor) throws EditorException{
 		this.editor = editor;
 		conditions = new HashMap<>();
 		row=0;
@@ -61,7 +61,7 @@ class ConditionsMenu extends GridPane{
 						else {
 							try {
 								setText(ui.nodeProp_getRangeLabel(pid, item));
-							} catch (UIException e) {
+							} catch (EditorException e) {
 								editor.sendError(e);
 								setText(">ERROR<");
 							}
@@ -122,7 +122,7 @@ class ConditionsMenu extends GridPane{
 	public Map<Integer, Integer> getConditions(){
 		return conditions;
 	}
-	public void setCondiditions(Map<Integer, Integer> newConds) throws UIException{
+	public void setCondiditions(Map<Integer, Integer> newConds) throws EditorException{
 		conditions.clear();
 		
 		for(int pid : newConds.keySet()){

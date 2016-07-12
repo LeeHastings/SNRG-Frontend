@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.snrg_nyc.model.EnumeratorProperty;
+
 import com.google.gson.annotations.SerializedName;
 
 class BivariatDistribution {

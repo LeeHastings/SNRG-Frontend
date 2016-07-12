@@ -2,15 +2,15 @@ package org.snrg_nyc.model;
 
 /**
  * An internal class for exceptions specific to the UI Interface
- * @author Devin
+ * @author Devin Hastings
  *
  */
-public class UIException extends Exception{
+public class EditorException extends Exception{
 	private static final long serialVersionUID = 1L;
-	public UIException(String message){
+	public EditorException(String message){
 		super(message);
 	}
-	public UIException(){
+	public EditorException(){
 		super();
 	}
 }

@@ -1,11 +1,11 @@
-package org.snrg_nyc.model.node;
+package org.snrg_nyc.model;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.annotations.SerializedName;
 
-class NodeLayer {
+public class NodeLayer {
 	@SerializedName("LayerID")
 	private String name;
 	

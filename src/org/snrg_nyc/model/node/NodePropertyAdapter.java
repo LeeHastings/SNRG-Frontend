@@ -2,6 +2,13 @@ package org.snrg_nyc.model.node;
 
 import java.lang.reflect.Type;
 
+import org.snrg_nyc.model.AttachmentProperty;
+import org.snrg_nyc.model.BooleanProperty;
+import org.snrg_nyc.model.EnumeratorProperty;
+import org.snrg_nyc.model.FractionProperty;
+import org.snrg_nyc.model.IntegerRangeProperty;
+import org.snrg_nyc.model.NodeProperty;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -86,7 +93,7 @@ class NodePropertyAdapter implements JsonSerializer<NodeProperty>, JsonDeseriali
 		NodeProperty nodeProp = null;
 		JsonObject innerJs = null;
 		
-		for(Class<?> propClass : UI_Model.nodePropertyTypes){
+		for(Class<?> propClass : NodeEditor.nodePropertyTypes){
 			if(nodePropJs.has(propClass.getSimpleName())){
 				innerJs = nodePropJs
 						             .get(propClass.getSimpleName())
@@ -146,9 +153,6 @@ class NodePropertyAdapter implements JsonSerializer<NodeProperty>, JsonDeseriali
 			break;
 		case "uniform":
 			nodeProp.useUniformDistribution();
-			break;
-		default:
-			nodeProp.distType = NodeProperty.DistType.UNIVARIAT;
 			break;
 		}
 		return nodeProp;

@@ -2,9 +2,9 @@ package org.snrg_nyc.ui;
 
 import java.util.Optional;
 
-import org.snrg_nyc.model.UIException;
-import org.snrg_nyc.model.UI_Interface;
-import org.snrg_nyc.model.node.UI_Model;
+import org.snrg_nyc.model.EditorException;
+import org.snrg_nyc.model.PropertiesEditor;
+import org.snrg_nyc.model.node.NodeEditor;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -22,7 +22,7 @@ import javafx.beans.property.*;
 
 
 public class UI_Main extends Application{
-	UI_Interface ui;
+	PropertiesEditor ui;
 	Stage stage;
 	Scene scene;
 	Alert quitAlert;
@@ -33,7 +33,7 @@ public class UI_Main extends Application{
 	@SuppressWarnings("unchecked")
 	@Override
 	public void start(Stage initStage){
-		ui = new UI_Model();
+		ui = new NodeEditor();
 		EditorPage editor = new EditorPage(ui);
 		editor.setPrefWidth(550);
 		
@@ -312,7 +312,7 @@ public class UI_Main extends Application{
 		stage.show();
 	}
 	
-	void updateProperties(LayerID lid) throws UIException{
+	void updateProperties(LayerID lid) throws EditorException{
 		properties.clear();
 		if(lid != null && lid.used()){
 			for(int i : ui.nodeProp_getPropertyIDs(lid.get())){

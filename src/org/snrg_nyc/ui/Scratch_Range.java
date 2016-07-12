@@ -1,10 +1,10 @@
 package org.snrg_nyc.ui;
 
-import org.snrg_nyc.model.UIException;
-import org.snrg_nyc.model.UI_Interface;
+import org.snrg_nyc.model.EditorException;
+import org.snrg_nyc.model.PropertiesEditor;
 
 class Scratch_Range {
-	private UI_Interface ui;
+	private PropertiesEditor ui;
 	final int rid;
 	
 	private String min;
@@ -12,7 +12,7 @@ class Scratch_Range {
 	private String label;
 	private int hash;
 	
-	public Scratch_Range(UI_Interface ui, int rid) throws UIException{
+	public Scratch_Range(PropertiesEditor ui, int rid) throws EditorException{
 		this.rid = rid;
 		this.ui = ui;
 		min = "";
@@ -39,29 +39,29 @@ class Scratch_Range {
 		return rid + hash;
 	}
 	
-	public void delete() throws UIException{
+	public void delete() throws EditorException{
 		ui.scratch_removeRange(rid);
 	}
 	
-	public String getMin() throws UIException{
+	public String getMin() throws EditorException{
 		return min;
 	}
-	public String getMax() throws UIException{
+	public String getMax() throws EditorException{
 		return max;
 	}
-	public String getLabel() throws UIException{
+	public String getLabel() throws EditorException{
 		return (label != null && label.length() > 0) ? label : "<empty>";
 	}
 	
-	public void setMin(int min) throws UIException{
+	public void setMin(int min) throws EditorException{
 		ui.scratch_setRangeMin(rid, min);
 		this.min = Integer.toString(ui.scratch_getRangeMin(rid));
 	}
-	public void setMax(int max) throws UIException{
+	public void setMax(int max) throws EditorException{
 		ui.scratch_setRangeMax(rid, max);
 		this.max = Integer.toString(ui.scratch_getRangeMax(rid));
 	}
-	public void setLabel(String label) throws UIException{
+	public void setLabel(String label) throws EditorException{
 		//Do not bother with empty or identical labels
 		if(this.label.equals(label) || label.equals("<empty>")){
 			return;
@@ -70,7 +70,7 @@ class Scratch_Range {
 		this.label = ui.scratch_getRangeLabel(rid);
 	}
 
-	public boolean isReady() throws UIException {
+	public boolean isReady() throws EditorException {
 		return ui.scratch_rangeIsSet(rid);
 	}
 }

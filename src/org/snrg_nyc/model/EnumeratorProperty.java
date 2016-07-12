@@ -1,11 +1,11 @@
-package org.snrg_nyc.model.node;
+package org.snrg_nyc.model;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 
-class EnumeratorProperty extends NodeProperty {
+public class EnumeratorProperty extends NodeProperty {
 	private static final long serialVersionUID = 1L;
 	
 	protected List<String> values;
@@ -73,7 +73,7 @@ class EnumeratorProperty extends NodeProperty {
 		assert_validCID(cid);
 		conDistributions.set(cid, dist);
 	}
-	List<ConditionalDistribution> getConditionalDistributions(){
+	public List<ConditionalDistribution> getConditionalDistributions(){
 		return conDistributions;
 	}
 	public void setConditionsOrder(List<Integer> order){

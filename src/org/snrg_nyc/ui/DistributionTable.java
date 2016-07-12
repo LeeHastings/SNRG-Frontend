@@ -3,7 +3,7 @@ package org.snrg_nyc.ui;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.snrg_nyc.model.UIException;
+import org.snrg_nyc.model.EditorException;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -17,7 +17,7 @@ class DistributionTable extends TableView<Integer> {
 	private BooleanProperty readyProperty = new SimpleBooleanProperty();
 	
 	@SuppressWarnings("unchecked")
-	public DistributionTable(EditorPage editor) throws UIException{
+	public DistributionTable(EditorPage editor) throws EditorException{
 		super();
 		this.probMap = new HashMap<>();
 		

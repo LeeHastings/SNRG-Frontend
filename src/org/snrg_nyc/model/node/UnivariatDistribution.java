@@ -6,10 +6,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.snrg_nyc.model.UIException;
-import org.snrg_nyc.model.UI_Interface;
-import org.snrg_nyc.model.node.NodeProperty.ConditionalDistribution;
-import org.snrg_nyc.model.node.NodeProperty.Distribution;
+import org.snrg_nyc.model.EnumeratorProperty;
+import org.snrg_nyc.model.NodeProperty;
+import org.snrg_nyc.model.EditorException;
+import org.snrg_nyc.model.PropertiesEditor;
+import org.snrg_nyc.model.NodeProperty.ConditionalDistribution;
+import org.snrg_nyc.model.NodeProperty.Distribution;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -63,7 +65,7 @@ class UnivariatDistribution implements Serializable {
 	@SerializedName("DependencyDistributionList")
 	List<DistributionList> distributions;
 	
-	UnivariatDistribution(UI_Interface ui, NodeProperty np) throws UIException{
+	UnivariatDistribution(PropertiesEditor ui, NodeProperty np) throws EditorException{
 	
 		if(np.getDistributionType() != NodeProperty.DistType.UNIVARIAT){
 			throw new IllegalArgumentException(
@@ -108,7 +110,7 @@ class UnivariatDistribution implements Serializable {
 		distributions.add(new DistributionList(pairs));
 	}
 
-	void addToProperty(UI_Interface ui, NodeProperty np) throws UIException{
+	void addToProperty(PropertiesEditor ui, NodeProperty np) throws EditorException{
 		if(!np.getName().equals(propName)){
 			throw new IllegalArgumentException("This distribution is for property '"+propName
 					+"', tried to bind it to property '"+np.getName()+"'");
@@ -122,7 +124,7 @@ class UnivariatDistribution implements Serializable {
 		else {
 			throw new IllegalArgumentException("The given property must be able to use distributions!");
 		}
-		ep.distType = NodeProperty.DistType.UNIVARIAT;
+		ep.setDistributionType(NodeProperty.DistType.UNIVARIAT);
 		
 		Map<Integer, Integer> conds = new HashMap<>();
 		Map<Integer, Float> rangeProbs = new HashMap<>();

@@ -4,15 +4,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.snrg_nyc.model.UI_Interface;
-import org.snrg_nyc.model.node.UI_Model;
+import org.snrg_nyc.model.PropertiesEditor;
+import org.snrg_nyc.model.node.NodeEditor;
 
 public class UnitTest {
-	static UI_Interface bl;
+	static PropertiesEditor bl;
 	
 	public static void main(String[] args){
 		
-		bl = new UI_Model();
+		bl = new NodeEditor();
 		System.out.println("Node Property types:");
 		
 		List<String> types = bl.getPropertyTypes();
