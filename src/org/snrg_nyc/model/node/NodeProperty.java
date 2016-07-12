@@ -1,4 +1,4 @@
-package org.snrg_nyc.model;
+package org.snrg_nyc.model.node;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -163,11 +163,12 @@ abstract class NodeProperty implements Serializable {
 			return "uniform";
 		case NULL:
 			return "null";
-		case UNIVARIAT:
-			return name.replace(' ', '_').toLowerCase()+"_unidist";
 		default:
-			return name.replace(' ', '_').toLowerCase()+"_dist";
+			return "unidist_"+name.replace(' ', '_').toLowerCase();
 		}
 		
+	}
+	String getBiDistID(){
+		return "bidist_"+name.toLowerCase().replaceAll(" ", "_");
 	}
 }

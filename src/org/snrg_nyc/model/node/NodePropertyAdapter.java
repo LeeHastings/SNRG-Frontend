@@ -1,4 +1,4 @@
-package org.snrg_nyc.model;
+package org.snrg_nyc.model.node;
 
 import java.lang.reflect.Type;
 
@@ -26,6 +26,7 @@ class NodePropertyAdapter implements JsonSerializer<NodeProperty>, JsonDeseriali
 	final static String enumValsLabel = "EnumValues";
 	final static String initValLabel = "DisableRandom_UseInitValue";
 	final static String distIDLabel = "DistributionID";
+	final static String pathogenLabel = "PathogenType";
 	
 	@Override
 	public JsonElement serialize(NodeProperty nodeProp, Type type, JsonSerializationContext context) {
@@ -54,7 +55,9 @@ class NodePropertyAdapter implements JsonSerializer<NodeProperty>, JsonDeseriali
 			}
 		}
 		else if(nodeProp instanceof BooleanProperty){
-			// do nothing here
+			if(nodeProp instanceof AttachmentProperty){
+				innerJs.addProperty(pathogenLabel, ((AttachmentProperty)nodeProp).getPathogen() );
+			}
 		}
 		else if(nodeProp instanceof EnumeratorProperty){
 			EnumeratorProperty en = (EnumeratorProperty) nodeProp;
@@ -117,7 +120,9 @@ class NodePropertyAdapter implements JsonSerializer<NodeProperty>, JsonDeseriali
 			}
 		}
 		else if(nodeProp instanceof BooleanProperty){
-			//Again, do nothing
+			if(nodeProp instanceof AttachmentProperty){
+				((AttachmentProperty) nodeProp).setPathogen(innerJs.get(pathogenLabel).getAsString());
+			}
 		}
 		else if(nodeProp instanceof EnumeratorProperty){
 			EnumeratorProperty en = (EnumeratorProperty) nodeProp;

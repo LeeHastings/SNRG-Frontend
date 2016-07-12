@@ -1,5 +1,6 @@
 package org.snrg_nyc.ui;
 
+import java.awt.Event;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -359,6 +360,25 @@ class EditorPage extends GridPane {
 			
 			
 			switch(propType){
+			case "AttachmentProperty":
+				Text pathogenType = new Text();
+				try {
+					if(id.usesLayer()){
+						pathogenType.setText(
+								ui.nodeProp_getPathogenType(id.lid(), id.pid()));
+					}
+					else {
+						pathogenType.setText(
+								ui.nodeProp_getPathogenType(id.pid()));
+					}
+				}
+				catch(UIException e){
+					pathogenType.setText(">ERROR<");
+					sendError(e);
+				}
+				
+				add(new Label("Pathogen Type"), 0, 7);
+				break;
 			case "EnumeratorProperty":
 				ListView<String> enumValues = new ListView<>();
 				enumValues.setPrefSize(100, 140);
@@ -1127,6 +1147,28 @@ class EditorPage extends GridPane {
 				break;
 			case "BooleanProperty":
 				nextBtn.setDisable(false);
+				break;
+			case "AttachmentProperty":
+				TextField pathogenInput = new TextField();
+
+				add(new Label("Pathogen Type"), 0, 3);
+				add(pathogenInput,              1, 3);
+				
+				checkNext = () ->{
+					nextBtn.setDisable(
+							pathogenInput.getText() == null
+							|| pathogenInput.getText().equals(""));
+				};
+				nextBtn.armedProperty().addListener((o, ov, nv)->{
+					try {
+						ui.scratch_setPathogenType(pathogenInput.getText());
+					} catch (UIException e1) {
+						sendError(e1);
+					}
+				});
+				pathogenInput.textProperty().addListener(event->{
+					checkNext.run();
+				});
 				break;
 			case "FractionProperty":
 				HBox centering = new HBox();

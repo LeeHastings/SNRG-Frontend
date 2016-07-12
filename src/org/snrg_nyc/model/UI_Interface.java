@@ -354,6 +354,25 @@ public interface UI_Interface {
 	public boolean nodeProp_isRangedProperty(int lid, int pid) throws UIException;
 	
 	/**
+	 * Get the pathogen type of an Attachment Property
+	 * @param pid The ID of the property
+	 * @return The pathogen type of the property
+	 * @throws UIException Thrown if the ID is invalid, or if the property is
+	 * not an Attachment Property
+	 */
+	public String nodeProp_getPathogenType(int pid) throws UIException;
+	
+	/**
+	 * Get the pathogen type of an Attachment Property in a layer
+	 * @param lid The layer ID the property is in
+	 * @param pid The ID of the Attachment Property
+	 * @return The pathogen type of the property
+	 * @throws UIException Thrown if the layer/property ID combination is invalid,
+	 * or if the property is not an Attachment Property
+	 */
+	public String nodeProp_getPathogenType(int lid, int pid) throws UIException;
+	
+	/**
 	 * Get a list of valid Conditional Distribution IDs for the given node property.
 	 * @param pid The ID of the node property.
 	 * @return A list of Conditional Distribution IDs (cids)
@@ -593,6 +612,23 @@ public interface UI_Interface {
 	 * {@link UI_Interface#scratch_new(String, String, String)} needs to be called.
 	 */
 	public void scratch_useUniformDistribution() throws UIException;
+	
+	/**
+	 * Set the Pathogen Type for an Attachment node property
+	 * @param type The type of the property
+	 * @throws UIException Thrown if the scratch property is not an 
+	 * attachment property or if another attachment property with the given type exists,
+	 * or if the name is otherwise invalid (empty, null, or implementation-specific rules).
+	 */
+	public void scratch_setPathogenType(String type) throws UIException;
+	
+	/**
+	 * Get the pathogen type of the scratch property
+	 * @return The Pathogen Type set using {@link UI_Interface#scratch_setPathogenType(String)}
+	 * @throws UIException Thrown if the scratch property is not 
+	 * an Attachment Property, or if the name has not been set
+	 */
+	public String scratch_getPathogenType() throws UIException;
 	
 	/**
 	 * Set the initial value of a fraction node property.  

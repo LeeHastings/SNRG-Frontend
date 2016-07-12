@@ -1,9 +1,9 @@
-package org.snrg_nyc.model;
+package org.snrg_nyc.model.node;
 
 import java.lang.reflect.Type;
 
-import org.snrg_nyc.model.UnivariatDistribution.ConditionalDistList;
-import org.snrg_nyc.model.UnivariatDistribution.DistributionList;
+import org.snrg_nyc.model.node.UnivariatDistribution.ConditionalDistList;
+import org.snrg_nyc.model.node.UnivariatDistribution.DistributionList;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonDeserializationContext;

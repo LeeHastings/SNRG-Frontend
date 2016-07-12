@@ -1,4 +1,4 @@
-package org.snrg_nyc.model;
+package org.snrg_nyc.model.node;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -6,8 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.snrg_nyc.model.NodeProperty.ConditionalDistribution;
-import org.snrg_nyc.model.NodeProperty.Distribution;
+import org.snrg_nyc.model.UIException;
+import org.snrg_nyc.model.UI_Interface;
+import org.snrg_nyc.model.node.NodeProperty.ConditionalDistribution;
+import org.snrg_nyc.model.node.NodeProperty.Distribution;
 
 import com.google.gson.annotations.SerializedName;
 

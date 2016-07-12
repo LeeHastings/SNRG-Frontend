@@ -1,4 +1,4 @@
-package org.snrg_nyc.model;
+package org.snrg_nyc.model.node;
 
 import java.util.ArrayList;
 import java.util.List;

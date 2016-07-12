@@ -4,7 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.snrg_nyc.model.*;
+import org.snrg_nyc.model.UI_Interface;
+import org.snrg_nyc.model.node.UI_Model;
 
 public class UnitTest {
 	static UI_Interface bl;

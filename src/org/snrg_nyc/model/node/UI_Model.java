@@ -1,4 +1,4 @@
-package org.snrg_nyc.model;
+package org.snrg_nyc.model.node;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
@@ -8,8 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.snrg_nyc.model.NodeProperty.ConditionalDistribution;
-import org.snrg_nyc.model.NodeProperty.Distribution;
+import org.snrg_nyc.model.UIException;
+import org.snrg_nyc.model.UI_Interface;
+import org.snrg_nyc.model.node.NodeProperty.ConditionalDistribution;
+import org.snrg_nyc.model.node.NodeProperty.Distribution;
 import org.snrg_nyc.persistence.ExperimentSerializer;
 import org.snrg_nyc.persistence.PersistenceException;
 import org.snrg_nyc.persistence.JsonFileSerializer;
@@ -34,7 +36,8 @@ public class UI_Model implements UI_Interface{
 			EnumeratorProperty.class, 
 			IntegerRangeProperty.class, 
 			BooleanProperty.class,
-			FractionProperty.class
+			FractionProperty.class,
+			AttachmentProperty.class
 			};
 	
 	/** The temporary property used when creating new node properties */
@@ -450,6 +453,21 @@ public class UI_Model implements UI_Interface{
 		}
 		return fp.getInitValue();
 	}
+	
+	@Override
+	public String nodeProp_getPathogenType(int pid) throws UIException {
+		assert_validPID(pid);
+		assert_nodeType(nodeProperties.get(pid), AttachmentProperty.class);
+		return ((AttachmentProperty) nodeProperties.get(pid)).getPathogen();
+	}
+
+	@Override
+	public String nodeProp_getPathogenType(int lid, int pid) throws UIException {
+		assert_validPID(lid, pid);
+		assert_nodeType(nodeLayers.get(lid).getProperty(pid),
+				AttachmentProperty.class);
+		return ((AttachmentProperty) nodeLayers.get(lid).getProperty(pid)).getPathogen();
+	}
 
 	@Override
 	public boolean nodeProp_isRangedProperty(int pid) throws UIException {
@@ -607,7 +625,7 @@ public class UI_Model implements UI_Interface{
 					scratchProperty = (NodeProperty) con.newInstance(name, description);
 				}
 				catch(Exception e){
-					throw new UIException(e.getMessage());
+					throw new UIException(e.toString());
 				}
 				break;
 			}
@@ -713,6 +731,25 @@ public class UI_Model implements UI_Interface{
 	}
 	
 	@Override
+	public void scratch_setPathogenType(String type) throws UIException {
+		if(type == null || type.equals("")){
+			throw new UIException("A pathogen type cannot be null or empty!");
+		}
+		assert_scratchExists();
+		assert_nodeType(scratchProperty, AttachmentProperty.class);
+		
+		for(NodeProperty np : nodeProperties){
+			if(np != null && np instanceof AttachmentProperty
+			   &&((AttachmentProperty) np).getPathogen().equals(type)
+			){
+				throw new UIException("There is another Attachment "
+						+ "Property with the pathogen type '"+type+"'");
+			}
+		}
+		((AttachmentProperty) scratchProperty).setPathogen(type);
+	}
+	
+	@Override
 	public boolean scratch_rangeIsSet(int rid) throws UIException{
 		assert_scratchExists();
 		assert_nodeType(scratchProperty, EnumeratorProperty.class);
@@ -747,6 +784,13 @@ public class UI_Model implements UI_Interface{
 			throw new UIException("Invalid RID: "+rid);
 		}
 		return irp.getRangeMax(rid);
+	}
+
+	@Override
+	public String scratch_getPathogenType() throws UIException {
+		assert_scratchExists();
+		assert_nodeType(scratchProperty, AttachmentProperty.class);
+		return ((AttachmentProperty)scratchProperty).getPathogen();
 	}
 
 	@Override

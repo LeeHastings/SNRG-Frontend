@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import org.snrg_nyc.model.UIException;
 import org.snrg_nyc.model.UI_Interface;
-import org.snrg_nyc.model.UI_Model;
+import org.snrg_nyc.model.node.UI_Model;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
