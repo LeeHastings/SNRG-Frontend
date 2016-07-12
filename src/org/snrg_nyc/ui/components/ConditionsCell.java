@@ -1,6 +1,9 @@
-package org.snrg_nyc.ui;
+package org.snrg_nyc.ui.components;
 
 import java.util.Map.Entry;
+
+import org.snrg_nyc.model.PropertiesEditor;
+import org.snrg_nyc.ui.EditorPage;
 
 import javafx.collections.ObservableList;
 import javafx.scene.control.ListCell;
@@ -8,7 +11,7 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 
-class ConditionsCell extends ListCell<Integer> {
+public class ConditionsCell extends ListCell<Integer> {
 	private EditorPage editor;
 	
 	public ConditionsCell(EditorPage e){
@@ -94,12 +97,13 @@ class ConditionsCell extends ListCell<Integer> {
 		}
 		String name = "Distribution: ";
 		try{
+			PropertiesEditor model = editor.getModel();
 			for(Entry<Integer, Integer> pair :
-				editor.ui.scratch_getDistributionCondition(item).entrySet() 
+				model.scratch_getDistributionCondition(item).entrySet() 
 				){
-				name += editor.ui.nodeProp_getName(pair.getKey())
+				name += model.nodeProp_getName(pair.getKey())
 				     +"["
-				     + editor.ui.nodeProp_getRangeLabel(pair.getKey(), pair.getValue())
+				     + model.nodeProp_getRangeLabel(pair.getKey(), pair.getValue())
 				     +"] ";
 			}
 		}

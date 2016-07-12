@@ -1,6 +1,6 @@
-package org.snrg_nyc.ui;
+package org.snrg_nyc.ui.components;
 
-class PropertyID {
+public class PropertyID {
 	private int pid;
 	private LayerID lid;
 	

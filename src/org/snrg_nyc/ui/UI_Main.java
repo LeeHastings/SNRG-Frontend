@@ -5,6 +5,12 @@ import java.util.Optional;
 import org.snrg_nyc.model.EditorException;
 import org.snrg_nyc.model.PropertiesEditor;
 import org.snrg_nyc.model.node.NodeEditor;
+import org.snrg_nyc.ui.components.LayerCell;
+import org.snrg_nyc.ui.components.LayerID;
+import org.snrg_nyc.ui.components.PropertyID;
+import org.snrg_nyc.ui.components.PropertyNameFactory;
+import org.snrg_nyc.ui.components.PropertyTypeFactory;
+import org.snrg_nyc.ui.components.UI_Message;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -34,8 +40,8 @@ public class UI_Main extends Application{
 	@Override
 	public void start(Stage initStage){
 		ui = new NodeEditor();
-		EditorPage editor = new EditorPage(ui);
-		editor.setPrefWidth(550);
+		EditorPage editor = new NodeEditorPage(ui);
+		editor.asRegion().setPrefWidth(550);
 		
 		stage = initStage;
 		stage.setTitle("Node Settings Editor");
@@ -190,7 +196,7 @@ public class UI_Main extends Application{
 			}
 		});
 		
-		editor.layerName.addListener((o, oldVal, newVal)->{
+		editor.layerName().addListener((o, oldVal, newVal)->{
 			if(newVal!= null && !newVal.equals("")){
 				try {
 					int lid = ui.layer_new(newVal);
@@ -264,12 +270,12 @@ public class UI_Main extends Application{
 		messagePane.getStyleClass().add("messages");
 		messageBox.getStyleClass().add("message-text");
 		
-		editor.advancePage.addListener(e->{
-			mainPane.setCenter(editor);
+		editor.advancePage().addListener(e->{
+			mainPane.setCenter(editor.asRegion());
 		});
 		
-		editor.finished.addListener(e -> {
-			if(editor.finished.get()){ 
+		editor.finished().addListener((o, oldval, newval) -> {
+			if(newval){ 
 				try{
 					ui.scratch_commitToNodeProperties();
 					updateProperties(layerSelect.getValue());
@@ -280,7 +286,7 @@ public class UI_Main extends Application{
 			}
 		});
 		
-		editor.messages.addListener(new ListChangeListener<UI_Message>(){
+		editor.messages().addListener(new ListChangeListener<UI_Message>(){
 			@Override
 			public void onChanged(Change<? extends UI_Message> c) {
 				Text t;
@@ -288,7 +294,7 @@ public class UI_Main extends Application{
 				c.next();
 				if(c.getRemovedSize() > 0){
 					messageBox.getChildren().clear();
-					for(UI_Message m : editor.messages){
+					for(UI_Message m : editor.messages()){
 						t = m.getMessageUI();
 						t.setWrappingWidth(w);
 						messageBox.getChildren().add(t);

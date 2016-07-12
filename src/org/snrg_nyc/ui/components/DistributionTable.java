@@ -1,9 +1,10 @@
-package org.snrg_nyc.ui;
+package org.snrg_nyc.ui.components;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.snrg_nyc.model.EditorException;
+import org.snrg_nyc.ui.EditorPage;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -12,7 +13,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.TextFieldTableCell;
 
-class DistributionTable extends TableView<Integer> {
+public class DistributionTable extends TableView<Integer> {
 	private Map<Integer, Float> probMap;
 	private BooleanProperty readyProperty = new SimpleBooleanProperty();
 	
@@ -28,7 +29,7 @@ class DistributionTable extends TableView<Integer> {
 		
 		setEditable(true);
 		probCol.setEditable(true);
-		for(int i : editor.ui.scratch_getRangeIDs()){
+		for(int i : editor.getModel().scratch_getRangeIDs()){
 			probMap.put(i, null);
 			this.getItems().add(i);
 		}
@@ -36,7 +37,7 @@ class DistributionTable extends TableView<Integer> {
 		setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 		nameCol.setCellValueFactory(col ->{
 			try {
-				return new SimpleStringProperty(editor.ui.scratch_getRangeLabel(col.getValue()));
+				return new SimpleStringProperty(editor.getModel().scratch_getRangeLabel(col.getValue()));
 			} catch (Exception e) {
 				editor.sendError(e);
 				return new SimpleStringProperty(">ERROR<");

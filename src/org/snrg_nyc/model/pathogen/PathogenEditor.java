@@ -1,4 +1,4 @@
-package org.snrg_nyc.model.node;
+package org.snrg_nyc.model.pathogen;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
@@ -16,9 +16,9 @@ import org.snrg_nyc.model.FractionProperty;
 import org.snrg_nyc.model.IntegerRangeProperty;
 import org.snrg_nyc.model.NodeLayer;
 import org.snrg_nyc.model.NodeProperty;
+import org.snrg_nyc.model.PropertyAdapter;
 import org.snrg_nyc.model.EditorException;
 import org.snrg_nyc.model.PropertiesEditor;
-import org.snrg_nyc.model.PropertyAdapter;
 import org.snrg_nyc.model.UnivariatDistribution;
 import org.snrg_nyc.model.NodeProperty.ConditionalDistribution;
 import org.snrg_nyc.model.NodeProperty.Distribution;
@@ -30,24 +30,23 @@ import com.google.gson.GsonBuilder;
 
 
 /**
- * An editor class for creating node properties.
- * The only public methods are those listed in the {@link PropertiesEditor}.
+ * A class for editing the properties in a pathogen.
+ * The only public methods are those listed in {@link PropertiesEditor}.
  * @author Devin Hastings
  *
  */
-public class NodeEditor implements PropertiesEditor {
+public class PathogenEditor implements PropertiesEditor{
 	
 	/*         *\
 	 * Members *
 	\*         */
 
 	/** Node Property classes that can be created in the editor */
-	static final Class<?>[] nodePropertyTypes = {
+	static final Class<?>[] pathogenPropertyTypes = {
 			EnumeratorProperty.class, 
 			IntegerRangeProperty.class, 
 			BooleanProperty.class,
-			FractionProperty.class,
-			AttachmentProperty.class
+			FractionProperty.class
 		};
 	
 	/** The temporary property used when creating new node properties */
@@ -63,13 +62,16 @@ public class NodeEditor implements PropertiesEditor {
 	
 	private ExperimentSerializer serializer;
 	
-	private NodeSettings nodeSettings = new NodeSettings();
+	private PathogenSettings nodeSettings = new PathogenSettings();
+	
+	private String pathogenName;
 	
 	/*         *\
 	 * Methods *
 	\*         */
 	
-	public NodeEditor(){
+	public PathogenEditor(String pathogen){
+		pathogenName = pathogen;
 		nodeProperties = new ArrayList<>();
 		nodeLayers = new ArrayList<>();
 		
@@ -83,7 +85,7 @@ public class NodeEditor implements PropertiesEditor {
                 .setPrettyPrinting()
                 .disableHtmlEscaping()
                 .registerTypeAdapter(UnivariatDistribution.DistributionList.class, new DistributionDeserializer())
-                .registerTypeAdapter(NodeProperty.class, new PropertyAdapter(nodePropertyTypes));
+                .registerTypeAdapter(NodeProperty.class, new PropertyAdapter(pathogenPropertyTypes));
 		
 		serializer = new JsonFileSerializer(g);
 	}
@@ -266,7 +268,7 @@ public class NodeEditor implements PropertiesEditor {
 			throw new EditorException("Problem with new project: missing nodesettings!");
 		}
 		else {
-			nodeSettings = (NodeSettings) e.get("nodesettings");
+			nodeSettings = (PathogenSettings) e.get("nodesettings");
 			nodeLayers = nodeSettings.getLayerAttributesList();
 			nodeProperties = nodeSettings.getPropertyDefinitionList();
 
@@ -365,7 +367,7 @@ public class NodeEditor implements PropertiesEditor {
 	@Override
 	public List<String> getPropertyTypes() {
 		ArrayList<String> li = new ArrayList<>();
-		for(Class<?> c : nodePropertyTypes){
+		for(Class<?> c : pathogenPropertyTypes){
 			li.add(c.getSimpleName());
 		}
 		return li;
@@ -626,7 +628,7 @@ public class NodeEditor implements PropertiesEditor {
 	@Override
 	public void scratch_new(String name, String type, String description) throws EditorException {
 		boolean validType = false;
-		for(Class<?> nodeclass: nodePropertyTypes){
+		for(Class<?> nodeclass: pathogenPropertyTypes){
 			if(type.equals(nodeclass.getSimpleName())){
 				validType = true;
 				try{

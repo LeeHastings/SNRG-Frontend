@@ -1,14 +1,14 @@
-package org.snrg_nyc.ui;
+package org.snrg_nyc.ui.components;
 
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
-class UI_Message {
+public class UI_Message {
 	private String msg;
 	private Color color;
 	private Type msgType;
 	
-	enum Type{
+	public enum Type{
 		Info,
 		Warning,
 		Error

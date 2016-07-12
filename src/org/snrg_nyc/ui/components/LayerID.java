@@ -1,6 +1,6 @@
-package org.snrg_nyc.ui;
+package org.snrg_nyc.ui.components;
 
-class LayerID {
+public class LayerID {
 	private int id;
 	private boolean used;
 	

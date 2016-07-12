@@ -1,8 +1,10 @@
-package org.snrg_nyc.ui;
+package org.snrg_nyc.ui.components;
+
+import org.snrg_nyc.ui.EditorPage;
 
 import javafx.scene.control.ListCell;
 
-class LayerCell extends ListCell<LayerID> {
+public class LayerCell extends ListCell<LayerID> {
 	private EditorPage editor;
 	public LayerCell(EditorPage editor){
 		super();
@@ -17,7 +19,7 @@ class LayerCell extends ListCell<LayerID> {
 			}
 			else {
 				try{
-					setText(editor.ui.layer_getName(item.get()));
+					setText(editor.getModel().layer_getName(item.get()));
 				}
 				catch (Exception e){
 					editor.sendError(e);

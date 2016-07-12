@@ -1,9 +1,9 @@
-package org.snrg_nyc.ui;
+package org.snrg_nyc.ui.components;
 
 import org.snrg_nyc.model.EditorException;
 import org.snrg_nyc.model.PropertiesEditor;
 
-class Scratch_Range {
+public class Scratch_Range {
 	private PropertiesEditor ui;
 	final int rid;
 	

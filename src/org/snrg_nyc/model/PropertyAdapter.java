@@ -1,13 +1,6 @@
-package org.snrg_nyc.model.node;
+package org.snrg_nyc.model;
 
 import java.lang.reflect.Type;
-
-import org.snrg_nyc.model.AttachmentProperty;
-import org.snrg_nyc.model.BooleanProperty;
-import org.snrg_nyc.model.EnumeratorProperty;
-import org.snrg_nyc.model.FractionProperty;
-import org.snrg_nyc.model.IntegerRangeProperty;
-import org.snrg_nyc.model.NodeProperty;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
@@ -24,7 +17,7 @@ import com.google.gson.JsonSerializer;
  * @author Devin Hastings
  *
  */
-class NodePropertyAdapter implements JsonSerializer<NodeProperty>, JsonDeserializer<NodeProperty> {
+public class PropertyAdapter implements JsonSerializer<NodeProperty>, JsonDeserializer<NodeProperty> {
 	//Passing strings as parameters multiple times is too error-prone for me
 	final static String nameLabel = "PropertyName";
 	final static String descLabel = "Description";
@@ -34,6 +27,12 @@ class NodePropertyAdapter implements JsonSerializer<NodeProperty>, JsonDeseriali
 	final static String initValLabel = "DisableRandom_UseInitValue";
 	final static String distIDLabel = "DistributionID";
 	final static String pathogenLabel = "PathogenType";
+	
+	private Class<?>[] propertyTypes;
+	
+	public PropertyAdapter(Class<?>[] propTypes){
+		propertyTypes = propTypes;
+	}
 	
 	@Override
 	public JsonElement serialize(NodeProperty nodeProp, Type type, JsonSerializationContext context) {
@@ -93,7 +92,7 @@ class NodePropertyAdapter implements JsonSerializer<NodeProperty>, JsonDeseriali
 		NodeProperty nodeProp = null;
 		JsonObject innerJs = null;
 		
-		for(Class<?> propClass : NodeEditor.nodePropertyTypes){
+		for(Class<?> propClass : propertyTypes){
 			if(nodePropJs.has(propClass.getSimpleName())){
 				innerJs = nodePropJs
 						             .get(propClass.getSimpleName())

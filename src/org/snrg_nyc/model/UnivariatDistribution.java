@@ -1,17 +1,10 @@
-package org.snrg_nyc.model.node;
+package org.snrg_nyc.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.snrg_nyc.model.EnumeratorProperty;
-import org.snrg_nyc.model.NodeProperty;
-import org.snrg_nyc.model.EditorException;
-import org.snrg_nyc.model.PropertiesEditor;
-import org.snrg_nyc.model.NodeProperty.ConditionalDistribution;
-import org.snrg_nyc.model.NodeProperty.Distribution;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -20,7 +13,7 @@ import com.google.gson.annotations.SerializedName;
  * @author Devin Hastings
  *
  */
-class UnivariatDistribution implements Serializable {
+public class UnivariatDistribution implements Serializable {
 	private static final long serialVersionUID = 1L;
 	class Condition{
 		String Name;
@@ -40,7 +33,7 @@ class UnivariatDistribution implements Serializable {
 			Value = v;
 		}
 	}
-	static class DistributionList {
+	public static class DistributionList {
 		@SerializedName("DistributionSampleList")
 		List<ValuePair> values;
 		DistributionList(List<ValuePair> vals){
@@ -65,7 +58,7 @@ class UnivariatDistribution implements Serializable {
 	@SerializedName("DependencyDistributionList")
 	List<DistributionList> distributions;
 	
-	UnivariatDistribution(PropertiesEditor ui, NodeProperty np) throws EditorException{
+	public UnivariatDistribution(PropertiesEditor ui, NodeProperty np) throws EditorException{
 	
 		if(np.getDistributionType() != NodeProperty.DistType.UNIVARIAT){
 			throw new IllegalArgumentException(
@@ -110,7 +103,7 @@ class UnivariatDistribution implements Serializable {
 		distributions.add(new DistributionList(pairs));
 	}
 
-	void addToProperty(PropertiesEditor ui, NodeProperty np) throws EditorException{
+	public void addToProperty(PropertiesEditor ui, NodeProperty np) throws EditorException{
 		if(!np.getName().equals(propName)){
 			throw new IllegalArgumentException("This distribution is for property '"+propName
 					+"', tried to bind it to property '"+np.getName()+"'");
@@ -160,7 +153,7 @@ class UnivariatDistribution implements Serializable {
 					}
 					conds.put(pid,rid);
 				}
-				ep.addConditionalDistribution(new ConditionalDistribution(conds, rangeProbs));
+				ep.addConditionalDistribution(new NodeProperty.ConditionalDistribution(conds, rangeProbs));
 			}
 			else {
 				if(distributions.indexOf(dist) != distributions.size()-1){
@@ -168,7 +161,7 @@ class UnivariatDistribution implements Serializable {
 							"Found a default distribution before the end of the "
 							+ "distribution list in Univariat Distribution "+name);
 				}
-				ep.setDefaultDistribution(new Distribution(rangeProbs));
+				ep.setDefaultDistribution(new NodeProperty.Distribution(rangeProbs));
 			}
 		}
 	}

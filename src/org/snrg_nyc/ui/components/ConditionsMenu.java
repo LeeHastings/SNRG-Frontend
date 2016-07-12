@@ -1,10 +1,11 @@
-package org.snrg_nyc.ui;
+package org.snrg_nyc.ui.components;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.snrg_nyc.model.EditorException;
 import org.snrg_nyc.model.PropertiesEditor;
+import org.snrg_nyc.ui.EditorPage;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -14,7 +15,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.layout.GridPane;
 
-class ConditionsMenu extends GridPane{
+public class ConditionsMenu extends GridPane{
 	
 	private int row;
 	private BooleanProperty readyProperty;

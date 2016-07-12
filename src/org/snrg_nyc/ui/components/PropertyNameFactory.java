@@ -1,4 +1,6 @@
-package org.snrg_nyc.ui;
+package org.snrg_nyc.ui.components;
+
+import org.snrg_nyc.ui.EditorPage;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
@@ -6,12 +8,12 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.util.Callback;
 
-class PropertyTypeFactory implements 
+public class PropertyNameFactory implements 
 	Callback<TableColumn.CellDataFeatures<PropertyID, String>, ObservableValue<String>> {
 	
 	private EditorPage editor;
 	
-	public PropertyTypeFactory(EditorPage e){
+	public PropertyNameFactory(EditorPage e){
 		editor = e;
 	}
 	
@@ -19,18 +21,14 @@ class PropertyTypeFactory implements
 	public ObservableValue<String> call(CellDataFeatures<PropertyID, String> cellData) {
 		PropertyID id = cellData.getValue();
 		try{
-			String type;
+			String name;
 			if(!id.usesLayer()){
-				type = editor.ui.nodeProp_getType(id.pid());
+				name = editor.getModel().nodeProp_getName(id.pid());
 			}
 			else {
-				type = editor.ui.nodeProp_getType(id.lid(), id.pid());
+				name = editor.getModel().nodeProp_getName(id.lid(),id.pid());
 			}
-			
-			if(type.contains("Property")){
-				type = type.substring(0, type.indexOf("Property"));
-			}
-			return new SimpleStringProperty(type);
+			return new SimpleStringProperty(name);
 		}
 		catch(Exception e){
 			editor.sendError(e);
