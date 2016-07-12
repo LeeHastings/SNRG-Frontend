@@ -41,7 +41,7 @@ public class UI_Main extends Application{
 	public void start(Stage initStage){
 		ui = new NodeEditor();
 		EditorPage editor = new NodeEditorPage(ui);
-		editor.asRegion().setPrefWidth(550);
+		editor.setPrefWidth(550);
 		
 		stage = initStage;
 		stage.setTitle("Node Settings Editor");
@@ -271,7 +271,7 @@ public class UI_Main extends Application{
 		messageBox.getStyleClass().add("message-text");
 		
 		editor.advancePage().addListener(e->{
-			mainPane.setCenter(editor.asRegion());
+			mainPane.setCenter(editor);
 		});
 		
 		editor.finished().addListener((o, oldval, newval) -> {

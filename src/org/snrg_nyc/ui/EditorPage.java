@@ -1,16 +1,25 @@
 package org.snrg_nyc.ui;
 
 import org.snrg_nyc.model.PropertiesEditor;
+import org.snrg_nyc.ui.EditorPage.Mode;
 import org.snrg_nyc.ui.components.PropertyID;
 import org.snrg_nyc.ui.components.UI_Message;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ListProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleListProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.scene.Node;
-import javafx.scene.layout.Region;
+import javafx.scene.control.Button;
+import javafx.scene.layout.GridPane;
+import javafx.scene.shape.Line;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 
-public interface EditorPage {
+public abstract class EditorPage extends GridPane {
 	
 	public enum Mode{
 		NEW_PROP,
@@ -18,23 +27,45 @@ public interface EditorPage {
 		VIEW_PROP,
 		IDLE
 	}
+
+	protected PropertiesEditor ui;
 	
-	public void sendError(Exception e);
-	public void sendInfo(String s);
-	public void sendWarning(String s);
+	protected int pageNumber = 0;
+	protected PropertyID propViewerID;
+	protected Text title;
+	protected Line hbar;
+	protected Button nextBtn, cancel;
 	
-	public PropertiesEditor getModel();
+	protected final BooleanProperty advancePage = new SimpleBooleanProperty();
+	protected final BooleanProperty finished = new SimpleBooleanProperty();
+	protected final StringProperty layerName = new SimpleStringProperty();
 	
-	public Node lookup(String string);
+	protected final Font titleFont = Font.font("sans", FontWeight.LIGHT, FontPosture.REGULAR, 20);
+	protected Mode mode;
+
+	protected final ListProperty<UI_Message> messages = new SimpleListProperty<UI_Message>();
 	
-	public ListProperty<UI_Message> messages();
-	public BooleanProperty finished();
-	public BooleanProperty advancePage();
-	public StringProperty layerName();
+	public void sendError(Exception e){
+		messages.add(new UI_Message(e.getMessage(), UI_Message.Type.Error));
+		e.printStackTrace();
+	}
 	
-	public Region asRegion();
+	public void sendWarning(String s){
+		messages.add(new UI_Message(s, UI_Message.Type.Warning));
+	}
 	
-	public void viewProperty(PropertyID pid);
-	public void createProperty();
-	public void createLayer();
+	public void sendInfo(String s){
+		messages.add(new UI_Message(s, UI_Message.Type.Info));
+	}
+	
+	public abstract PropertiesEditor getModel();
+	
+	public abstract ListProperty<UI_Message> messages();
+	public abstract BooleanProperty finished();
+	public abstract BooleanProperty advancePage();
+	public abstract StringProperty layerName();
+	
+	public abstract void viewProperty(PropertyID pid);
+	public abstract void createProperty();
+	public abstract void createLayer();
 }

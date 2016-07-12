@@ -58,23 +58,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.util.StringConverter;
 
-class PathogenEditorPage extends GridPane implements EditorPage {
-
-	public final PropertiesEditor ui;
-	
-	private int pageNumber = 0;
-	private PropertyID propViewerID;
-	private Text title;
-	private Line hbar;
-	private Button nextBtn, cancel;
-	
-	final BooleanProperty advancePage = new SimpleBooleanProperty();
-	final BooleanProperty finished = new SimpleBooleanProperty();
-	final StringProperty layerName = new SimpleStringProperty();
-	
-	final ListProperty<UI_Message> messages = new SimpleListProperty<UI_Message>();
-	final Font titleFont = Font.font("sans", FontWeight.LIGHT, FontPosture.REGULAR, 20);
-	private Mode mode;
+class PathogenEditorPage extends EditorPage {
 	
 	public PathogenEditorPage(PropertiesEditor ui){
 		this.ui = ui;
@@ -1556,9 +1540,5 @@ class PathogenEditorPage extends GridPane implements EditorPage {
 	public StringProperty layerName() {
 		return layerName;
 	}
-	
-	@Override
-	public Region asRegion() {
-		return this;
-	}
+
 }

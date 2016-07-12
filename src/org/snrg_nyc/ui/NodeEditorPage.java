@@ -50,31 +50,11 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
 import javafx.scene.shape.Line;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontPosture;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.util.StringConverter;
 
-class NodeEditorPage extends GridPane implements EditorPage {
-
-	public final PropertiesEditor ui;
-	
-	private int pageNumber = 0;
-	private PropertyID propViewerID;
-	private Text title;
-	private Line hbar;
-	private Button nextBtn, cancel;
-	
-	final BooleanProperty advancePage = new SimpleBooleanProperty();
-	final BooleanProperty finished = new SimpleBooleanProperty();
-	final StringProperty layerName = new SimpleStringProperty();
-	
-	final ListProperty<UI_Message> messages = new SimpleListProperty<UI_Message>();
-	final Font titleFont = Font.font("sans", FontWeight.LIGHT, FontPosture.REGULAR, 20);
-	private Mode mode;
+class NodeEditorPage extends EditorPage {
 	
 	public NodeEditorPage(PropertiesEditor ui){
 		this.ui = ui;
@@ -100,19 +80,6 @@ class NodeEditorPage extends GridPane implements EditorPage {
 				advancePage.set(true);
 			}
 		});
-	}
-	
-	public void sendError(Exception e){
-		messages.add(new UI_Message(e.getMessage(), UI_Message.Type.Error));
-		e.printStackTrace();
-	}
-	
-	public void sendWarning(String s){
-		messages.add(new UI_Message(s, UI_Message.Type.Warning));
-	}
-	
-	public void sendInfo(String s){
-		messages.add(new UI_Message(s, UI_Message.Type.Info));
 	}
 	
 	public void createProperty(){
@@ -1555,10 +1522,5 @@ class NodeEditorPage extends GridPane implements EditorPage {
 	@Override
 	public StringProperty layerName() {
 		return layerName;
-	}
-	
-	@Override
-	public Region asRegion() {
-		return this;
 	}
 }
