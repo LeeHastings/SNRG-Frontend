@@ -20,13 +20,10 @@ import org.snrg_nyc.ui.components.UI_Message;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -57,29 +54,7 @@ import javafx.util.StringConverter;
 class NodeEditorPage extends EditorPage {
 	
 	public NodeEditorPage(PropertiesEditor ui){
-		this.ui = ui;
-		mode = Mode.IDLE;
-		setAlignment(Pos.TOP_LEFT);
-		setVgap(10);
-		setHgap(10);
-		setPadding(new Insets(15));
-		
-		messages.set( FXCollections.observableArrayList( new ArrayList<>() ));
-		
-		advancePage.addListener((o, old, advance)->{
-			if(advance){
-				updatePage();
-				advancePage.set(false);
-			}
-		});
-		
-		finished.addListener( (o, oldVal, newVal)->{
-			if(newVal){
-				pageNumber = 0;
-				mode = Mode.IDLE;
-				advancePage.set(true);
-			}
-		});
+		super(ui);
 	}
 	
 	public void createProperty(){
@@ -118,7 +93,7 @@ class NodeEditorPage extends EditorPage {
 		advancePage.set(true);
 	}
 	
-	private void updatePage(){
+	protected void updatePage(){
 		getChildren().clear();
 		
 		title = new Text();
@@ -746,7 +721,7 @@ class NodeEditorPage extends EditorPage {
 		Runnable checkNext;
 		
 		if(pageNumber == 0){
-			title.setText(title.getText()+" - Basic Properties");
+			title.setText(title.getText()+" - Basic Settings");
 			
 			TextField propName = new TextField();
 			
@@ -1502,25 +1477,5 @@ class NodeEditorPage extends EditorPage {
 	@Override
 	public PropertiesEditor getModel() {
 		return ui;
-	}
-
-	@Override
-	public ListProperty<UI_Message> messages() {
-		return messages;
-	}
-
-	@Override
-	public BooleanProperty finished() {
-		return finished;
-	}
-
-	@Override
-	public BooleanProperty advancePage() {
-		return advancePage;
-	}
-	
-	@Override
-	public StringProperty layerName() {
-		return layerName;
 	}
 }

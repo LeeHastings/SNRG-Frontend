@@ -10,6 +10,7 @@ public class Wrapper<T>  {
 	
 	private T data;
 	private List<Listener<T>> listeners = new ArrayList<>();
+	private List<Wrapper<T>> boundProperties = new ArrayList<>();
 	
 	public Wrapper(){
 		data = null;
@@ -46,6 +47,33 @@ public class Wrapper<T>  {
 		}
 		else {
 			listeners.remove(i);
+		}
+	}
+	
+	public void bindTwoWay(Wrapper<T> wrapper){
+		bindOneWay(wrapper);
+		addChangeListener((w, oldVal, newVal)->{
+			wrapper.set(newVal);
+		});
+	}
+	
+	public void bindOneWay(Wrapper<T> wrapper){
+		if(boundProperties.contains(wrapper)){
+			throw new IllegalStateException("Tried to bind a property that was already bound");
+		}
+		boundProperties.add(wrapper);
+		wrapper.addChangeListener((w, oldval, newval)->{
+			this.set(newval);
+		});
+	}
+	
+	public void unBind(Wrapper<T> wrapper){
+		int i = boundProperties.indexOf(wrapper);
+		if(i < 0){
+			throw new IllegalArgumentException("Tried to unbind property that was never bound");
+		}
+		else {
+			boundProperties.remove(i);
 		}
 	}
 }

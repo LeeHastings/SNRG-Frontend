@@ -196,7 +196,7 @@ public class UI_Main extends Application{
 			}
 		});
 		
-		editor.layerName().addListener((o, oldVal, newVal)->{
+		editor.layerName.addListener((o, oldVal, newVal)->{
 			if(newVal!= null && !newVal.equals("")){
 				try {
 					int lid = ui.layer_new(newVal);
@@ -270,11 +270,11 @@ public class UI_Main extends Application{
 		messagePane.getStyleClass().add("messages");
 		messageBox.getStyleClass().add("message-text");
 		
-		editor.advancePage().addListener(e->{
+		editor.advancePage.addListener(e->{
 			mainPane.setCenter(editor);
 		});
 		
-		editor.finished().addListener((o, oldval, newval) -> {
+		editor.finished.addListener((o, oldval, newval) -> {
 			if(newval){ 
 				try{
 					ui.scratch_commitToNodeProperties();
@@ -286,7 +286,7 @@ public class UI_Main extends Application{
 			}
 		});
 		
-		editor.messages().addListener(new ListChangeListener<UI_Message>(){
+		editor.messages.addListener(new ListChangeListener<UI_Message>(){
 			@Override
 			public void onChanged(Change<? extends UI_Message> c) {
 				Text t;
@@ -294,7 +294,7 @@ public class UI_Main extends Application{
 				c.next();
 				if(c.getRemovedSize() > 0){
 					messageBox.getChildren().clear();
-					for(UI_Message m : editor.messages()){
+					for(UI_Message m : editor.messages){
 						t = m.getMessageUI();
 						t.setWrappingWidth(w);
 						messageBox.getChildren().add(t);

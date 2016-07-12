@@ -1,7 +1,8 @@
 package org.snrg_nyc.ui;
 
+import java.util.ArrayList;
+
 import org.snrg_nyc.model.PropertiesEditor;
-import org.snrg_nyc.ui.EditorPage.Mode;
 import org.snrg_nyc.ui.components.PropertyID;
 import org.snrg_nyc.ui.components.UI_Message;
 
@@ -11,6 +12,9 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
 import javafx.scene.shape.Line;
@@ -21,12 +25,13 @@ import javafx.scene.text.Text;
 
 public abstract class EditorPage extends GridPane {
 	
-	public enum Mode{
+	public enum Mode {
 		NEW_PROP,
 		NEW_LAYER,
 		VIEW_PROP,
 		IDLE
 	}
+	protected Mode mode;
 
 	protected PropertiesEditor ui;
 	
@@ -39,12 +44,36 @@ public abstract class EditorPage extends GridPane {
 	protected final BooleanProperty advancePage = new SimpleBooleanProperty();
 	protected final BooleanProperty finished = new SimpleBooleanProperty();
 	protected final StringProperty layerName = new SimpleStringProperty();
-	
-	protected final Font titleFont = Font.font("sans", FontWeight.LIGHT, FontPosture.REGULAR, 20);
-	protected Mode mode;
-
 	protected final ListProperty<UI_Message> messages = new SimpleListProperty<UI_Message>();
 	
+	protected static final Font titleFont = Font.font("sans", FontWeight.LIGHT, FontPosture.REGULAR, 20);
+	
+	public EditorPage(PropertiesEditor ui){
+		this.ui = ui;
+		mode = Mode.IDLE;
+		setAlignment(Pos.TOP_LEFT);
+		setVgap(10);
+		setHgap(10);
+		setPadding(new Insets(15));
+		
+		messages.set( FXCollections.observableArrayList( new ArrayList<>() ));
+		
+		advancePage.addListener((o, old, advance)->{
+			if(advance){
+				updatePage();
+				advancePage.set(false);
+			}
+		});
+		
+		finished.addListener( (o, oldVal, newVal)->{
+			if(newVal){
+				pageNumber = 0;
+				mode = Mode.IDLE;
+				advancePage.set(true);
+			}
+		});
+	}
+
 	public void sendError(Exception e){
 		messages.add(new UI_Message(e.getMessage(), UI_Message.Type.Error));
 		e.printStackTrace();
@@ -60,10 +89,7 @@ public abstract class EditorPage extends GridPane {
 	
 	public abstract PropertiesEditor getModel();
 	
-	public abstract ListProperty<UI_Message> messages();
-	public abstract BooleanProperty finished();
-	public abstract BooleanProperty advancePage();
-	public abstract StringProperty layerName();
+	protected abstract void updatePage();
 	
 	public abstract void viewProperty(PropertyID pid);
 	public abstract void createProperty();

@@ -20,13 +20,10 @@ import org.snrg_nyc.ui.components.UI_Message;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -50,53 +47,14 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
 import javafx.scene.shape.Line;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontPosture;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.util.StringConverter;
 
 class PathogenEditorPage extends EditorPage {
 	
 	public PathogenEditorPage(PropertiesEditor ui){
-		this.ui = ui;
-		mode = Mode.IDLE;
-		setAlignment(Pos.TOP_LEFT);
-		setVgap(10);
-		setHgap(10);
-		setPadding(new Insets(15));
-		
-		messages.set( FXCollections.observableArrayList( new ArrayList<>() ));
-		
-		advancePage.addListener((o, old, advance)->{
-			if(advance){
-				updatePage();
-				advancePage.set(false);
-			}
-		});
-		
-		finished.addListener( (o, oldVal, newVal)->{
-			if(newVal){
-				pageNumber = 0;
-				mode = Mode.IDLE;
-				advancePage.set(true);
-			}
-		});
-	}
-	
-	public void sendError(Exception e){
-		messages.add(new UI_Message(e.getMessage(), UI_Message.Type.Error));
-		e.printStackTrace();
-	}
-	
-	public void sendWarning(String s){
-		messages.add(new UI_Message(s, UI_Message.Type.Warning));
-	}
-	
-	public void sendInfo(String s){
-		messages.add(new UI_Message(s, UI_Message.Type.Info));
+		super(ui);
 	}
 	
 	public void createProperty(){
@@ -135,7 +93,7 @@ class PathogenEditorPage extends EditorPage {
 		advancePage.set(true);
 	}
 	
-	private void updatePage(){
+	protected void updatePage(){
 		getChildren().clear();
 		
 		title = new Text();
@@ -757,13 +715,13 @@ class PathogenEditorPage extends EditorPage {
 
 	@SuppressWarnings("unchecked")
 	private void newPropertyPage(){
-		title.setText("New Node Property");
+		title.setText("New Pathogen Property");
 		
 		//Function to see if the next button should be enabled
 		Runnable checkNext;
 		
 		if(pageNumber == 0){
-			title.setText(title.getText()+" - Basic Properties");
+			title.setText(title.getText()+" - Basic Settings");
 			
 			TextField propName = new TextField();
 			
@@ -1519,26 +1477,6 @@ class PathogenEditorPage extends EditorPage {
 	@Override
 	public PropertiesEditor getModel() {
 		return ui;
-	}
-
-	@Override
-	public ListProperty<UI_Message> messages() {
-		return messages;
-	}
-
-	@Override
-	public BooleanProperty finished() {
-		return finished;
-	}
-
-	@Override
-	public BooleanProperty advancePage() {
-		return advancePage;
-	}
-	
-	@Override
-	public StringProperty layerName() {
-		return layerName;
 	}
 
 }
