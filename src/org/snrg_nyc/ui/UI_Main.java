@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import org.snrg_nyc.model.EditorException;
 import org.snrg_nyc.model.PropertiesEditor;
-import org.snrg_nyc.model.node.NodeEditor;
+import org.snrg_nyc.model.editor.NodeEditor;
 import org.snrg_nyc.ui.components.LayerCell;
 import org.snrg_nyc.ui.components.LayerID;
 import org.snrg_nyc.ui.components.PropertyID;

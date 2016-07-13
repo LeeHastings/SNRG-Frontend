@@ -1,4 +1,4 @@
-package org.snrg_nyc.model.pathogen;
+package org.snrg_nyc.model;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
@@ -9,16 +9,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.snrg_nyc.model.AttachmentProperty;
-import org.snrg_nyc.model.BooleanProperty;
-import org.snrg_nyc.model.DistributionDeserializer;
+import org.snrg_nyc.model.DistributionJsonAdapter;
 import org.snrg_nyc.model.EnumeratorProperty;
 import org.snrg_nyc.model.FractionProperty;
 import org.snrg_nyc.model.IntegerRangeProperty;
 import org.snrg_nyc.model.NodeLayer;
 import org.snrg_nyc.model.NodeProperty;
-import org.snrg_nyc.model.PropertyAdapter;
 import org.snrg_nyc.model.EditorException;
 import org.snrg_nyc.model.PropertiesEditor;
+import org.snrg_nyc.model.PropertyJsonAdapter;
 import org.snrg_nyc.model.UnivariatDistribution;
 import org.snrg_nyc.model.NodeProperty.ConditionalDistribution;
 import org.snrg_nyc.model.NodeProperty.Distribution;
@@ -30,53 +29,37 @@ import com.google.gson.GsonBuilder;
 
 
 /**
- * A class for editing the properties in a pathogen.
- * The only public methods are those listed in {@link PropertiesEditor}.
+ * An editor class for creating node properties.
+ * The only public methods are those listed in the {@link PropertiesEditor}.
  * @author Devin Hastings
  *
  */
-public class PathogenEditor implements PropertiesEditor{
+public abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	
 	/*         *\
 	 * Members *
 	\*         */
-
-	/** Node Property classes that can be created in the editor */
-	static final Class<?>[] pathogenPropertyTypes = {
-			EnumeratorProperty.class, 
-			IntegerRangeProperty.class, 
-			BooleanProperty.class,
-			FractionProperty.class
-		};
 	
 	/** The temporary property used when creating new node properties */
-	private NodeProperty scratchProperty;
+	protected NodeProperty scratchProperty;
 	
 	/**  A list of nullable node properties */
-	private List<NodeProperty> nodeProperties;
+	protected List<NodeProperty> nodeProperties;
 	
 	/** A list of node layers */
-	private List<NodeLayer> nodeLayers;
+	protected List<NodeLayer> nodeLayers;
 	
-	private Integer scratchLayerID;
+	protected Integer scratchLayerID;
 	
-	private ExperimentSerializer serializer;
-	
-	private PathogenSettings nodeSettings = new PathogenSettings();
-	
-	private String pathogenName;
+	protected ExperimentSerializer serializer;
 	
 	/*         *\
 	 * Methods *
 	\*         */
 	
-	public PathogenEditor(String pathogen){
-		pathogenName = pathogen;
+	public PropertiesEditor_Impl(){
 		nodeProperties = new ArrayList<>();
 		nodeLayers = new ArrayList<>();
-		
-		nodeSettings.setLayerAttributesList(nodeLayers);
-		nodeSettings.setPropertyDefinitionList(nodeProperties);
 		
 		scratchProperty = null;
 		scratchLayerID = null;
@@ -84,10 +67,91 @@ public class PathogenEditor implements PropertiesEditor{
 		GsonBuilder g = new GsonBuilder()
                 .setPrettyPrinting()
                 .disableHtmlEscaping()
-                .registerTypeAdapter(UnivariatDistribution.DistributionList.class, new DistributionDeserializer())
-                .registerTypeAdapter(NodeProperty.class, new PropertyAdapter(pathogenPropertyTypes));
+                .registerTypeAdapter(UnivariatDistribution.DistributionList.class, new DistributionJsonAdapter())
+                .registerTypeAdapter(NodeProperty.class, new PropertyJsonAdapter(getPropertyClasses()));
 		
 		serializer = new JsonFileSerializer(g);
+	}
+	
+	public void setSerializer(ExperimentSerializer s){
+		serializer = s;
+	}
+	
+	public abstract Class<?>[] getPropertyClasses();
+	
+	protected Map<String, Serializable> getSavedObjects() throws EditorException{
+		Map<String, Serializable> e = new HashMap<>();
+		
+		for(NodeLayer l : nodeLayers){
+			if(l == null){
+				continue;
+			}
+			for(NodeProperty np : l.getProperties()){
+				if(np != null && np instanceof EnumeratorProperty
+				   && ((EnumeratorProperty) np).getDistributionType() 
+				      == NodeProperty.DistType.UNIVARIAT
+				){
+					UnivariatDistribution u = new UnivariatDistribution(this,np);
+					e.put(np.getDistributionID(), u);
+				}
+			}
+		}
+		for(NodeProperty np : nodeProperties){
+			if(np != null && np instanceof EnumeratorProperty
+			   && ((EnumeratorProperty) np).getDistributionType() 
+			      == NodeProperty.DistType.UNIVARIAT
+			){
+				UnivariatDistribution u = new UnivariatDistribution(this,np);
+				e.put(np.getDistributionID(), u);
+			}
+		}
+		return e;
+	}
+	
+	protected void loadDistributions(Map<String, Serializable> e) throws EditorException {
+		for(String key : e.keySet()){
+			if(e.get(key) instanceof UnivariatDistribution){
+				UnivariatDistribution uniD = (UnivariatDistribution) e.get(key);
+				
+				Integer pid = search_nodePropWithName(uniD.getPropName());
+				Integer lid = null;
+				if(pid == null){
+					for(int l : layer_getLayerIDs()){
+						pid = search_nodePropWithName(uniD.getPropName(), l);
+						if(pid != null){
+							lid = l;
+							break;
+						}
+					}
+					if(pid != null){
+						NodeProperty np;
+						
+						if(lid == null){
+							np = nodeProperties.get(pid);
+						}
+						else {
+							np = nodeLayers.get(lid).getProperty(pid);
+						}
+						uniD.addToProperty(this, np);
+					}
+				}
+			}
+			else{
+				System.out.println("Tried to load unsupported object: "+e.getClass().getName());
+			}
+		}
+	}
+	
+	protected Map<String, Serializable> deserializeExperiment(String experimentName) throws EditorException{
+		clear();
+		Map<String, Serializable> e = null;
+		try {
+			e = serializer.loadExperiment(experimentName);
+		} catch (PersistenceException e1) {
+			throw new EditorException("Error while loading "
+					+experimentName+": "+e1.getMessage());
+		}
+		return e;
 	}
 	
 	/**
@@ -219,95 +283,12 @@ public class PathogenEditor implements PropertiesEditor{
 	\*                      */
 	@Override
 	public void save(String experimentName) throws EditorException {
-		Map<String, Serializable> e = new HashMap<>();
-		e.put("nodesettings", nodeSettings);
-		
-		for(NodeLayer l : nodeLayers){
-			if(l == null){
-				continue;
-			}
-			for(NodeProperty np : l.getProperties()){
-				if(np != null && np instanceof EnumeratorProperty
-				   && ((EnumeratorProperty) np).getDistributionType() 
-				      == NodeProperty.DistType.UNIVARIAT
-				){
-					UnivariatDistribution u = new UnivariatDistribution(this,np);
-					e.put(np.getDistributionID(), u);
-				}
-			}
-		}
-		for(NodeProperty np : nodeProperties){
-			if(np != null && np instanceof EnumeratorProperty
-			   && ((EnumeratorProperty) np).getDistributionType() 
-			      == NodeProperty.DistType.UNIVARIAT
-			){
-				UnivariatDistribution u = new UnivariatDistribution(this,np);
-				e.put(np.getDistributionID(), u);
-			}
-		}
+		Map<String, Serializable> e = getSavedObjects();
 		
 		try {
 			serializer.storeExperiment(experimentName, e);
 		} catch (PersistenceException e1) {
 			e1.printStackTrace();
-		}
-	}
-	
-	@Override 
-	public void load(String experimentName) throws EditorException{
-		clear();
-		Map<String, Serializable> e = null;
-		try {
-			e = serializer.loadExperiment(experimentName);
-		} catch (PersistenceException e1) {
-			throw new EditorException("Error while loading "
-					+experimentName+": "+e1.getMessage());
-		}
-		
-		if(!e.containsKey("nodesettings")){
-			throw new EditorException("Problem with new project: missing nodesettings!");
-		}
-		else {
-			nodeSettings = (PathogenSettings) e.get("nodesettings");
-			nodeLayers = nodeSettings.getLayerAttributesList();
-			nodeProperties = nodeSettings.getPropertyDefinitionList();
-
-			e.remove("nodesettings");
-			
-			for(String key : e.keySet()){
-				if(e.get(key) instanceof UnivariatDistribution){
-					UnivariatDistribution uniD = (UnivariatDistribution) e.get(key);
-					
-					Integer pid = search_nodePropWithName(uniD.getPropName());
-					Integer lid = null;
-					if(pid == null){
-						for(int l : layer_getLayerIDs()){
-							pid = search_nodePropWithName(uniD.getPropName(), l);
-							if(pid != null){
-								lid = l;
-								break;
-							}
-						}
-						if(pid == null){
-							throw new EditorException("Error in "+uniD.getName()
-								+": no property with name "+uniD.getPropName());
-						}
-					}
-					NodeProperty np;
-					
-					if(lid == null){
-						np = nodeProperties.get(pid);
-					}
-					else {
-						np = nodeLayers.get(lid).getProperty(pid);
-					}
-					uniD.addToProperty(this, np);
-					
-				}
-				else{
-					System.out.println("Tried to load unsupported object: "+e.getClass().getName());
-				}
-			}
 		}
 	}
 	
@@ -367,7 +348,7 @@ public class PathogenEditor implements PropertiesEditor{
 	@Override
 	public List<String> getPropertyTypes() {
 		ArrayList<String> li = new ArrayList<>();
-		for(Class<?> c : pathogenPropertyTypes){
+		for(Class<?> c : getPropertyClasses()){
 			li.add(c.getSimpleName());
 		}
 		return li;
@@ -628,7 +609,7 @@ public class PathogenEditor implements PropertiesEditor{
 	@Override
 	public void scratch_new(String name, String type, String description) throws EditorException {
 		boolean validType = false;
-		for(Class<?> nodeclass: pathogenPropertyTypes){
+		for(Class<?> nodeclass: getPropertyClasses()){
 			if(type.equals(nodeclass.getSimpleName())){
 				validType = true;
 				try{

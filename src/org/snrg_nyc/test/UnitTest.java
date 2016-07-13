@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.snrg_nyc.model.PropertiesEditor;
-import org.snrg_nyc.model.node.NodeEditor;
+import org.snrg_nyc.model.editor.NodeEditor;
 
 public class UnitTest {
 	static PropertiesEditor bl;
@@ -144,7 +144,7 @@ public class UnitTest {
 			
 			bl.scratch_setDefaultDistribution(probmap);
 			bl.scratch_commitToNodeProperties();
-
+			
 			bl.save("hcv_project");
 			bl.load("hcv_project");
 			

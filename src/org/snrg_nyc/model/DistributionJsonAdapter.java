@@ -13,7 +13,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
-public class DistributionDeserializer implements JsonDeserializer<DistributionList>, JsonSerializer<DistributionList>{
+class DistributionJsonAdapter implements JsonDeserializer<DistributionList>, JsonSerializer<DistributionList>{
 
 	@Override
 	public DistributionList deserialize(JsonElement js, Type type, JsonDeserializationContext context)

@@ -1,4 +1,4 @@
-package org.snrg_nyc.model.node;
+package org.snrg_nyc.model.editor;
 
 import java.io.Serializable;
 import java.util.List;

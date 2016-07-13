@@ -13,7 +13,7 @@ import com.google.gson.annotations.SerializedName;
  * @author Devin Hastings
  *
  */
-public class UnivariatDistribution implements Serializable {
+class UnivariatDistribution implements Serializable {
 	private static final long serialVersionUID = 1L;
 	class Condition{
 		String Name;
