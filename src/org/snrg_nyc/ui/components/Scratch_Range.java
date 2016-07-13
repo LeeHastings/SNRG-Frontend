@@ -15,9 +15,6 @@ public class Scratch_Range {
 	public Scratch_Range(PropertiesEditor ui, int rid) throws EditorException{
 		this.rid = rid;
 		this.ui = ui;
-		min = "";
-		max = "";
-		label = "";
 		if(!ui.scratch_isRangedProperty()){
 			throw new IllegalStateException("Cannot edit ranges of a non-ranged item.");
 		}
@@ -50,7 +47,7 @@ public class Scratch_Range {
 		return max;
 	}
 	public String getLabel() throws EditorException{
-		return (label != null && label.length() > 0) ? label : "<empty>";
+		return label;
 	}
 	
 	public void setMin(int min) throws EditorException{
@@ -62,8 +59,8 @@ public class Scratch_Range {
 		this.max = Integer.toString(ui.scratch_getRangeMax(rid));
 	}
 	public void setLabel(String label) throws EditorException{
-		//Do not bother with empty or identical labels
-		if(this.label.equals(label) || label.equals("<empty>")){
+		//Do not bother with identical labels
+		if(this.label.equals(label)){
 			return;
 		}
 		ui.scratch_setRangeLabel(rid, label);

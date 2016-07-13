@@ -17,6 +17,7 @@ import org.snrg_nyc.ui.components.PropertyNameFactory;
 import org.snrg_nyc.ui.components.PropertyTypeFactory;
 import org.snrg_nyc.ui.components.Scratch_Range;
 import org.snrg_nyc.ui.components.UI_Message;
+import org.snrg_nyc.ui.components._EditorCell;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
@@ -847,7 +848,7 @@ class NodeEditorPage extends EditorPage {
 				
 				values.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 				values.setCellFactory(lv ->{
-					TextFieldListCell<Scratch_Range> cell = new TextFieldListCell<>();
+					TextFieldListCell<Scratch_Range> cell = new _EditorCell<>(null);
 					cell.setConverter(new StringConverter<Scratch_Range>(){
 						@Override
 						public Scratch_Range fromString(String newVal) {
