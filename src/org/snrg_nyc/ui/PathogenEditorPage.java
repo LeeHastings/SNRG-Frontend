@@ -972,7 +972,7 @@ class PathogenEditorPage extends EditorPage {
 				
 				minCol.setCellValueFactory((CellDataFeatures<Scratch_Range, String> data) ->{
 					try {
-						return new SimpleStringProperty(data.getValue().getMin());
+						return new SimpleStringProperty(data.getValue().getMin().toString());
 					} catch (Exception e) {
 						sendError(e);
 						return null;
@@ -981,7 +981,7 @@ class PathogenEditorPage extends EditorPage {
 				
 				maxCol.setCellValueFactory((CellDataFeatures<Scratch_Range, String> data)->{
 					try{
-						return new SimpleStringProperty(data.getValue().getMax());
+						return new SimpleStringProperty(data.getValue().getMax().toString());
 					}
 					catch (Exception e){
 						sendError(e);

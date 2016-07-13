@@ -11,7 +11,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.TextFieldTableCell;
 
 public class DistributionTable extends TableView<Integer> {
 	private Map<Integer, Float> probMap;
@@ -43,7 +42,29 @@ public class DistributionTable extends TableView<Integer> {
 				return new SimpleStringProperty(">ERROR<");
 			}
 		});
-		probCol.setCellFactory(TextFieldTableCell.forTableColumn());
+		
+		probCol.setCellFactory(col->{
+			EditorTableCell<Integer> cell = new EditorTableCell<>();
+			cell.setOnEditCommit(event->{
+				if(event.newText() == null){
+					return;
+				}
+				try{
+					float f = Float.parseFloat(event.newText());
+					int id = event.cell().getTableView()
+						      .getItems().get(event.cell().getIndex());
+					probMap.put(id, f);
+				}
+				catch(NumberFormatException e){
+					editor.sendError(e);
+				}
+				finally{
+					setReady();
+				}
+			});
+			return cell;
+		});
+		
 		probCol.setCellValueFactory(col->{
 			if(col.getValue() != null){
 				Float f = probMap.get(col.getValue());
@@ -51,21 +72,6 @@ public class DistributionTable extends TableView<Integer> {
 			}
 			else {
 				return null;
-			}
-		});
-		probCol.setOnEditCommit(event ->{
-			try{
-				if(!event.getNewValue().matches("[0-9]*\\.?[0-9]+")){
-					throw new NumberFormatException("Value '"
-							+event.getNewValue()+"' is not a floating-point number");
-				}
-				probMap.put( event.getRowValue(), Float.parseFloat(event.getNewValue()) );
-			}
-			catch (Exception e){
-				editor.sendError(e);
-			}
-			finally{
-				setReady();
 			}
 		});
 	}

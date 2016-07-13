@@ -17,7 +17,8 @@ import org.snrg_nyc.ui.components.PropertyNameFactory;
 import org.snrg_nyc.ui.components.PropertyTypeFactory;
 import org.snrg_nyc.ui.components.Scratch_Range;
 import org.snrg_nyc.ui.components.UI_Message;
-import org.snrg_nyc.ui.components._EditorCell;
+import org.snrg_nyc.ui.components.EditorListCell;
+import org.snrg_nyc.ui.components.EditorTableCell;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
@@ -38,13 +39,9 @@ import javafx.scene.control.SelectionMode;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableColumn.CellDataFeatures;
-import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.control.cell.TextFieldListCell;
-import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -848,7 +845,7 @@ class NodeEditorPage extends EditorPage {
 				
 				values.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 				values.setCellFactory(lv ->{
-					TextFieldListCell<Scratch_Range> cell = new _EditorCell<>(null);
+					EditorListCell<Scratch_Range> cell = new EditorListCell<>(null);
 					cell.setConverter(new StringConverter<Scratch_Range>(){
 						@Override
 						public Scratch_Range fromString(String newVal) {
@@ -957,46 +954,6 @@ class NodeEditorPage extends EditorPage {
 				add(add, 1, 5);
 				add(rmvBox, 2, 5);
 				
-				labelCol.setCellFactory(TextFieldTableCell.forTableColumn());
-				minCol.setCellFactory(TextFieldTableCell.forTableColumn());
-				maxCol.setCellFactory(TextFieldTableCell.forTableColumn());
-				
-				labelCol.setCellValueFactory((CellDataFeatures<Scratch_Range, String> data)->{
-					try{
-						return new SimpleStringProperty(data.getValue().getLabel());
-					}
-					catch (Exception e){
-						sendError(e);
-						return null;
-					}
-				});
-				
-				minCol.setCellValueFactory((CellDataFeatures<Scratch_Range, String> data) ->{
-					try {
-						return new SimpleStringProperty(data.getValue().getMin());
-					} catch (Exception e) {
-						sendError(e);
-						return null;
-					}
-				});
-				
-				maxCol.setCellValueFactory((CellDataFeatures<Scratch_Range, String> data)->{
-					try{
-						return new SimpleStringProperty(data.getValue().getMax());
-					}
-					catch (Exception e){
-						sendError(e);
-						return null;
-					}
-				});
-				
-				ranges.getColumns().addAll(labelCol, minCol, maxCol);
-				ranges.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-				
-				labelCol.setEditable(true);
-				minCol.setEditable(true);
-				maxCol.setEditable(true);
-				
 				checkNext = ()->{
 					try{
 						for(int rid : ui.scratch_getRangeIDs()){
@@ -1012,6 +969,136 @@ class NodeEditorPage extends EditorPage {
 					}
 					
 				};
+				
+				labelCol.setCellFactory(col -> {
+					EditorTableCell<Scratch_Range> cell = new EditorTableCell<>();
+					cell.setOnEditCommit((event)->{
+						if(event.newText() == null){
+							return;
+						}
+						try {
+							event.cell().getTableView()
+							     .getItems()
+							     .get(event.cell().getIndex())
+							     .setLabel(event.newText());
+						} 
+						catch (Exception e1) {
+							event.cell().cancelEdit();
+							event.cell().update();
+							sendError(e1);
+						}
+						finally{
+							checkNext.run();
+						}
+					});
+					return cell;
+				});
+				
+				minCol.setCellFactory(col -> {
+					EditorTableCell<Scratch_Range> cell = new EditorTableCell<>();
+					cell.setOnEditCommit(event->{
+						if(event.newText() == null){
+							return;
+						}
+						try{
+							int min = Integer.parseInt(event.newText());
+							event.cell().getTableView()
+							     .getItems()
+							     .get(event.cell().getIndex())
+							     .setMin(min);
+						}
+						catch(Exception e){
+							event.cell().cancelEdit();
+							event.cell().update();
+							sendError(e);
+						}
+						finally{
+							checkNext.run();
+						}
+					});
+					return cell;
+				});
+				
+				maxCol.setCellFactory(col -> {
+					EditorTableCell<Scratch_Range> cell = new EditorTableCell<>();
+					cell.setOnEditCommit(event->{
+						if(event.newText() == null){
+							return;
+						}
+						try{
+							int max = Integer.parseInt(event.newText());
+							event.cell().getTableView()
+							     .getItems()
+							     .get(event.cell().getIndex())
+							     .setMax(max);
+						}
+						catch(Exception e){
+							event.cell().cancelEdit();
+							event.cell().update();
+							sendError(e);
+						}
+						finally{
+							checkNext.run();
+						}
+					});
+					return cell;
+				});
+				
+				labelCol.setCellValueFactory(data ->{
+					try{
+						String s = data.getValue().getLabel();
+						if(s == null || s.equals("")){
+							return new SimpleStringProperty("<empty>");
+						}
+						else {
+							return new SimpleStringProperty(s);
+						}
+					}
+					catch (Exception e){
+						sendError(e);
+						return null;
+					}
+				});
+				
+				minCol.setCellValueFactory(data ->{
+					try {
+						Integer i = data.getValue().getMin();
+						if(i == null){
+							return null;
+						}
+						else {
+							return new SimpleStringProperty(i.toString());
+						}
+					} catch (Exception e) {
+						sendError(e);
+						return null;
+					}
+				});
+				
+				maxCol.setCellValueFactory(data->{
+					try{
+						Integer i = data.getValue().getMax();
+						if(i == null){
+							return null;
+						}
+						else {
+							return new SimpleStringProperty(i.toString());
+						}
+					}
+					catch (Exception e){
+						sendError(e);
+						return null;
+					}
+				});
+				
+				ranges.getColumns().addAll(labelCol, minCol, maxCol);
+				ranges.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+				
+				labelCol.setEditable(true);
+				minCol.setEditable(true);
+				maxCol.setEditable(true);
+				
+				
 				add.setOnMouseClicked(event->{
 					try {
 						int rid = ui.scratch_addRange();
@@ -1035,58 +1122,6 @@ class NodeEditorPage extends EditorPage {
 					}
 					catch(Exception e){
 						sendError(e);
-					}
-				});
-				
-				labelCol.setOnEditCommit((CellEditEvent<Scratch_Range, String> event)->{
-					try {
-						event.getRowValue().setLabel(event.getNewValue());
-					} catch (Exception e) {
-						sendError(e);
-					}
-					finally {
-						checkNext.run();
-					}
-				});
-				
-				minCol.setOnEditCommit((CellEditEvent<Scratch_Range, String> event)->{
-					try {
-						if(event.getNewValue().equals("")){
-							return;
-						}
-						else if(!event.getNewValue().matches("\\d+")){
-							throw new NumberFormatException("Value '"+event.getNewValue()+"' is not an integer.");
-						}
-						else {
-							int i = Integer.parseInt(event.getNewValue());
-							event.getRowValue().setMin(i);
-						}
-					}
-					catch (Exception e){
-						sendError(e);
-					}
-					finally {
-						checkNext.run();
-					}
-				});
-				maxCol.setOnEditCommit((CellEditEvent<Scratch_Range, String> event)->{
-					try {
-						if(event.getNewValue().equals("")){
-							return;
-						}
-						else if(!event.getNewValue().matches("\\d+")){
-							throw new NumberFormatException("Value '"+event.getNewValue()+"' is not an integer.");
-						}
-						else {
-							int i = Integer.parseInt(event.getNewValue());
-							event.getRowValue().setMax(i);
-						}
-					}
-					catch(Exception e){
-						sendError(e);
-					}
-					finally {
-						checkNext.run();
 					}
 				});
 				

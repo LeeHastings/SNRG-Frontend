@@ -59,12 +59,15 @@ public class NodeEditor extends PropertiesEditor_Impl {
 	@Override
 	public void load(String experimentName) throws EditorException {
 		Map<String, Serializable> objects = deserializeExperiment(experimentName);
-		
+		System.out.println("Found map:\n"+objects.toString());
 		if(!objects.containsKey("nodesettings")){
 			throw new EditorException("Tried to open an experiment without node settings!");
 		}
 		nodeSettings = (NodeSettings) objects.get("nodesettings");
 		objects.remove("nodesettings");
+		
+		nodeLayers = nodeSettings.getLayerAttributesList();
+		nodeProperties = nodeSettings.getPropertyDefinitionList();
 		
 		loadDistributions(objects);
 	}

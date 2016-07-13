@@ -7,8 +7,8 @@ public class Scratch_Range {
 	private PropertiesEditor ui;
 	final int rid;
 	
-	private String min;
-	private String max;
+	private Integer min;
+	private Integer max;
 	private String label;
 	private int hash;
 	
@@ -23,8 +23,8 @@ public class Scratch_Range {
 		}
 		if(ui.scratch_rangeIsSet(rid)){
 			if(ui.scratch_getType().equals("IntegerRangeProperty")){
-				min = Integer.toString(ui.scratch_getRangeMin(rid));
-				max = Integer.toString(ui.scratch_getRangeMax(rid));
+				min = ui.scratch_getRangeMin(rid);
+				max = ui.scratch_getRangeMax(rid);
 			}
 			label = ui.scratch_getRangeLabel(rid);
 		}
@@ -40,10 +40,10 @@ public class Scratch_Range {
 		ui.scratch_removeRange(rid);
 	}
 	
-	public String getMin() throws EditorException{
+	public Integer getMin() throws EditorException{
 		return min;
 	}
-	public String getMax() throws EditorException{
+	public Integer getMax() throws EditorException{
 		return max;
 	}
 	public String getLabel() throws EditorException{
@@ -52,15 +52,18 @@ public class Scratch_Range {
 	
 	public void setMin(int min) throws EditorException{
 		ui.scratch_setRangeMin(rid, min);
-		this.min = Integer.toString(ui.scratch_getRangeMin(rid));
+		this.min = ui.scratch_getRangeMin(rid);
 	}
 	public void setMax(int max) throws EditorException{
 		ui.scratch_setRangeMax(rid, max);
-		this.max = Integer.toString(ui.scratch_getRangeMax(rid));
+		this.max = ui.scratch_getRangeMax(rid);
 	}
 	public void setLabel(String label) throws EditorException{
 		//Do not bother with identical labels
-		if(this.label.equals(label)){
+		if(label == null){
+			throw new IllegalArgumentException("Cannot set the label to null!");
+		}
+		if(this.label != null && this.label.equals(label)){
 			return;
 		}
 		ui.scratch_setRangeLabel(rid, label);

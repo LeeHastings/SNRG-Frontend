@@ -134,6 +134,12 @@ public abstract class PropertiesEditor_Impl implements PropertiesEditor {
 						}
 						uniD.addToProperty(this, np);
 					}
+					else{
+						System.out.println("Warning: no property found for distribution '"+uniD.getName()+"'");
+					}
+				}
+				else {
+					uniD.addToProperty(this, nodeProperties.get(pid));
 				}
 			}
 			else{
@@ -494,7 +500,7 @@ public abstract class PropertiesEditor_Impl implements PropertiesEditor {
 		assert_validPID(pid);
 		assert_nodeType(nodeProperties.get(pid), EnumeratorProperty.class);
 		if(!((EnumeratorProperty) nodeProperties.get(pid)).hasDefaultDistribution()){
-			throw new EditorException("The default distribution for property '"+nodeProperties.get(pid)+"' was not set");
+			throw new EditorException("The default distribution for property '"+nodeProperties.get(pid).getName()+"' was not set");
 		}
 		return ((EnumeratorProperty) nodeProperties.get(pid)).getDefaultDistribution();
 	}
