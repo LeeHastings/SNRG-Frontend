@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.google.gson.annotations.SerializedName;
 
-public class NodeLayer {
+class NodeLayer {
 	@SerializedName("LayerID")
 	private String name;
 	

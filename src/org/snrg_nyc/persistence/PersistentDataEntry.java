@@ -3,8 +3,8 @@ package org.snrg_nyc.persistence;
 import java.io.Serializable;
 import java.lang.reflect.Type;
 
+import org.snrg_nyc.model.NodeEditor;
 import org.snrg_nyc.model.PropertiesEditor;
-import org.snrg_nyc.model.editor.NodeEditor;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;

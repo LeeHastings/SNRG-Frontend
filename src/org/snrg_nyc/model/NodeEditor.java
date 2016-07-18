@@ -1,17 +1,8 @@
-package org.snrg_nyc.model.editor;
+package org.snrg_nyc.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Map;
-
-import org.snrg_nyc.model.AttachmentProperty;
-import org.snrg_nyc.model.BooleanProperty;
-import org.snrg_nyc.model.EnumeratorProperty;
-import org.snrg_nyc.model.FractionProperty;
-import org.snrg_nyc.model.IntegerRangeProperty;
-import org.snrg_nyc.model.EditorException;
-import org.snrg_nyc.model.PropertiesEditor;
-import org.snrg_nyc.model.PropertiesEditor_Impl;
 
 
 /**
@@ -75,6 +66,18 @@ public class NodeEditor extends PropertiesEditor_Impl {
 	@Override
 	public Class<?>[] getPropertyClasses() {
 		return nodePropertyTypes;
+	}
+
+	@Override
+	public int pathogen_create(String name) throws EditorException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public PropertiesEditor pathogen_getEditor(int pathID) throws EditorException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

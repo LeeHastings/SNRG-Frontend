@@ -464,6 +464,26 @@ public interface PropertiesEditor {
 	 */
 	public Map<Integer, Float> nodeProp_getDefaultDistribution(int lid, int pid) throws EditorException;
 
+	
+	/*                          *\
+	 * --- Pathogen Methods --- * 
+	\*                          */
+	/**
+	 * Create a pathogen
+	 * @param name The name of the pathogen (must be unique)
+	 * @return A unique ID identifying the pathogen
+	 * @throws EditorException Thrown if the pathogen name is taken, 
+	 * or if there's some other issue.
+	 */
+	public int pathogen_create(String name) throws EditorException;
+	
+	/**
+	 * Get a PropertiesEditor for the given pathogen in order to add properties
+	 * @param pathID The ID of the pathogen, from {@link PropertiesEditor#pathogen_create}
+	 * @return A PropertiesEditor that is tied to the pathogen
+	 * @throws EditorException Thrown if the given ID does not exist.
+	 */
+	public PropertiesEditor pathogen_getEditor(int pathID) throws EditorException;
 	/*                                           *\
 	|  ----- Scratch Node Property Methods -----  |
 	\*                                           */

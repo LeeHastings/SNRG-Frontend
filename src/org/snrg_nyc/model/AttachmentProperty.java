@@ -2,7 +2,7 @@ package org.snrg_nyc.model;
 
 import com.google.gson.annotations.SerializedName;
 
-public class AttachmentProperty extends BooleanProperty {
+class AttachmentProperty extends BooleanProperty {
 	private static final long serialVersionUID = 1L;
 	
 	@SerializedName("PathogenType")

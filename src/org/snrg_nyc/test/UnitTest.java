@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.snrg_nyc.model.NodeEditor;
 import org.snrg_nyc.model.PropertiesEditor;
-import org.snrg_nyc.model.editor.NodeEditor;
 
 public class UnitTest {
 	static PropertiesEditor bl;

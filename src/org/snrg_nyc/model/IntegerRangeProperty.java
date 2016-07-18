@@ -3,7 +3,7 @@ package org.snrg_nyc.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class IntegerRangeProperty extends EnumeratorProperty {
+class IntegerRangeProperty extends EnumeratorProperty {
 	private static final long serialVersionUID = 1L;
 	protected List<Range<Integer>> ranges;
 	

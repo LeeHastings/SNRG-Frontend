@@ -6,7 +6,7 @@ import java.util.Map;
 
 import com.google.gson.annotations.SerializedName;
 
-public class BivariatDistribution {
+class BivariatDistribution {
 	@SerializedName("BivariatDistributionID")
 	private String distID;
 	

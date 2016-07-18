@@ -12,7 +12,7 @@ import java.util.Map.Entry;
  * @author Devin
  *
  */
-public abstract class NodeProperty implements Serializable {
+abstract class NodeProperty implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	public enum DistType{

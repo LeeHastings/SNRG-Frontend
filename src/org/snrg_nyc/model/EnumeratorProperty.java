@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class EnumeratorProperty extends NodeProperty {
+class EnumeratorProperty extends NodeProperty {
 	private static final long serialVersionUID = 1L;
 	
 	protected List<String> values;

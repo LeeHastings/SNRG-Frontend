@@ -1,4 +1,4 @@
-package org.snrg_nyc.model.editor;
+package org.snrg_nyc.model;
 
 import com.google.gson.annotations.SerializedName;
 

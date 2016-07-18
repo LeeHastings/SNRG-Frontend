@@ -8,19 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.snrg_nyc.model.AttachmentProperty;
-import org.snrg_nyc.model.DistributionJsonAdapter;
-import org.snrg_nyc.model.EnumeratorProperty;
-import org.snrg_nyc.model.FractionProperty;
-import org.snrg_nyc.model.IntegerRangeProperty;
-import org.snrg_nyc.model.NodeLayer;
-import org.snrg_nyc.model.NodeProperty;
-import org.snrg_nyc.model.EditorException;
-import org.snrg_nyc.model.PropertiesEditor;
-import org.snrg_nyc.model.PropertyJsonAdapter;
-import org.snrg_nyc.model.UnivariatDistribution;
-import org.snrg_nyc.model.NodeProperty.ConditionalDistribution;
-import org.snrg_nyc.model.NodeProperty.Distribution;
 import org.snrg_nyc.persistence.ExperimentSerializer;
 import org.snrg_nyc.persistence.PersistenceException;
 import org.snrg_nyc.persistence.JsonFileSerializer;
@@ -34,7 +21,7 @@ import com.google.gson.GsonBuilder;
  * @author Devin Hastings
  *
  */
-public abstract class PropertiesEditor_Impl implements PropertiesEditor {
+abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	
 	/*         *\
 	 * Members *
@@ -73,11 +60,11 @@ public abstract class PropertiesEditor_Impl implements PropertiesEditor {
 		serializer = new JsonFileSerializer(g);
 	}
 	
-	public void setSerializer(ExperimentSerializer s){
+	protected void setSerializer(ExperimentSerializer s){
 		serializer = s;
 	}
 	
-	public abstract Class<?>[] getPropertyClasses();
+	protected abstract Class<?>[] getPropertyClasses();
 	
 	protected Map<String, Serializable> getSavedObjects() throws EditorException{
 		Map<String, Serializable> e = new HashMap<>();
@@ -915,7 +902,7 @@ public abstract class PropertiesEditor_Impl implements PropertiesEditor {
 		assert_depConds(dependencyConditions);
 		assert_probMap(probabilities);
 		((EnumeratorProperty) scratchProperty).setConditionalDistribution(
-				cid, new ConditionalDistribution(dependencyConditions, probabilities));
+				cid, new NodeProperty.ConditionalDistribution(dependencyConditions, probabilities));
 	}
 
 	@Override
@@ -928,7 +915,7 @@ public abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	@Override
 	public void scratch_setDefaultDistribution(Map<Integer, Float> distribution) throws EditorException {
 		assert_probMap(distribution);
-		((EnumeratorProperty) scratchProperty).setDefaultDistribution(new Distribution(distribution));
+		((EnumeratorProperty) scratchProperty).setDefaultDistribution(new NodeProperty.Distribution(distribution));
 	}
 
 	@Override

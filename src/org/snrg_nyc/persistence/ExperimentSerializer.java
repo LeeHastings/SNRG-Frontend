@@ -30,7 +30,7 @@ public interface ExperimentSerializer {
 	public Map<String, Serializable> loadExperiment(String name) throws PersistenceException;
 	
 	/**
-	 * All experiments that can be loaded with {@ExperimentSerializer#loadExperiment}
+	 * All experiments that can be loaded with {@link ExperimentSerializer#loadExperiment}
 	 * @return A list of the experiment names
 	 */
 	public List<String> savedExperiments();
