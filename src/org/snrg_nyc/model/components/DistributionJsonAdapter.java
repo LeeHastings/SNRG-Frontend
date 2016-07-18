@@ -1,9 +1,9 @@
-package org.snrg_nyc.model;
+package org.snrg_nyc.model.components;
 
 import java.lang.reflect.Type;
 
-import org.snrg_nyc.model.UnivariatDistribution.ConditionalDistList;
-import org.snrg_nyc.model.UnivariatDistribution.DistributionList;
+import org.snrg_nyc.model.components.UnivariatDistribution.ConditionalDistList;
+import org.snrg_nyc.model.components.UnivariatDistribution.DistributionList;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonDeserializationContext;
@@ -13,7 +13,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
-class DistributionJsonAdapter implements JsonDeserializer<DistributionList>, JsonSerializer<DistributionList>{
+public class DistributionJsonAdapter implements JsonDeserializer<DistributionList>, JsonSerializer<DistributionList>{
 
 	@Override
 	public DistributionList deserialize(JsonElement js, Type type, JsonDeserializationContext context)

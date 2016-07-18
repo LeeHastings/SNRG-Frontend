@@ -1,10 +1,12 @@
-package org.snrg_nyc.model;
+package org.snrg_nyc.model.components;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.snrg_nyc.model.PropertiesEditor;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -13,7 +15,7 @@ import com.google.gson.annotations.SerializedName;
  * @author Devin Hastings
  *
  */
-class UnivariatDistribution implements Serializable {
+public class UnivariatDistribution implements Serializable {
 	private static final long serialVersionUID = 1L;
 	class Condition{
 		String Name;

@@ -1,4 +1,4 @@
-package org.snrg_nyc.model;
+package org.snrg_nyc.model.components;
 
 import java.lang.reflect.Type;
 
@@ -17,7 +17,7 @@ import com.google.gson.JsonSerializer;
  * @author Devin Hastings
  *
  */
-class PropertyJsonAdapter implements JsonSerializer<NodeProperty>, JsonDeserializer<NodeProperty> {
+public class PropertyJsonAdapter implements JsonSerializer<NodeProperty>, JsonDeserializer<NodeProperty> {
 	//Passing strings as parameters multiple times is too error-prone for me
 	final static String nameLabel = "PropertyName";
 	final static String descLabel = "Description";

@@ -1,4 +1,4 @@
-package org.snrg_nyc.model;
+package org.snrg_nyc.model.components;
 
 import java.util.HashMap;
 import java.util.List;
@@ -6,7 +6,7 @@ import java.util.Map;
 
 import com.google.gson.annotations.SerializedName;
 
-class BivariatDistribution {
+public class BivariatDistribution {
 	@SerializedName("BivariatDistributionID")
 	private String distID;
 	

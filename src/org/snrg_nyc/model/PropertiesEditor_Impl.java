@@ -8,6 +8,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.snrg_nyc.model.components.AttachmentProperty;
+import org.snrg_nyc.model.components.DistributionJsonAdapter;
+import org.snrg_nyc.model.components.EditorException;
+import org.snrg_nyc.model.components.EnumeratorProperty;
+import org.snrg_nyc.model.components.FractionProperty;
+import org.snrg_nyc.model.components.IntegerRangeProperty;
+import org.snrg_nyc.model.components.NodeLayer;
+import org.snrg_nyc.model.components.NodeProperty;
+import org.snrg_nyc.model.components.PropertyJsonAdapter;
+import org.snrg_nyc.model.components.UnivariatDistribution;
 import org.snrg_nyc.persistence.ExperimentSerializer;
 import org.snrg_nyc.persistence.PersistenceException;
 import org.snrg_nyc.persistence.JsonFileSerializer;
@@ -31,10 +41,10 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	protected NodeProperty scratchProperty;
 	
 	/**  A list of nullable node properties */
-	protected List<NodeProperty> nodeProperties;
+	protected List<NodeProperty> properties;
 	
 	/** A list of node layers */
-	protected List<NodeLayer> nodeLayers;
+	protected List<NodeLayer> layers;
 	
 	protected Integer scratchLayerID;
 	
@@ -45,8 +55,8 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	\*         */
 	
 	public PropertiesEditor_Impl(){
-		nodeProperties = new ArrayList<>();
-		nodeLayers = new ArrayList<>();
+		properties = new ArrayList<>();
+		layers = new ArrayList<>();
 		
 		scratchProperty = null;
 		scratchLayerID = null;
@@ -69,7 +79,7 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	protected Map<String, Serializable> getSavedObjects() throws EditorException{
 		Map<String, Serializable> e = new HashMap<>();
 		
-		for(NodeLayer l : nodeLayers){
+		for(NodeLayer l : layers){
 			if(l == null){
 				continue;
 			}
@@ -83,7 +93,7 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 				}
 			}
 		}
-		for(NodeProperty np : nodeProperties){
+		for(NodeProperty np : properties){
 			if(np != null && np instanceof EnumeratorProperty
 			   && ((EnumeratorProperty) np).getDistributionType() 
 			      == NodeProperty.DistType.UNIVARIAT
@@ -114,10 +124,10 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 						NodeProperty np;
 						
 						if(lid == null){
-							np = nodeProperties.get(pid);
+							np = properties.get(pid);
 						}
 						else {
-							np = nodeLayers.get(lid).getProperty(pid);
+							np = layers.get(lid).getProperty(pid);
 						}
 						uniD.addToProperty(this, np);
 					}
@@ -126,7 +136,7 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 					}
 				}
 				else {
-					uniD.addToProperty(this, nodeProperties.get(pid));
+					uniD.addToProperty(this, properties.get(pid));
 				}
 			}
 			else{
@@ -160,13 +170,13 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	
 	private void assert_validPID(int lid, int pid) throws EditorException{
 		assert_validLID(lid);
-		if(!nodeLayers.get(lid).validPID(pid)){
-			throw new EditorException("No property of ID '"+pid+"' in layer '"+nodeLayers.get(lid).getName()+"'");
+		if(!layers.get(lid).validPID(pid)){
+			throw new EditorException("No property of ID '"+pid+"' in layer '"+layers.get(lid).getName()+"'");
 		}
 	}
 	
 	private void assert_validLID(Integer lid) throws EditorException {
-		if(lid == null || lid < 0 || lid >= nodeLayers.size() || nodeLayers.get(lid) == null){
+		if(lid == null || lid < 0 || lid >= layers.size() || layers.get(lid) == null){
 			throw new EditorException("Invalid layer ID: "+lid);
 		}
 	}
@@ -214,12 +224,12 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 				throw new EditorException("Error in new dependency conditions: some values are null");
 			}
 			assert_validPID(pid);
-			assert_nodeType(nodeProperties.get(pid), EnumeratorProperty.class);
+			assert_nodeType(properties.get(pid), EnumeratorProperty.class);
 			if(!scratchProperty.dependsOn(pid)){
 				throw new EditorException("Error while adding conditional distribution: tried to use property ID '"+pid+"'"
 						+ " as a dependency, but it is not in the list of dependencies.");
 			}
-			enm = ((EnumeratorProperty) nodeProperties.get(pid));
+			enm = ((EnumeratorProperty) properties.get(pid));
 			if(!enm.validRID(dependencyConditions.get(pid)) ){ //Property does not have the required rangeID
 				String msg = String.format("Error while adding conditional distribution: range ID '%d' was not found in property '%s'",
 						dependencyConditions.get(pid), enm.getName());
@@ -271,6 +281,25 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 		}
 	}
 	
+
+	protected boolean uniquePropName(String name){
+		for(NodeProperty p : properties){
+			if(p != null && p.getName().equals(name)){
+				return false;
+			}
+		}
+		for(NodeLayer l : layers){
+			if(l != null){
+				for(NodeProperty p : l.getProperties()){
+					if(p != null && p.getName().equals(name)){
+						return false;
+					}
+				}
+			}
+		}
+		return true;
+	}
+	
 	/*                      *\
 	 * UI_Interface Methods *
 	\*                      */
@@ -288,8 +317,8 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	@Override
 	public void clear(){
 		scratch_clear();
-		nodeProperties.clear();
-		nodeLayers.clear();
+		properties.clear();
+		layers.clear();
 	}
 	
 	@Override
@@ -298,34 +327,19 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	}
 
 	@Override
-	public boolean test_nodePropNameIsUnique(String name) {
-		for(NodeProperty p : nodeProperties){
-			if(p!= null && name.equals(p.getName())){
-				return false;
-			}
-		}
-		return true;
-	}
-	@Override
 	public boolean test_nodePropIDExists(int pid){
-		return (pid >= 0 && pid < nodeProperties.size() && nodeProperties.get(pid)!= null);
-	}
-
-	@Override
-	public boolean test_nodePropNameIsUnique(int lid, String name) throws EditorException {
-		assert_validLID(lid);
-		return nodeLayers.get(lid).nameIsUnique(name);
+		return (pid >= 0 && pid < properties.size() && properties.get(pid)!= null);
 	}
 
 	@Override
 	public boolean test_nodePropIDExists(int lid, int pid) throws EditorException {
 		assert_validLID(lid);
-		return nodeLayers.get(lid).validPID(pid);
+		return layers.get(lid).validPID(pid);
 	}
 
 	@Override
 	public boolean test_layerNameIsUnique(String name){
-		for(NodeLayer l : nodeLayers){
+		for(NodeLayer l : layers){
 			if(l.getName().equals(name)){
 				return false;
 			}
@@ -335,7 +349,7 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	
 	@Override
 	public boolean test_layerIDExists(int lid) {
-		return(lid >= 0 && lid < nodeLayers.size() && nodeLayers.get(lid) != null);
+		return(lid >= 0 && lid < layers.size() && layers.get(lid) != null);
 	}
 	
 	@Override
@@ -350,8 +364,8 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	@Override
 	public List<Integer> nodeProp_getPropertyIDs() {
 		ArrayList<Integer> ls = new ArrayList<>();
-		for(int i = 0; i < nodeProperties.size(); i++){
-			if(nodeProperties.get(i)!= null){
+		for(int i = 0; i < properties.size(); i++){
+			if(properties.get(i)!= null){
 				ls.add(i);
 			}
 		}
@@ -361,68 +375,68 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	@Override
 	public List<Integer> nodeProp_getRangeItemIDs(int pid) throws EditorException {
 		assert_validPID(pid);
-		assert_nodeType(nodeProperties.get(pid), EnumeratorProperty.class);
-		return ((EnumeratorProperty) nodeProperties.get(pid)).getSortedRangeIDs();
+		assert_nodeType(properties.get(pid), EnumeratorProperty.class);
+		return ((EnumeratorProperty) properties.get(pid)).getSortedRangeIDs();
 	}
 
 	@Override
 	public String nodeProp_getRangeLabel(int pid, int rid) throws EditorException {
 		assert_validPID(pid);
-		assert_nodeType(nodeProperties.get(pid), EnumeratorProperty.class);
-		return ((EnumeratorProperty) nodeProperties.get(pid)).getRangeLabel(rid);
+		assert_nodeType(properties.get(pid), EnumeratorProperty.class);
+		return ((EnumeratorProperty) properties.get(pid)).getRangeLabel(rid);
 	}
 
 	@Override
 	public int nodeProp_getRangeMax(int pid, int rid) throws EditorException {
 		assert_validPID(pid);
-		assert_nodeType(nodeProperties.get(pid), IntegerRangeProperty.class);
-		return ((IntegerRangeProperty) nodeProperties.get(pid)).getRangeMax(rid);
+		assert_nodeType(properties.get(pid), IntegerRangeProperty.class);
+		return ((IntegerRangeProperty) properties.get(pid)).getRangeMax(rid);
 	}
 
 	@Override
 	public int nodeProp_getRangeMin(int pid, int rid) throws EditorException {
 		assert_validPID(pid);
-		assert_nodeType(nodeProperties.get(pid), IntegerRangeProperty.class);
-		return ((IntegerRangeProperty) nodeProperties.get(pid)).getRangeMin(rid);
+		assert_nodeType(properties.get(pid), IntegerRangeProperty.class);
+		return ((IntegerRangeProperty) properties.get(pid)).getRangeMin(rid);
 	}
 
 	@Override
 	public String nodeProp_getName(int pid) throws EditorException {
 		assert_validPID(pid);
-		return nodeProperties.get(pid).getName();
+		return properties.get(pid).getName();
 	}
 
 	@Override
 	public String nodeProp_getType(int pid) throws EditorException {
 		assert_validPID(pid);
-		return nodeProperties.get(pid).getClass().getSimpleName();
+		return properties.get(pid).getClass().getSimpleName();
 	}
 
 	@Override
 	public int nodeProp_getDependencyLevel(int pid) throws EditorException {
 		assert_validPID(pid);
-		if(nodeProperties.get(pid).getDependencyLevel() < 0){
+		if(properties.get(pid).getDependencyLevel() < 0){
 			throw new EditorException("The dependency level of property '"+nodeProp_getName(pid)+"' was never set");
 		}
-		return nodeProperties.get(pid).getDependencyLevel();
+		return properties.get(pid).getDependencyLevel();
 	}
 	
 	@Override
 	public String nodeProp_getDescription(int pid) throws EditorException{
 		assert_validPID(pid);
-		return nodeProperties.get(pid).getDescription();
+		return properties.get(pid).getDescription();
 	}
 	@Override 
 	public List<Integer> nodeProp_getDependencyIDs(int pid) throws EditorException{
 		assert_validPID(pid);
-		return nodeProperties.get(pid).getDependencies();
+		return properties.get(pid).getDependencies();
 	}
 
 	@Override
 	public float nodeProp_getInitValue(int pid) throws EditorException {
 		assert_validPID(pid);
-		assert_nodeType(nodeProperties.get(pid), FractionProperty.class);
-		FractionProperty fp = (FractionProperty) nodeProperties.get(pid);
+		assert_nodeType(properties.get(pid), FractionProperty.class);
+		FractionProperty fp = (FractionProperty) properties.get(pid);
 		if(!fp.hasInitValue()){
 			throw new EditorException("No initial value set for node property: "+fp.getName());
 		}
@@ -432,8 +446,8 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	@Override
 	public float nodeProp_getInitValue(int lid, int pid) throws EditorException {
 		assert_validPID(lid, pid);
-		assert_nodeType(nodeLayers.get(lid).getProperty(pid), FractionProperty.class);
-		FractionProperty fp = (FractionProperty) nodeLayers.get(lid).getProperty(pid);
+		assert_nodeType(layers.get(lid).getProperty(pid), FractionProperty.class);
+		FractionProperty fp = (FractionProperty) layers.get(lid).getProperty(pid);
 		if(!fp.hasInitValue()){
 			throw new EditorException("No initial value for fraction property '"+pid+"' in layer '"+lid+"'");
 		}
@@ -443,65 +457,65 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	@Override
 	public String nodeProp_getPathogenType(int pid) throws EditorException {
 		assert_validPID(pid);
-		assert_nodeType(nodeProperties.get(pid), AttachmentProperty.class);
-		return ((AttachmentProperty) nodeProperties.get(pid)).getPathogen();
+		assert_nodeType(properties.get(pid), AttachmentProperty.class);
+		return ((AttachmentProperty) properties.get(pid)).getPathogen();
 	}
 
 	@Override
 	public String nodeProp_getPathogenType(int lid, int pid) throws EditorException {
 		assert_validPID(lid, pid);
-		assert_nodeType(nodeLayers.get(lid).getProperty(pid),
+		assert_nodeType(layers.get(lid).getProperty(pid),
 				AttachmentProperty.class);
-		return ((AttachmentProperty) nodeLayers.get(lid).getProperty(pid)).getPathogen();
+		return ((AttachmentProperty) layers.get(lid).getProperty(pid)).getPathogen();
 	}
 
 	@Override
 	public boolean nodeProp_isRangedProperty(int pid) throws EditorException {
 		assert_validPID(pid);
-		return (nodeProperties.get(pid) instanceof EnumeratorProperty);
+		return (properties.get(pid) instanceof EnumeratorProperty);
 	}
 	
 	@Override
 	public List<Integer> nodeProp_getConditionalDistributionIDs(int pid) throws EditorException {
 		assert_validPID(pid);
-		assert_nodeType(nodeProperties.get(pid), EnumeratorProperty.class);
-		return ((EnumeratorProperty) nodeProperties.get(pid)).getOrderedConditions();
+		assert_nodeType(properties.get(pid), EnumeratorProperty.class);
+		return ((EnumeratorProperty) properties.get(pid)).getOrderedConditions();
 	}
 
 	@Override
 	public Map<Integer, Integer> nodeProp_getDistributionConditions(int pid, int cid) throws EditorException {
 		assert_validPID(pid);
-		assert_nodeType(nodeProperties.get(pid), EnumeratorProperty.class);
-		return ((EnumeratorProperty) nodeProperties.get(pid)).getConDistributionConditions(cid);
+		assert_nodeType(properties.get(pid), EnumeratorProperty.class);
+		return ((EnumeratorProperty) properties.get(pid)).getConDistributionConditions(cid);
 	}
 
 	@Override
 	public Map<Integer, Float> nodeProp_getDistribution(int pid, int cid) throws EditorException {
 		assert_validPID(pid);
-		assert_nodeType(nodeProperties.get(pid), EnumeratorProperty.class);
-		return ((EnumeratorProperty) nodeProperties.get(pid)).getConDistributionProbMap(cid);
+		assert_nodeType(properties.get(pid), EnumeratorProperty.class);
+		return ((EnumeratorProperty) properties.get(pid)).getConDistributionProbMap(cid);
 	}
 
 	@Override
 	public Map<Integer, Float> nodeProp_getDefaultDistribution(int pid) throws EditorException {
 		assert_validPID(pid);
-		assert_nodeType(nodeProperties.get(pid), EnumeratorProperty.class);
-		if(!((EnumeratorProperty) nodeProperties.get(pid)).hasDefaultDistribution()){
-			throw new EditorException("The default distribution for property '"+nodeProperties.get(pid).getName()+"' was not set");
+		assert_nodeType(properties.get(pid), EnumeratorProperty.class);
+		if(!((EnumeratorProperty) properties.get(pid)).hasDefaultDistribution()){
+			throw new EditorException("The default distribution for property '"+properties.get(pid).getName()+"' was not set");
 		}
-		return ((EnumeratorProperty) nodeProperties.get(pid)).getDefaultDistribution();
+		return ((EnumeratorProperty) properties.get(pid)).getDefaultDistribution();
 	}
 	
 	@Override
 	public List<Integer> nodeProp_getPropertyIDs(int lid) throws EditorException {
 		assert_validLID(lid);
-		return nodeLayers.get(lid).getPropertyIDs();
+		return layers.get(lid).getPropertyIDs();
 	}
 
 	@Override
 	public List<Integer> nodeProp_getRangeItemIDs(int lid, int pid) throws EditorException {
 		assert_validPID(lid, pid);
-		NodeProperty np = nodeLayers.get(lid).getProperty(pid);
+		NodeProperty np = layers.get(lid).getProperty(pid);
 		assert_nodeType(np, EnumeratorProperty.class);
 		return ((EnumeratorProperty) np).getSortedRangeIDs();
 	}
@@ -509,7 +523,7 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	@Override
 	public String nodeProp_getRangeLabel(int lid, int pid, int rid) throws EditorException {
 		assert_validPID(lid, pid);
-		NodeProperty np = nodeLayers.get(lid).getProperty(pid);
+		NodeProperty np = layers.get(lid).getProperty(pid);
 		assert_nodeType(np, EnumeratorProperty.class);
 		return ((EnumeratorProperty) np).getRangeLabel(rid);
 	}
@@ -517,7 +531,7 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	@Override
 	public int nodeProp_getRangeMax(int lid, int pid, int rid) throws EditorException {
 		assert_validPID(lid, pid);
-		NodeProperty np = nodeLayers.get(lid).getProperty(pid);
+		NodeProperty np = layers.get(lid).getProperty(pid);
 		assert_nodeType(np, IntegerRangeProperty.class);
 		return ((IntegerRangeProperty) np).getRangeMax(rid);
 	}
@@ -525,7 +539,7 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	@Override
 	public int nodeProp_getRangeMin(int lid, int pid, int rid) throws EditorException {
 		assert_validPID(lid, pid);
-		NodeProperty np = nodeLayers.get(lid).getProperty(pid);
+		NodeProperty np = layers.get(lid).getProperty(pid);
 		assert_nodeType(np, IntegerRangeProperty.class);
 		return ((IntegerRangeProperty) np).getRangeMin(rid);
 	}
@@ -533,37 +547,37 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	@Override
 	public String nodeProp_getName(int lid, int pid) throws EditorException {
 		assert_validPID(lid, pid);
-		return nodeLayers.get(lid).getProperty(pid).getName();
+		return layers.get(lid).getProperty(pid).getName();
 	}
 
 	@Override
 	public String nodeProp_getType(int lid, int pid) throws EditorException {
 		assert_validPID(lid, pid);
-		return nodeLayers.get(lid).getProperty(pid).getClass().getSimpleName();
+		return layers.get(lid).getProperty(pid).getClass().getSimpleName();
 	}
 
 	@Override
 	public int nodeProp_getDependencyLevel(int lid, int pid) throws EditorException {
 		assert_validPID(lid, pid);
-		return nodeLayers.get(lid).getProperty(pid).getDependencyLevel();
+		return layers.get(lid).getProperty(pid).getDependencyLevel();
 	}
 
 	@Override
 	public String nodeProp_getDescription(int lid, int pid) throws EditorException {
 		assert_validPID(lid, pid);
-		return nodeLayers.get(lid).getProperty(pid).getDescription();
+		return layers.get(lid).getProperty(pid).getDescription();
 	}
 
 	@Override
 	public boolean nodeProp_isRangedProperty(int lid, int pid) throws EditorException {
 		assert_validPID(lid, pid);
-		return nodeLayers.get(lid).getProperty(pid) instanceof EnumeratorProperty;
+		return layers.get(lid).getProperty(pid) instanceof EnumeratorProperty;
 	}
 
 	@Override
 	public Map<Integer, Float> nodeProp_getDefaultDistribution(int lid, int pid) throws EditorException {
 		assert_validPID(lid, pid);
-		NodeProperty np = nodeLayers.get(lid).getProperty(pid);
+		NodeProperty np = layers.get(lid).getProperty(pid);
 		assert_nodeType(np, EnumeratorProperty.class);
 		return ((EnumeratorProperty) np).getDefaultDistribution();
 	}
@@ -571,13 +585,13 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	@Override
 	public List<Integer> nodeProp_getDependencyIDs(int lid, int pid) throws EditorException {
 		assert_validPID(lid, pid);
-		return nodeLayers.get(lid).getProperty(pid).getDependencies();
+		return layers.get(lid).getProperty(pid).getDependencies();
 	}
 
 	@Override
 	public List<Integer> nodeProp_getConditionalDistributionIDs(int lid, int pid) throws EditorException {
 		assert_validPID(lid, pid);
-		NodeProperty np = nodeLayers.get(lid).getProperty(pid);
+		NodeProperty np = layers.get(lid).getProperty(pid);
 		assert_nodeType(np, EnumeratorProperty.class);
 		return ((EnumeratorProperty) np).getOrderedConditions();
 	}
@@ -585,7 +599,7 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	@Override
 	public Map<Integer, Integer> nodeProp_getDistributionConditions(int lid, int pid, int cid) throws EditorException {
 		assert_validPID(lid, pid);
-		NodeProperty np = nodeLayers.get(lid).getProperty(pid);
+		NodeProperty np = layers.get(lid).getProperty(pid);
 		assert_nodeType(np, EnumeratorProperty.class);
 		return((EnumeratorProperty) np).getConDistributionConditions(cid);
 	}
@@ -593,7 +607,7 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	@Override
 	public Map<Integer, Float> nodeProp_getDistribution(int lid, int pid, int cid) throws EditorException {
 		assert_validPID(lid, pid);
-		NodeProperty np = nodeLayers.get(lid).getProperty(pid);
+		NodeProperty np = layers.get(lid).getProperty(pid);
 		assert_nodeType(np, EnumeratorProperty.class);
 		return ((EnumeratorProperty) np).getConDistributionProbMap(cid);
 	}
@@ -602,6 +616,9 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	@Override
 	public void scratch_new(String name, String type, String description) throws EditorException {
 		boolean validType = false;
+		if(!test_nodePropNameIsUnique(name)){
+			throw new EditorException("Duplicate node property name: "+name);
+		}
 		for(Class<?> nodeclass: getPropertyClasses()){
 			if(type.equals(nodeclass.getSimpleName())){
 				validType = true;
@@ -724,7 +741,7 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 		assert_scratchExists();
 		assert_nodeType(scratchProperty, AttachmentProperty.class);
 		
-		for(NodeProperty np : nodeProperties){
+		for(NodeProperty np : properties){
 			if(np != null && np instanceof AttachmentProperty
 			   &&((AttachmentProperty) np).getPathogen().equals(type)
 			){
@@ -815,8 +832,8 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 		}
 		List<Integer> deps = new ArrayList<>();
 		for(int pid : nodeProp_getPropertyIDs()){
-			if(nodeProperties.get(pid).getDependencyLevel() < scratchProperty.getDependencyLevel() 
-					&& nodeProperties.get(pid) instanceof EnumeratorProperty){
+			if(properties.get(pid).getDependencyLevel() < scratchProperty.getDependencyLevel() 
+					&& properties.get(pid) instanceof EnumeratorProperty){
 				deps.add(pid);
 			}
 		}
@@ -831,7 +848,7 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 			throw new EditorException("Failed to add dependency to scratch property: "
 					+ "scratch property's dependency level was not yet set.");
 		}
-		if(nodeProperties.get(pid).getDependencyLevel() >= scratchProperty.getDependencyLevel()){
+		if(properties.get(pid).getDependencyLevel() >= scratchProperty.getDependencyLevel()){
 			throw new EditorException("Failed to add dependency to scratch property: "
 					+ "requested property was not of a lower dependency level.");
 		}
@@ -925,10 +942,10 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 		//Add it to a layer if the scratchLayerID is not null
 		if(scratchLayerID != null){
 			assert_validLID(scratchLayerID);
-			propertyList = nodeLayers.get(scratchLayerID).getProperties();
+			propertyList = layers.get(scratchLayerID).getProperties();
 		}
 		else {
-			propertyList = nodeProperties;
+			propertyList = properties;
 		}
 		for(NodeProperty np : propertyList){
 			if(np != null && np.getName() == scratchProperty.getName()){
@@ -1030,20 +1047,20 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 
 	@Override
 	public int layer_new(String name) throws EditorException {
-		for(NodeLayer l : nodeLayers){
+		for(NodeLayer l : layers){
 			if(l != null && l.getName().equals(name)){
 				throw new EditorException("Tried to add layer with duplicate name: "+name);
 			}
 		}
-		nodeLayers.add(new NodeLayer(name));
-		return nodeLayers.size()-1;
+		layers.add(new NodeLayer(name));
+		return layers.size()-1;
 	}
 
 	@Override
 	public List<Integer> layer_getLayerIDs() {
 		List<Integer> layerIDs = new ArrayList<>();
-		for(int i = 0; i < nodeLayers.size(); i++){
-			if(nodeLayers.get(i) != null){
+		for(int i = 0; i < layers.size(); i++){
+			if(layers.get(i) != null){
 				layerIDs.add(i);
 			}
 		}
@@ -1053,24 +1070,24 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	@Override
 	public String layer_getName(int lid) throws EditorException{
 		assert_validLID(lid);
-		return nodeLayers.get(lid).getName();
+		return layers.get(lid).getName();
 	}
 	
 	@Override
 	public void layer_setName(int lid, String name) throws EditorException{
 		assert_validLID(lid);
-		for(NodeLayer l : nodeLayers){
+		for(NodeLayer l : layers){
 			if(l != null && l.getName().equals(name)){
 				throw new EditorException("A layer with the name '"+name+"' already exists");
 			}
 		}
-		nodeLayers.get(lid).setName(name);
+		layers.get(lid).setName(name);
 	}
 
 	@Override
 	public Integer search_nodePropWithName(String name) {
 		for(int i : nodeProp_getPropertyIDs()){
-			if(nodeProperties.get(i).getName().equals(name)){
+			if(properties.get(i).getName().equals(name)){
 				return i;
 			}
 		}
@@ -1080,8 +1097,8 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	@Override
 	public Integer search_nodePropWithName(String name, int lid) throws EditorException {
 		assert_validLID(lid);
-		for(int i : nodeLayers.get(lid).getPropertyIDs()){
-			if(nodeLayers.get(lid).getProperty(i).getName().equals(name)){
+		for(int i : layers.get(lid).getPropertyIDs()){
+			if(layers.get(lid).getProperty(i).getName().equals(name)){
 				return i;
 			}
 		}
@@ -1091,9 +1108,9 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	@Override
 	public Integer search_rangeWithLabel(int pid, String label) throws EditorException {
 		assert_validPID(pid);
-		assert_nodeType(nodeProperties.get(pid), EnumeratorProperty.class);
+		assert_nodeType(properties.get(pid), EnumeratorProperty.class);
 		
-		EnumeratorProperty en = (EnumeratorProperty) nodeProperties.get(pid);
+		EnumeratorProperty en = (EnumeratorProperty) properties.get(pid);
 		
 		for(int i:en.getUnSortedRangeIDs()){
 			if(en.getRangeLabel(i).equals(label)){

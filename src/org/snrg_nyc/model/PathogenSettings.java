@@ -12,5 +12,7 @@ class PathogenSettings extends NodeSettings {
 		super();
 		this.pathogen = pathogen;
 	}
-
+	public String getName(){
+		return pathogen;
+	}
 }

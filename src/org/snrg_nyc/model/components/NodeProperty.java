@@ -1,4 +1,4 @@
-package org.snrg_nyc.model;
+package org.snrg_nyc.model.components;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -12,7 +12,7 @@ import java.util.Map.Entry;
  * @author Devin
  *
  */
-abstract class NodeProperty implements Serializable {
+public abstract class NodeProperty implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	public enum DistType{

@@ -3,6 +3,8 @@ package org.snrg_nyc.model;
 import java.util.List;
 import java.util.Map;
 
+import org.snrg_nyc.model.components.EditorException;
+
 /**
  * The public-facing business logic for use by the user interface of an SNRG frontend.
  * This interface and any implementations of it should be the only classes used outside 
@@ -49,16 +51,6 @@ public interface PropertiesEditor {
 	 * @return Whether or not the name is available (and thus valid to use)
 	 */
 	public boolean test_nodePropNameIsUnique(String name);
-	
-	/**
-	 * Identical to {@link PropertiesEditor#test_nodePropNameIsUnique(String)}, but for testing the name 
-	 * against properties in a layer
-	 * @param lid The layer ID to get properties from, should be from {@link PropertiesEditor#layer_getLayerIDs()}
-	 * @param name The string name to test against other property names
-	 * @return If the name is unique or not (returns false if there's a match).
-	 * @throws EditorException Thrown if the layer ID is invalid.
-	 */
-	public boolean test_nodePropNameIsUnique(int lid, String name) throws EditorException;
 	
 	/**
 	 * Test if a property ID points to an existing node property
@@ -469,11 +461,27 @@ public interface PropertiesEditor {
 	 * --- Pathogen Methods --- * 
 	\*                          */
 	/**
+	 * Get all valid pathogen IDs.
+	 * @return Pathogen IDs for valid pathogens
+	 * @throws EditorException Thrown if you are editing a 
+	 * pathogen, which does not have embedded pathogens.
+	 */
+	public List<Integer> pathogen_getPathogenIDs() throws EditorException;
+	
+	/**
+	 * 
+	 * @param pathID
+	 * @return
+	 * @throws EditorException
+	 */
+	public String pathogen_getName(int pathID) throws EditorException;
+	
+	/**
 	 * Create a pathogen
 	 * @param name The name of the pathogen (must be unique)
 	 * @return A unique ID identifying the pathogen
 	 * @throws EditorException Thrown if the pathogen name is taken, 
-	 * or if there's some other issue.
+	 * or if you're editing a pathogen, which cannot have pathogens.
 	 */
 	public int pathogen_create(String name) throws EditorException;
 	
@@ -484,6 +492,7 @@ public interface PropertiesEditor {
 	 * @throws EditorException Thrown if the given ID does not exist.
 	 */
 	public PropertiesEditor pathogen_getEditor(int pathID) throws EditorException;
+	
 	/*                                           *\
 	|  ----- Scratch Node Property Methods -----  |
 	\*                                           */

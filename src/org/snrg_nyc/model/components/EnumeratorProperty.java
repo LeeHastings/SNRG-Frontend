@@ -1,11 +1,11 @@
-package org.snrg_nyc.model;
+package org.snrg_nyc.model.components;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 
-class EnumeratorProperty extends NodeProperty {
+public class EnumeratorProperty extends NodeProperty {
 	private static final long serialVersionUID = 1L;
 	
 	protected List<String> values;

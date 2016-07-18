@@ -3,8 +3,8 @@ package org.snrg_nyc.ui.components;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.snrg_nyc.model.EditorException;
 import org.snrg_nyc.model.PropertiesEditor;
+import org.snrg_nyc.model.components.EditorException;
 import org.snrg_nyc.ui.EditorPage;
 
 import javafx.beans.property.BooleanProperty;
