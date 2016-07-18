@@ -44,7 +44,6 @@ public class EditorWindow extends BorderPane {
 	Stage stage;
 	Scene scene;
 	Alert quitAlert;
-	String experimentName = null;
 	
 	EditorPage editor;
 	
@@ -56,6 +55,7 @@ public class EditorWindow extends BorderPane {
 		stage = initStage;
 		stage.setTitle(title);
 		editor = new EditorPage(this.model);
+		editor.setPrefWidth(500);
 		
 		scene = new Scene(this, 900, 600);
 		

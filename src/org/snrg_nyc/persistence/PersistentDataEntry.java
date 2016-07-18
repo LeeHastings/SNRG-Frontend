@@ -3,8 +3,8 @@ package org.snrg_nyc.persistence;
 import java.io.Serializable;
 import java.lang.reflect.Type;
 
-import org.snrg_nyc.model.NodeEditor;
 import org.snrg_nyc.model.PropertiesEditor;
+import org.snrg_nyc.model.components.NodeProperty;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -25,7 +25,7 @@ class PersistentDataEntry implements Serializable {
 	 */
 	static String[] searchPackages = {
 		PropertiesEditor.class.getPackage().getName(),
-		NodeEditor.class.getPackage().getName(),
+		NodeProperty.class.getPackage().getName(),
 		ExperimentSerializer.class.getPackage().getName(),
 		"java.lang",
 		"java.util",
@@ -44,7 +44,7 @@ class PersistentDataEntry implements Serializable {
 			String className = jsWrapper.get("Type").getAsString();
 			JsonObject objectjs = jsWrapper.get("Object").getAsJsonObject();
 			
-			//Try to infer the type name 
+			//Try to infer the class name, use a generic Object otherwise
 			Class<?> innerClass = Object.class;
 			for(String pkgName : searchPackages){
 				try {
@@ -71,6 +71,21 @@ class PersistentDataEntry implements Serializable {
 		name = experimentName;
 		type = object.getClass().getSimpleName();
 		this.object = object;
+		
+		//Check if the object can be deserialized
+		String packageName = object.getClass().getPackage().getName();
+		boolean match = false;
+		for(String s : searchPackages){
+			if(s.equals(packageName)){
+				match = true;
+			}
+		}
+		if(!match){
+			System.err.println(
+					"Warning: an object was added to a "
+					+ "persistent data entry that cannot be deserialized: "
+					+ object.getClass().getName());
+		}
 	}
 	
 	String getExperimentName() {
