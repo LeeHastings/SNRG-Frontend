@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.snrg_nyc.model.PropertiesEditor;
-import org.snrg_nyc.model.components.EditorException;
+import org.snrg_nyc.model.internal.EditorException;
 import org.snrg_nyc.ui.components.ConditionsCell;
 import org.snrg_nyc.ui.components.ConditionsMenu;
 import org.snrg_nyc.ui.components.DistributionTable;
@@ -774,6 +774,7 @@ public class EditorPage extends GridPane{
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private void newPropertyPage(){
 		title.setText("New Node Property");
 		

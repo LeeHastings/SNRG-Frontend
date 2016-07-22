@@ -3,7 +3,7 @@ package org.snrg_nyc.model;
 import java.util.List;
 import java.util.Map;
 
-import org.snrg_nyc.model.components.EditorException;
+import org.snrg_nyc.model.internal.EditorException;
 
 /**
  * The public-facing business logic for use by the user interface of an SNRG frontend.
@@ -532,6 +532,14 @@ public interface PropertiesEditor {
 	 */
 	public void scratch_setDependencyLevel(int level) throws EditorException;
 	
+	/**
+	 * Set the pathogen that an Attachment property will be bound to.  This may also rename the property
+	 * @param pathID The ID of the pathogen, from
+	 *  {@link PropertiesEditor#pathogen_getPathogenIDs()}
+	 * @throws EditorException Thrown if the scratch property is not an attachment property, if the
+	 * pathogen ID is invalid, or for some other conflict.
+	 */
+	public void scratch_setPathogen(int pathID) throws EditorException;
 	/**
 	 * Create a range item for a property of any type
 	 * @return A unique ID for the new range item

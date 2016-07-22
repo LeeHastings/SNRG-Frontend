@@ -5,7 +5,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
-import java.io.Serializable;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,6 +13,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.snrg_nyc.model.Transferable;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -44,7 +45,7 @@ public class JsonFileSerializer implements ExperimentSerializer {
 			   .create();
 	}
 	@Override
-	public void storeExperiment(String name, Map<String, Serializable> dataEntries) throws PersistenceException {
+	public void storeExperiment(String name, Map<String, Transferable> dataEntries) throws PersistenceException {
 		Path saveDir = savePath.resolve(name);
 
 		System.out.println("Saving to "+saveDir.toString());
@@ -104,12 +105,12 @@ public class JsonFileSerializer implements ExperimentSerializer {
 	}
 
 	@Override
-	public Map<String, Serializable> loadExperiment(String name) throws PersistenceException {
+	public Map<String, Transferable> loadExperiment(String name) throws PersistenceException {
 		Path saveDir = savePath.resolve(name);
 		if(!Files.exists(saveDir)){
 			throw new PersistenceException("No experiment with name: "+name);
 		}
-		Map<String, Serializable> loaded = new HashMap<>();
+		Map<String, Transferable> loaded = new HashMap<>();
 		
 		try { 
 			Files.list(saveDir).forEach(p ->{
@@ -121,7 +122,7 @@ public class JsonFileSerializer implements ExperimentSerializer {
 						JsonElement js = new JsonParser().parse(r);
 						
 						PersistentDataEntry pde = gson.fromJson(js, PersistentDataEntry.class);
-						Serializable obj = pde.getObject();
+						Transferable obj = pde.getObject();
 						
 						loaded.put(fileName, obj);
 					} catch (Exception e) {

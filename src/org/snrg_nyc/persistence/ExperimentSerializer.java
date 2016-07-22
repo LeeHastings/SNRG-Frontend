@@ -1,8 +1,9 @@
 package org.snrg_nyc.persistence;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+
+import org.snrg_nyc.model.Transferable;
 
 
 /**
@@ -17,7 +18,7 @@ public interface ExperimentSerializer {
 	 * @param dataEntries A map of string IDs to objects to be stored.
 	 * @throws PersistenceException Thrown if there is some issue with saving the data
 	 */
-	public void storeExperiment(String name, Map<String, Serializable> dataEntries) 
+	public void storeExperiment(String name, Map<String, Transferable> dataEntries) 
 			throws PersistenceException;
 	
 	/**
@@ -27,7 +28,7 @@ public interface ExperimentSerializer {
 	 * {@link ExperimentSerializer#storeExperiment}
 	 * @throws PersistenceException Thrown if there was some problem retrieving the data
 	 */
-	public Map<String, Serializable> loadExperiment(String name) throws PersistenceException;
+	public Map<String, Transferable> loadExperiment(String name) throws PersistenceException;
 	
 	/**
 	 * All experiments that can be loaded with {@link ExperimentSerializer#loadExperiment}

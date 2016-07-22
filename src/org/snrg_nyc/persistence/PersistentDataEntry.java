@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.lang.reflect.Type;
 
 import org.snrg_nyc.model.PropertiesEditor;
-import org.snrg_nyc.model.components.NodeProperty;
+import org.snrg_nyc.model.Transferable;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -24,12 +24,9 @@ class PersistentDataEntry implements Serializable {
 	 * A list of package names to search in for the simpleName of a class
 	 */
 	static String[] searchPackages = {
+		Transferable.class.getPackage().getName(),
 		PropertiesEditor.class.getPackage().getName(),
-		NodeProperty.class.getPackage().getName(),
-		ExperimentSerializer.class.getPackage().getName(),
-		"java.lang",
-		"java.util",
-		"java.io"
+		ExperimentSerializer.class.getPackage().getName()
 	};
 	
 	static final long serialVersionUID = 1L;
@@ -50,7 +47,7 @@ class PersistentDataEntry implements Serializable {
 				try {
 					innerClass = Class.forName(pkgName+"."+className);
 				} catch (ClassNotFoundException e) {
-					//That wasn't the package
+					//That wasn't the package, ignore
 				}
 			}
 			return new PersistentDataEntry(name, context.deserialize(objectjs, innerClass));
@@ -64,12 +61,16 @@ class PersistentDataEntry implements Serializable {
 	@SerializedName("Type")
 	private String type;
 	
-	@SerializedName("Object")
-	private Serializable object;
+	@SerializedName("ObjectID")
+	private String id;
 	
-	public PersistentDataEntry(String experimentName, Serializable object){
+	@SerializedName("Object")
+	private Transferable object;
+	
+	public PersistentDataEntry(String experimentName, Transferable object){
 		name = experimentName;
 		type = object.getClass().getSimpleName();
+		id = object.getObjectID();
 		this.object = object;
 		
 		//Check if the object can be deserialized
@@ -95,8 +96,12 @@ class PersistentDataEntry implements Serializable {
 	String getType() {
 		return type;
 	}
+	
+	String getID(){
+		return id;
+	}
 
-	public Serializable getObject() {
+	public Transferable getObject() {
 		return object;
 	}
 }

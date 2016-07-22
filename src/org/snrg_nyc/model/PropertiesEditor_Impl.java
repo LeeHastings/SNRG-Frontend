@@ -1,6 +1,5 @@
 package org.snrg_nyc.model;
 
-import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,16 +7,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.snrg_nyc.model.components.AttachmentProperty;
-import org.snrg_nyc.model.components.DistributionJsonAdapter;
-import org.snrg_nyc.model.components.EditorException;
-import org.snrg_nyc.model.components.EnumeratorProperty;
-import org.snrg_nyc.model.components.FractionProperty;
-import org.snrg_nyc.model.components.IntegerRangeProperty;
-import org.snrg_nyc.model.components.NodeLayer;
-import org.snrg_nyc.model.components.NodeProperty;
-import org.snrg_nyc.model.components.PropertyJsonAdapter;
-import org.snrg_nyc.model.components.UnivariatDistribution;
+import org.snrg_nyc.model.internal.AttachmentProperty;
+import org.snrg_nyc.model.internal.DistributionJsonAdapter;
+import org.snrg_nyc.model.internal.EditorException;
+import org.snrg_nyc.model.internal.EnumeratorProperty;
+import org.snrg_nyc.model.internal.FractionProperty;
+import org.snrg_nyc.model.internal.IntegerRangeProperty;
+import org.snrg_nyc.model.internal.NodeLayer;
+import org.snrg_nyc.model.internal.NodeProperty;
+import org.snrg_nyc.model.internal.PropertyJsonAdapter;
+import org.snrg_nyc.model.internal.UnivariatDistribution;
 import org.snrg_nyc.persistence.ExperimentSerializer;
 import org.snrg_nyc.persistence.PersistenceException;
 import org.snrg_nyc.persistence.JsonFileSerializer;
@@ -76,8 +75,8 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	
 	protected abstract Class<?>[] getPropertyClasses();
 	
-	protected Map<String, Serializable> getSavedObjects() throws EditorException{
-		Map<String, Serializable> e = new HashMap<>();
+	protected Map<String, Transferable> getSavedObjects() throws EditorException{
+		Map<String, Transferable> e = new HashMap<>();
 		
 		for(NodeLayer l : layers){
 			if(l == null){
@@ -105,10 +104,10 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 		return e;
 	}
 	
-	protected void loadDistributions(Map<String, Serializable> e) throws EditorException {
-		for(String key : e.keySet()){
-			if(e.get(key) instanceof UnivariatDistribution){
-				UnivariatDistribution uniD = (UnivariatDistribution) e.get(key);
+	protected void loadDistributions(Map<String, Transferable> objects) throws EditorException {
+		for(String key : objects.keySet()){
+			if(objects.get(key) instanceof UnivariatDistribution){
+				UnivariatDistribution uniD = (UnivariatDistribution) objects.get(key);
 				
 				Integer pid = search_nodePropWithName(uniD.getPropName());
 				Integer lid = null;
@@ -140,14 +139,14 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 				}
 			}
 			else{
-				System.out.println("Tried to load unsupported object: "+e.getClass().getName());
+				System.out.println("Tried to load unsupported object: "+objects.getClass().getName());
 			}
 		}
 	}
 	
-	protected Map<String, Serializable> deserializeExperiment(String experimentName) throws EditorException{
+	protected Map<String, Transferable> deserializeExperiment(String experimentName) throws EditorException{
 		clear();
-		Map<String, Serializable> e = null;
+		Map<String, Transferable> e = null;
 		try {
 			e = serializer.loadExperiment(experimentName);
 		} catch (PersistenceException e1) {
@@ -189,7 +188,7 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	 * @throws PropertiesEditor.EditorException Thrown if casting the give {@link NodeProperty} to the give class
 	 * would fail.
 	 */
-	private void assert_nodeType(NodeProperty p, Class<? extends NodeProperty> cls) throws EditorException{
+	protected void assert_nodeType(NodeProperty p, Class<? extends NodeProperty> cls) throws EditorException{
 		if(!cls.isAssignableFrom(p.getClass())){
 			throw new EditorException("The given property is of type "+
 					p.getClass().getSimpleName()+", expected "+cls.getSimpleName());
@@ -199,7 +198,7 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	 * Assert that the scratch property is not null.
 	 * @throws PropertiesEditor.EditorException Thrown if the scratch property is null.
 	 */
-	private void assert_scratchExists() throws EditorException{
+	protected void assert_scratchExists() throws EditorException{
 		if(scratchProperty == null){
 			throw new EditorException("The scratch property is currently null.");
 		}
@@ -305,7 +304,7 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	\*                      */
 	@Override
 	public void save(String experimentName) throws EditorException {
-		Map<String, Serializable> e = getSavedObjects();
+		Map<String, Transferable> e = getSavedObjects();
 		
 		try {
 			serializer.storeExperiment(experimentName, e);

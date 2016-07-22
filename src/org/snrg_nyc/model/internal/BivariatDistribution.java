@@ -1,4 +1,4 @@
-package org.snrg_nyc.model.components;
+package org.snrg_nyc.model.internal;
 
 import java.util.HashMap;
 import java.util.List;

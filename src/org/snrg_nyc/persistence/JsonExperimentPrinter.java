@@ -1,10 +1,11 @@
 package org.snrg_nyc.persistence;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.snrg_nyc.model.Transferable;
 
 import com.google.gson.Gson;
 
@@ -24,7 +25,7 @@ public class JsonExperimentPrinter implements ExperimentSerializer {
 		gson = g;
 	}
 	@Override
-	public void storeExperiment(String name, Map<String, Serializable> dataEntries) 
+	public void storeExperiment(String name, Map<String, Transferable> dataEntries) 
 			throws PersistenceException 
 	{
 		PersistentDataEntry pData;
@@ -40,8 +41,8 @@ public class JsonExperimentPrinter implements ExperimentSerializer {
 	}
 
 	@Override
-	public Map<String, Serializable> loadExperiment(String name) throws PersistenceException {
-		Map<String, Serializable> experiment = new HashMap<>();
+	public Map<String, Transferable> loadExperiment(String name) throws PersistenceException {
+		Map<String, Transferable> experiment = new HashMap<>();
 		
 		if(experiments.containsKey(name)){
 			for(String key : experiments.get(name).keySet()){

@@ -1,4 +1,4 @@
-package org.snrg_nyc.model.components;
+package org.snrg_nyc.model.internal;
 
 class Range<T extends Number> implements Comparable<Range<T>> {
 	private T max;

@@ -1,18 +1,19 @@
-package org.snrg_nyc.model.components;
+package org.snrg_nyc.model.internal;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.snrg_nyc.model.Transferable;
+
 /**
  * The base class for all node properties
  * @author Devin
  *
  */
-public abstract class NodeProperty implements Serializable {
+public abstract class NodeProperty implements Transferable {
 	private static final long serialVersionUID = 1L;
 	
 	public enum DistType{
@@ -79,6 +80,10 @@ public abstract class NodeProperty implements Serializable {
 		this();
 		setName(name);
 		setDescription(description);
+	}
+	@Override
+	public String getObjectID(){
+		return this.name;
 	}
 	public void setName(String name){
 		if(name == null || name == ""){

@@ -4,11 +4,11 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-import org.snrg_nyc.model.components.BooleanProperty;
-import org.snrg_nyc.model.components.EditorException;
-import org.snrg_nyc.model.components.EnumeratorProperty;
-import org.snrg_nyc.model.components.FractionProperty;
-import org.snrg_nyc.model.components.IntegerRangeProperty;
+import org.snrg_nyc.model.internal.BooleanProperty;
+import org.snrg_nyc.model.internal.EditorException;
+import org.snrg_nyc.model.internal.EnumeratorProperty;
+import org.snrg_nyc.model.internal.FractionProperty;
+import org.snrg_nyc.model.internal.IntegerRangeProperty;
 
 /**
  * A class for editing the properties in a pathogen.
@@ -54,11 +54,14 @@ public class PathogenEditor extends PropertiesEditor_Impl{
 		pathSettings.setPropertyDefinitionList(properties);
 	}
 	PathogenEditor(NodeEditor parent, PathogenSettings settings, Map<String, Serializable> objects){
-		
+		//TODO implement this
+	}
+	public String getPathogen(){
+		return pathSettings.getName();
 	}
 	@Override
-	protected Map<String, Serializable> getSavedObjects() throws EditorException{
-		Map<String, Serializable> map = super.getSavedObjects();
+	protected Map<String, Transferable> getSavedObjects() throws EditorException{
+		Map<String, Transferable> map = super.getSavedObjects();
 		map.put("pathogensettings_"+pathSettings.getName(), pathSettings);
 		return map;
 	}
@@ -93,6 +96,11 @@ public class PathogenEditor extends PropertiesEditor_Impl{
 
 	@Override
 	public String pathogen_getName(int pathID) throws EditorException {
+		throw new EditorException("Pathogens do not have internal pathogens.");
+	}
+
+	@Override
+	public void scratch_setPathogen(int pathID) throws EditorException {
 		throw new EditorException("Pathogens do not have internal pathogens.");
 	}
 

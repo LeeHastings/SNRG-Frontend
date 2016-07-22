@@ -3,7 +3,7 @@ package org.snrg_nyc.ui;
 import java.util.Optional;
 
 import org.snrg_nyc.model.PropertiesEditor;
-import org.snrg_nyc.model.components.EditorException;
+import org.snrg_nyc.model.internal.EditorException;
 import org.snrg_nyc.ui.components.LayerCell;
 import org.snrg_nyc.ui.components.LayerID;
 import org.snrg_nyc.ui.components.PropertyID;
@@ -50,6 +50,7 @@ public class EditorWindow extends BorderPane {
 	ObservableList<PropertyID> properties = FXCollections.observableArrayList();
 	ObservableList<LayerID> layers = FXCollections.observableArrayList();
 	
+	@SuppressWarnings("unchecked")
 	public EditorWindow(PropertiesEditor model, Stage initStage, String title){
 		this.model = model;
 		stage = initStage;

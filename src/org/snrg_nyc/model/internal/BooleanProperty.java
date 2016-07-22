@@ -1,4 +1,4 @@
-package org.snrg_nyc.model.components;
+package org.snrg_nyc.model.internal;
 
 public class BooleanProperty extends EnumeratorProperty {
 	private static final long serialVersionUID = 1L;

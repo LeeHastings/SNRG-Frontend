@@ -1,4 +1,4 @@
-package org.snrg_nyc.model.components;
+package org.snrg_nyc.model.internal;
 
 public class FractionProperty extends NodeProperty {
 	private static final long serialVersionUID = 1L;

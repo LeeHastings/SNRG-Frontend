@@ -1,16 +1,15 @@
 package org.snrg_nyc.model;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.snrg_nyc.model.components.AttachmentProperty;
-import org.snrg_nyc.model.components.BooleanProperty;
-import org.snrg_nyc.model.components.EditorException;
-import org.snrg_nyc.model.components.EnumeratorProperty;
-import org.snrg_nyc.model.components.FractionProperty;
-import org.snrg_nyc.model.components.IntegerRangeProperty;
+import org.snrg_nyc.model.internal.AttachmentProperty;
+import org.snrg_nyc.model.internal.BooleanProperty;
+import org.snrg_nyc.model.internal.EditorException;
+import org.snrg_nyc.model.internal.EnumeratorProperty;
+import org.snrg_nyc.model.internal.FractionProperty;
+import org.snrg_nyc.model.internal.IntegerRangeProperty;
 
 
 /**
@@ -48,13 +47,19 @@ public class NodeEditor extends PropertiesEditor_Impl {
 		nodeSettings.setPropertyDefinitionList(properties);
 	}
 	
+	private void assert_validPathogenID(int pathID) throws EditorException{
+		if(pathID < 0 || pathID >= pathogens.size() || pathogens.get(pathID) == null){
+			throw new EditorException("Invalid pathogen ID: "+pathID);
+		}
+	}
+	
 	@Override
 	protected Class<?>[] getPropertyClasses() {
 		return nodePropertyTypes;
 	}
 	@Override
-	public Map<String, Serializable> getSavedObjects() throws EditorException{
-		Map<String, Serializable> map = super.getSavedObjects();
+	public Map<String, Transferable > getSavedObjects() throws EditorException{
+		Map<String, Transferable> map = super.getSavedObjects();
 		map.put("nodesettings", nodeSettings);
 		return map;
 	}
@@ -71,7 +76,7 @@ public class NodeEditor extends PropertiesEditor_Impl {
 	
 	@Override
 	public void load(String experimentName) throws EditorException {
-		Map<String, Serializable> objects = deserializeExperiment(experimentName);
+		Map<String, Transferable> objects = deserializeExperiment(experimentName);
 		System.out.println("Found map:\n"+objects.toString());
 		if(!objects.containsKey("nodesettings")){
 			throw new EditorException("Tried to open an experiment without node settings!");
@@ -97,26 +102,45 @@ public class NodeEditor extends PropertiesEditor_Impl {
 	
 	@Override
 	public int pathogen_create(String name) throws EditorException {
-		// TODO Auto-generated method stub
-		return 0;
+		for(PathogenEditor p : pathogens){
+			if(p != null && p.getPathogen().equals(name)){
+				throw new EditorException("Duplicate pathogen name: "+name);
+			}
+		}
+		pathogens.add(new PathogenEditor(this, name));
+		return pathogens.size() - 1;
 	}
 
 	@Override
 	public PropertiesEditor pathogen_getEditor(int pathID) throws EditorException {
-		// TODO Auto-generated method stub
-		return null;
+		assert_validPathogenID(pathID);
+		return pathogens.get(pathID);
 	}
 
 	@Override
 	public List<Integer> pathogen_getPathogenIDs() throws EditorException {
-		// TODO Auto-generated method stub
-		return null;
+		List<Integer> ids = new ArrayList<>(pathogens.size());
+		for(int i = 0; i < pathogens.size(); i++){
+			if(pathogens.get(i) != null){
+				ids.add(i);
+			}
+		}
+		return ids;
 	}
 
 	@Override
 	public String pathogen_getName(int pathID) throws EditorException {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void scratch_setPathogen(int pathID) throws EditorException {
+		assert_validPathogenID(pathID);
+		assert_scratchExists();
+		assert_nodeType(scratchProperty, AttachmentProperty.class);
+		AttachmentProperty ap = (AttachmentProperty) scratchProperty;
+		ap.setPathogen(pathogens.get(pathID).getPathogen());
 	}
 
 

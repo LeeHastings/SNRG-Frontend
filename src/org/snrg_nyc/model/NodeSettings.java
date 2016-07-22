@@ -1,14 +1,13 @@
 package org.snrg_nyc.model;
 
-import java.io.Serializable;
 import java.util.List;
 
-import org.snrg_nyc.model.components.NodeLayer;
-import org.snrg_nyc.model.components.NodeProperty;
+import org.snrg_nyc.model.internal.NodeLayer;
+import org.snrg_nyc.model.internal.NodeProperty;
 
 import com.google.gson.annotations.SerializedName;
 
-class NodeSettings implements Serializable {
+class NodeSettings implements Transferable  {
 	private static final long serialVersionUID = 1L;
 	
 	@SerializedName("PropertyDefinitionList")
@@ -32,5 +31,9 @@ class NodeSettings implements Serializable {
 	}
 	public List<NodeLayer> getLayerAttributesList(){
 		return layers;
+	}
+	@Override
+	public String getObjectID() {
+		return this.getClass().getSimpleName();
 	}
 }
