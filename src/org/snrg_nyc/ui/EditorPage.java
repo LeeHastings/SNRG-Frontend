@@ -348,22 +348,7 @@ public class EditorPage extends GridPane{
 				dependencies.setText(depString);
 			}
 
-			List<Integer> rangeIDs = null;
-			if(!type.equals("FractionProperty")){
-				try {
-					if(id.usesLayer()){
-						rangeIDs = ui.nodeProp_getRangeItemIDs(id.lid(),id.pid());
-					}
-					else {
-						rangeIDs = ui.nodeProp_getRangeItemIDs(id.pid());
-					}
-				}
-				catch(Exception e){
-					sendError(e);
-					rangeIDs = new ArrayList<>();
-				}
-			}
-			
+			List<Integer> rangeIDs;
 			
 			switch(propType){
 			case "AttachmentProperty":
@@ -386,6 +371,18 @@ public class EditorPage extends GridPane{
 				add(new Label("Pathogen Type"), 0, 7);
 				break;
 			case "EnumeratorProperty":
+				try {
+					if(id.usesLayer()){
+						rangeIDs = ui.nodeProp_getRangeItemIDs(id.lid(),id.pid());
+					}
+					else {
+						rangeIDs = ui.nodeProp_getRangeItemIDs(id.pid());
+					}
+				}
+				catch(Exception e){
+					sendError(e);
+					rangeIDs = new ArrayList<>();
+				}
 				ListView<String> enumValues = new ListView<>();
 				enumValues.setPrefSize(100, 140);
 				
@@ -410,6 +407,18 @@ public class EditorPage extends GridPane{
 				break;
 				
 			case "IntegerRangeProperty":
+				try {
+					if(id.usesLayer()){
+						rangeIDs = ui.nodeProp_getRangeItemIDs(id.lid(),id.pid());
+					}
+					else {
+						rangeIDs = ui.nodeProp_getRangeItemIDs(id.pid());
+					}
+				}
+				catch(Exception e){
+					sendError(e);
+					rangeIDs = new ArrayList<>();
+				}
 				TableView<Integer> rangeItems = new TableView<>();
 				TableColumn<Integer, String> labelCol = new TableColumn<>("Label");
 				TableColumn<Integer, String> minCol = new TableColumn<>("Min");
@@ -492,7 +501,7 @@ public class EditorPage extends GridPane{
 						init = ui.nodeProp_getInitValue(id.lid(), id.pid());
 					}
 					else {
-						init = ui.nodeProp_getInitValue(id.lid());
+						init = ui.nodeProp_getInitValue(id.pid());
 					}
 					initVal = Float.toString(init);
 				}

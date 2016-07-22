@@ -5,6 +5,7 @@ import java.lang.reflect.Type;
 
 import org.snrg_nyc.model.PropertiesEditor;
 import org.snrg_nyc.model.Transferable;
+import org.snrg_nyc.model.internal.NodeProperty;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -24,7 +25,7 @@ class PersistentDataEntry implements Serializable {
 	 * A list of package names to search in for the simpleName of a class
 	 */
 	static String[] searchPackages = {
-		Transferable.class.getPackage().getName(),
+		NodeProperty.class.getPackage().getName(),
 		PropertiesEditor.class.getPackage().getName(),
 		ExperimentSerializer.class.getPackage().getName()
 	};
@@ -42,7 +43,7 @@ class PersistentDataEntry implements Serializable {
 			JsonObject objectjs = jsWrapper.get("Object").getAsJsonObject();
 			
 			//Try to infer the class name, use a generic Object otherwise
-			Class<?> innerClass = Object.class;
+			Class<?> innerClass = Transferable.class;
 			for(String pkgName : searchPackages){
 				try {
 					innerClass = Class.forName(pkgName+"."+className);
