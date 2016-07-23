@@ -369,6 +369,7 @@ public class EditorPage extends GridPane{
 				}
 				
 				add(new Label("Pathogen Type"), 0, 7);
+				add(pathogenType, 1, 7);
 				break;
 			case "EnumeratorProperty":
 				try {

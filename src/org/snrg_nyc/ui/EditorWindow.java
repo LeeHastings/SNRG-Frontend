@@ -11,6 +11,8 @@ import org.snrg_nyc.ui.components.PropertyNameFactory;
 import org.snrg_nyc.ui.components.PropertyTypeFactory;
 import org.snrg_nyc.ui.components.UI_Message;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -52,7 +54,7 @@ public class EditorWindow extends BorderPane {
 	
 	private ObservableList<PropertyID> properties = FXCollections.observableArrayList();
 	private ObservableList<LayerID> layers = FXCollections.observableArrayList();
-	private ObservableList<Integer> pathogens = FXCollections.observableArrayList();
+	private BooleanProperty finished = new SimpleBooleanProperty();
 	
 	@SuppressWarnings("unchecked")
 	public EditorWindow(PropertiesEditor model, Stage initStage, String title){
@@ -61,6 +63,8 @@ public class EditorWindow extends BorderPane {
 		stage.setTitle(title);
 		editor = new EditorPage(this.model);
 		editor.setPrefWidth(500);
+		
+		finished.bind(editor.finished);
 		
 		scene = new Scene(this, 900, 600);
 		
@@ -308,9 +312,6 @@ public class EditorWindow extends BorderPane {
 	public ObservableList<LayerID> getLayers() {
 		return layers;
 	}
-	public ObservableList<Integer> getPathogens(){
-		return pathogens;
-	}
 	public void addToMenu(Node n){
 		leftMenu.add(n, 0, menuRow++);
 	}
@@ -318,5 +319,8 @@ public class EditorWindow extends BorderPane {
 		for(Node n : nodes){
 			addToMenu(n);
 		}
+	}
+	public BooleanProperty finishedProperty(){
+		return finished;
 	}
 }

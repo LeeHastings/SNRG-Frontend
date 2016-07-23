@@ -83,14 +83,25 @@ public class UI_Main extends Application{
 				window.sendError(e);
 			}
 		});
-		
-		pathogens.setItems(window.getPathogens());
+		window.finishedProperty().addListener( (o, oldval, newval)->{
+			pathogens.getItems().clear();
+			try {
+				pathogens.getItems().addAll(
+						window.getModel().pathogen_getPathogenIDs());
+			} catch (Exception e) {
+				window.sendError(e);
+			}
+		});
 		pathogens.setPrefHeight(100);
 		pathogens.setCellFactory(col ->{
 			return new ListCell<Integer>(){
 				@Override
 				public void updateItem(Integer item, boolean empty){
 					super.updateItem(item, empty);
+					if(item == null || empty){
+						setText(null);
+						return;
+					}
 					try {
 						setText(window.getModel().pathogen_getName(item));
 					} catch (EditorException e) {

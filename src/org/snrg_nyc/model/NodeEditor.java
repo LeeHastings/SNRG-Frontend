@@ -152,8 +152,9 @@ public class NodeEditor extends PropertiesEditor_Impl {
 
 	@Override
 	public void scratch_setPathogenType(String type) throws EditorException {
-		// TODO Auto-generated method stub
-		
+		assert_scratchExists();
+		assert_nodeType(scratchProperty, AttachmentProperty.class);
+		((AttachmentProperty) scratchProperty).setPathogenName(type);
 	}
 
 	@Override
