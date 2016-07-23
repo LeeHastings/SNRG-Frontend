@@ -9,9 +9,6 @@ import org.snrg_nyc.ui.components.PropertyNameFactory;
 import org.snrg_nyc.ui.components.PropertyTypeFactory;
 import org.snrg_nyc.ui.components.UI_Message;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ReadOnlyBooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
