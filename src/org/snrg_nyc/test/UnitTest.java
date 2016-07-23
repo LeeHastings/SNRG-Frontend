@@ -32,7 +32,7 @@ public class UnitTest {
 			probmap.put(rid2g, 4f);
 			bl.scratch_setDefaultDistribution(probmap);
 			
-			int genderID = bl.scratch_commitToNodeProperties();
+			int genderID = bl.scratch_commit();
 			
 			
 			bl.scratch_new("age", "IntegerRangeProperty", 
@@ -67,7 +67,7 @@ public class UnitTest {
 			probmap.put(rid5, 1f);
 			bl.scratch_setDefaultDistribution(probmap);
 			
-			bl.scratch_commitToNodeProperties();
+			bl.scratch_commit();
 			
 			bl.scratch_new("longevity", "IntegerRangeProperty",
 					"Number of days individual is in risk population");
@@ -117,7 +117,7 @@ public class UnitTest {
 			probmap.put(rid4, 25f);
 			bl.scratch_setDefaultDistribution(probmap);
 			
-			bl.scratch_commitToNodeProperties();
+			bl.scratch_commit();
 			
 			int drugLID = bl.layer_new("drug_co_use");
 			bl.scratch_newInLayer(drugLID, "averagedegree", "IntegerRangeProperty", 
@@ -143,7 +143,7 @@ public class UnitTest {
 			probmap.put(rid3, 2f);
 			
 			bl.scratch_setDefaultDistribution(probmap);
-			bl.scratch_commitToNodeProperties();
+			bl.scratch_commit();
 			
 			bl.save("hcv_project");
 			bl.load("hcv_project");

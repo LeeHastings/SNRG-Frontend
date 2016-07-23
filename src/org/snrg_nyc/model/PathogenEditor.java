@@ -80,11 +80,6 @@ public class PathogenEditor extends PropertiesEditor_Impl{
 	}
 
 	@Override
-	public int pathogen_create(String name) throws EditorException {
-		throw new EditorException("Pathogens do not have internal pathogens.");
-	}
-
-	@Override
 	public PropertiesEditor pathogen_getEditor(int pathID) throws EditorException {
 		throw new EditorException("Pathogens do not have internal pathogens.");
 	}
@@ -100,7 +95,18 @@ public class PathogenEditor extends PropertiesEditor_Impl{
 	}
 
 	@Override
-	public void scratch_setPathogen(int pathID) throws EditorException {
+	public int nodeProp_getPathogenID(int pid) throws EditorException {
+		throw new EditorException("Pathogens do not have internal pathogens.");
+	}
+
+	@Override
+	public void scratch_setPathogenType(String type) throws EditorException {
+		throw new EditorException("Pathogens do not have internal pathogens.");
+		
+	}
+
+	@Override
+	public String scratch_getPathogenType() throws EditorException {
 		throw new EditorException("Pathogens do not have internal pathogens.");
 	}
 

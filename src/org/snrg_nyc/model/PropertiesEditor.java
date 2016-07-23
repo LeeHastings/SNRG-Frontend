@@ -239,6 +239,14 @@ public interface PropertiesEditor {
 	public String nodeProp_getName(int lid, int pid) throws EditorException;
 	
 	/**
+	 * Get the pathogen ID for an attachment property
+	 * @param pid The Property ID
+	 * @return The pathogen ID
+	 * @throws EditorException Thrown if the property is not an attachment property
+	 */
+	public int nodeProp_getPathogenID(int pid) throws EditorException;
+	
+	/**
 	 * Get the type of a node property.
 	 * @param pid The ID of the node property, should be from {@link PropertiesEditor#nodeProp_getPropertyIDs()}
 	 * @return The type of the property as a string.
@@ -442,7 +450,7 @@ public interface PropertiesEditor {
 	 * @throws EditorException Thrown if the node property does not exist, or if it does not 
 	 * use distributions.  Use {@link PropertiesEditor#nodeProp_isRangedProperty(int)} to check
 	 * before calling this method. Also thrown if the default distribution has not been set, which
-	 * should not be the case if the property was added through {@link PropertiesEditor#scratch_commitToNodeProperties()}
+	 * should not be the case if the property was added through {@link PropertiesEditor#scratch_commit()}
 	 */
 	public Map<Integer, Float> nodeProp_getDefaultDistribution(int pid) throws EditorException;
 	
@@ -477,15 +485,6 @@ public interface PropertiesEditor {
 	public String pathogen_getName(int pathID) throws EditorException;
 	
 	/**
-	 * Create a pathogen
-	 * @param name The name of the pathogen (must be unique)
-	 * @return A unique ID identifying the pathogen
-	 * @throws EditorException Thrown if the pathogen name is taken, 
-	 * or if you're editing a pathogen, which cannot have pathogens.
-	 */
-	public int pathogen_create(String name) throws EditorException;
-	
-	/**
 	 * Get a PropertiesEditor for the given pathogen in order to add properties
 	 * @param pathID The ID of the pathogen, from {@link PropertiesEditor#pathogen_create}
 	 * @return A PropertiesEditor that is tied to the pathogen
@@ -516,7 +515,7 @@ public interface PropertiesEditor {
 	 * @throws EditorException Thrown if the layer ID is not valid, or id the scratch
 	 *  property's name is not unique
 	 * @see PropertiesEditor#scratch_new(String, String, String)
-	 * @see PropertiesEditor#scratch_commitToNodeProperties()
+	 * @see PropertiesEditor#scratch_commit()
 	 */
 	public void scratch_newInLayer(int lid, String name, String type, String description) throws EditorException;
 	
@@ -531,15 +530,7 @@ public interface PropertiesEditor {
 	 * @throws EditorException Thrown if dependencies have been added to the property.
 	 */
 	public void scratch_setDependencyLevel(int level) throws EditorException;
-	
-	/**
-	 * Set the pathogen that an Attachment property will be bound to.  This may also rename the property
-	 * @param pathID The ID of the pathogen, from
-	 *  {@link PropertiesEditor#pathogen_getPathogenIDs()}
-	 * @throws EditorException Thrown if the scratch property is not an attachment property, if the
-	 * pathogen ID is invalid, or for some other conflict.
-	 */
-	public void scratch_setPathogen(int pathID) throws EditorException;
+
 	/**
 	 * Create a range item for a property of any type
 	 * @return A unique ID for the new range item
@@ -827,7 +818,7 @@ public interface PropertiesEditor {
 	 * </ul>
 	 * And various other messages.  {@link EditorException#getMessage()} should yield more information.
 	 */
-	public int scratch_commitToNodeProperties() throws EditorException;
+	public int scratch_commit() throws EditorException;
 	
 	/**
 	 * @return The name of the scratch property

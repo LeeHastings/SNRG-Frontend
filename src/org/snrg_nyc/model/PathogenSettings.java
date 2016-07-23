@@ -15,4 +15,8 @@ class PathogenSettings extends NodeSettings {
 	public String getName(){
 		return pathogen;
 	}
+	@Override
+	public String getObjectID() {
+		return pathogen;
+	}
 }

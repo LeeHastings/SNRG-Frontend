@@ -62,7 +62,7 @@ public class PropertyJsonAdapter implements JsonSerializer<NodeProperty>, JsonDe
 		}
 		else if(nodeProp instanceof BooleanProperty){
 			if(nodeProp instanceof AttachmentProperty){
-				innerJs.addProperty(pathogenLabel, ((AttachmentProperty)nodeProp).getPathogen() );
+				innerJs.addProperty(pathogenLabel, ((AttachmentProperty)nodeProp).getPathogenName() );
 			}
 		}
 		else if(nodeProp instanceof EnumeratorProperty){
@@ -127,7 +127,7 @@ public class PropertyJsonAdapter implements JsonSerializer<NodeProperty>, JsonDe
 		}
 		else if(nodeProp instanceof BooleanProperty){
 			if(nodeProp instanceof AttachmentProperty){
-				((AttachmentProperty) nodeProp).setPathogen(innerJs.get(pathogenLabel).getAsString());
+				((AttachmentProperty) nodeProp).setPathogenName(innerJs.get(pathogenLabel).getAsString());
 			}
 		}
 		else if(nodeProp instanceof EnumeratorProperty){

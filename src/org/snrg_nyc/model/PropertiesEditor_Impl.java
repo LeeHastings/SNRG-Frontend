@@ -161,7 +161,7 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	 * @param pid The node Property ID
 	 * @throws PropertiesEditor.EditorException Thrown if the given pid cannot be used to access a node property.
 	 */
-	private void assert_validPID(int pid) throws EditorException{
+	protected void assert_validPID(int pid) throws EditorException{
 		if(!test_nodePropIDExists(pid) ){
 			throw new EditorException("The given pid does not exist: "+pid);
 		}
@@ -457,7 +457,7 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	public String nodeProp_getPathogenType(int pid) throws EditorException {
 		assert_validPID(pid);
 		assert_nodeType(properties.get(pid), AttachmentProperty.class);
-		return ((AttachmentProperty) properties.get(pid)).getPathogen();
+		return ((AttachmentProperty) properties.get(pid)).getPathogenName();
 	}
 
 	@Override
@@ -465,7 +465,7 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 		assert_validPID(lid, pid);
 		assert_nodeType(layers.get(lid).getProperty(pid),
 				AttachmentProperty.class);
-		return ((AttachmentProperty) layers.get(lid).getProperty(pid)).getPathogen();
+		return ((AttachmentProperty) layers.get(lid).getProperty(pid)).getPathogenName();
 	}
 
 	@Override
@@ -733,25 +733,6 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	}
 	
 	@Override
-	public void scratch_setPathogenType(String type) throws EditorException {
-		if(type == null || type.equals("")){
-			throw new EditorException("A pathogen type cannot be null or empty!");
-		}
-		assert_scratchExists();
-		assert_nodeType(scratchProperty, AttachmentProperty.class);
-		
-		for(NodeProperty np : properties){
-			if(np != null && np instanceof AttachmentProperty
-			   &&((AttachmentProperty) np).getPathogen().equals(type)
-			){
-				throw new EditorException("There is another Attachment "
-						+ "Property with the pathogen type '"+type+"'");
-			}
-		}
-		((AttachmentProperty) scratchProperty).setPathogen(type);
-	}
-	
-	@Override
 	public boolean scratch_rangeIsSet(int rid) throws EditorException{
 		assert_scratchExists();
 		assert_nodeType(scratchProperty, EnumeratorProperty.class);
@@ -786,13 +767,6 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 			throw new EditorException("Invalid RID: "+rid);
 		}
 		return irp.getRangeMax(rid);
-	}
-
-	@Override
-	public String scratch_getPathogenType() throws EditorException {
-		assert_scratchExists();
-		assert_nodeType(scratchProperty, AttachmentProperty.class);
-		return ((AttachmentProperty)scratchProperty).getPathogen();
 	}
 
 	@Override
@@ -935,7 +909,7 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	}
 
 	@Override
-	public int scratch_commitToNodeProperties() throws EditorException {
+	public int scratch_commit() throws EditorException {
 		assert_scratchExists();
 		List<NodeProperty> propertyList;
 		//Add it to a layer if the scratchLayerID is not null

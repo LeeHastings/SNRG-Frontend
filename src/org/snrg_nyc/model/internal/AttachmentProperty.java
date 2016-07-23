@@ -1,25 +1,37 @@
 package org.snrg_nyc.model.internal;
 
-import com.google.gson.annotations.SerializedName;
-
 public class AttachmentProperty extends BooleanProperty {
 	private static final long serialVersionUID = 1L;
 	
-	@SerializedName("PathogenType")
-	private String pathogen;	
+	private int pathogenID;	
+	private String pathogenName;
+	private boolean set;
 	public AttachmentProperty(){
 		super();
-		pathogen = null;
 	}
 	public AttachmentProperty(String name, String description){
 		super(name, description);
-		pathogen = null;
 	}
-	public String getPathogen(){
-		return pathogen;
+	public boolean isSet(){
+		return set;
 	}
-	public void setPathogen(String pathogen){
-		this.pathogen = pathogen;
-		name = "infection_attachment_"+pathogen;
+	public int getPathogenID(){
+		return pathogenID;
+	}
+	public void setPathogenID(int pathogen){
+		if(set){
+			throw new IllegalStateException(
+					"Cannot change the pathogen an attachment property is bound to");
+		}
+		else {
+			this.pathogenID = pathogen;
+		}
+	}
+	public String getPathogenName(){
+		return pathogenName;
+	}
+	public void setPathogenName(String name){
+		pathogenName = name;
+		this.name = "infection_attachment_"+name;
 	}
 }

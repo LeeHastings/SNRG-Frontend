@@ -53,6 +53,24 @@ public class NodeEditor extends PropertiesEditor_Impl {
 		}
 	}
 	
+	private int pathogen_create(String name) throws EditorException {
+		for(PathogenEditor p : pathogens){
+			if(p != null && p.getPathogen().equals(name)){
+				throw new EditorException("Duplicate pathogen name: "+name);
+			}
+		}
+		pathogens.add(new PathogenEditor(this, name));
+		return pathogens.size() - 1;
+	}
+	@Override
+	public int scratch_commit() throws EditorException{
+		if(scratchProperty instanceof AttachmentProperty){
+			AttachmentProperty ap = (AttachmentProperty) scratchProperty;
+			int pathID = pathogen_create(ap.getPathogenName());
+			ap.setPathogenID(pathID);
+		}
+		return super.scratch_commit();
+	}
 	@Override
 	protected Class<?>[] getPropertyClasses() {
 		return nodePropertyTypes;
@@ -61,6 +79,9 @@ public class NodeEditor extends PropertiesEditor_Impl {
 	public Map<String, Transferable > getSavedObjects() throws EditorException{
 		Map<String, Transferable> map = super.getSavedObjects();
 		map.put("nodesettings", nodeSettings);
+		for(PathogenEditor p : pathogens){
+			map.putAll(p.getSavedObjects());
+		}
 		return map;
 	}
 	@Override 
@@ -99,17 +120,6 @@ public class NodeEditor extends PropertiesEditor_Impl {
 		}
 		return uniquePropName(name);
 	}
-	
-	@Override
-	public int pathogen_create(String name) throws EditorException {
-		for(PathogenEditor p : pathogens){
-			if(p != null && p.getPathogen().equals(name)){
-				throw new EditorException("Duplicate pathogen name: "+name);
-			}
-		}
-		pathogens.add(new PathogenEditor(this, name));
-		return pathogens.size() - 1;
-	}
 
 	@Override
 	public PropertiesEditor pathogen_getEditor(int pathID) throws EditorException {
@@ -130,17 +140,26 @@ public class NodeEditor extends PropertiesEditor_Impl {
 
 	@Override
 	public String pathogen_getName(int pathID) throws EditorException {
-		// TODO Auto-generated method stub
-		return null;
+		assert_validPathogenID(pathID);
+		return pathogens.get(pathID).getPathogen();
 	}
 
 	@Override
-	public void scratch_setPathogen(int pathID) throws EditorException {
-		assert_validPathogenID(pathID);
-		assert_scratchExists();
-		assert_nodeType(scratchProperty, AttachmentProperty.class);
-		AttachmentProperty ap = (AttachmentProperty) scratchProperty;
-		ap.setPathogen(pathogens.get(pathID).getPathogen());
+	public int nodeProp_getPathogenID(int pid) throws EditorException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void scratch_setPathogenType(String type) throws EditorException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public String scratch_getPathogenType() throws EditorException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 

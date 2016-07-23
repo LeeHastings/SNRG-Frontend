@@ -17,6 +17,7 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -40,15 +41,18 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class EditorWindow extends BorderPane {
-	PropertiesEditor model;
-	Stage stage;
-	Scene scene;
-	Alert quitAlert;
+	private PropertiesEditor model;
+	private Stage stage;
+	private Scene scene;
+	private Alert quitAlert;
+	private GridPane leftMenu;
+	private int menuRow = 0;
 	
-	EditorPage editor;
+	private EditorPage editor;
 	
-	ObservableList<PropertyID> properties = FXCollections.observableArrayList();
-	ObservableList<LayerID> layers = FXCollections.observableArrayList();
+	private ObservableList<PropertyID> properties = FXCollections.observableArrayList();
+	private ObservableList<LayerID> layers = FXCollections.observableArrayList();
+	private ObservableList<Integer> pathogens = FXCollections.observableArrayList();
 	
 	@SuppressWarnings("unchecked")
 	public EditorWindow(PropertiesEditor model, Stage initStage, String title){
@@ -60,7 +64,7 @@ public class EditorWindow extends BorderPane {
 		
 		scene = new Scene(this, 900, 600);
 		
-		GridPane leftMenu = new GridPane();
+		leftMenu = new GridPane();
 		ColumnConstraints menuCol = new ColumnConstraints();
 		menuCol.setPercentWidth(100);
 		leftMenu.getColumnConstraints().add(menuCol);
@@ -106,6 +110,11 @@ public class EditorWindow extends BorderPane {
 			if(newVal.intValue() != -1){
 				PropertyID pid = propertyTable.getItems().get(newVal.intValue());
 				editor.viewProperty(pid);
+			}
+		});
+		propertyTable.focusedProperty().addListener((o, oldval, newval)->{
+			if(!newval){
+				propertyTable.getSelectionModel().clearSelection();
 			}
 		});
 		
@@ -189,12 +198,10 @@ public class EditorWindow extends BorderPane {
 		layerBox.setPrefWidth(1000);
 		layerBox.getChildren().addAll(ll, lsBox);
 
-		leftMenu.add(titleText,      0, 0);
-		leftMenu.add(layerBox,   0, 1);
-		leftMenu.add(propertyTable, 0, 2);
-		leftMenu.add(buttonBox,  0, 3);
-		
-		leftMenu.add(new Label("Messages:"), 0, 4);
+		addAllToMenu(titleText,
+				     layerBox,
+				     propertyTable,
+				     buttonBox);
 		
 		VBox messageBox = new VBox();
 		messageBox.setMinHeight(80);
@@ -207,7 +214,9 @@ public class EditorWindow extends BorderPane {
 		messagePane.setPadding(new Insets(5));
 		messagePane.setHbarPolicy(ScrollBarPolicy.NEVER);
 		
-		leftMenu.add(messagePane, 0, 5);
+
+		leftMenu.add(new Label("Messages:"), 0, 6);
+		leftMenu.add(messagePane, 0, 7);
 		
 		this.setLeft(leftMenu);
 		
@@ -224,7 +233,7 @@ public class EditorWindow extends BorderPane {
 		editor.finished.addListener((o, oldval, newval) -> {
 			if(newval){ 
 				try{
-					this.model.scratch_commitToNodeProperties();
+					this.model.scratch_commit();
 					updateProperties(layerSelect.getValue());
 				}
 				catch (Exception e1){
@@ -298,5 +307,16 @@ public class EditorWindow extends BorderPane {
 	}
 	public ObservableList<LayerID> getLayers() {
 		return layers;
+	}
+	public ObservableList<Integer> getPathogens(){
+		return pathogens;
+	}
+	public void addToMenu(Node n){
+		leftMenu.add(n, 0, menuRow++);
+	}
+	public void addAllToMenu(Node... nodes){
+		for(Node n : nodes){
+			addToMenu(n);
+		}
 	}
 }

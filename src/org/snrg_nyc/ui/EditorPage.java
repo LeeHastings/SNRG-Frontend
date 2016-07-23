@@ -1134,8 +1134,13 @@ public class EditorPage extends GridPane{
 				
 				minCol.setCellValueFactory(data ->{
 					try {
-						Integer i = ui.scratch_getRangeMin(data.getValue());
-						return new SimpleStringProperty(i.toString());
+						if(ui.scratch_rangeIsSet(data.getValue())){
+							Integer i = ui.scratch_getRangeMin(data.getValue());
+							return new SimpleStringProperty(i.toString());
+						}
+						else {
+							return null;
+						}
 					} catch (Exception e) {
 						sendError(e);
 						return null;
@@ -1144,8 +1149,13 @@ public class EditorPage extends GridPane{
 				
 				maxCol.setCellValueFactory(data->{
 					try{
-						Integer i = ui.scratch_getRangeMax(data.getValue());
-						return new SimpleStringProperty(i.toString());
+						if(ui.scratch_rangeIsSet(data.getValue())){
+							Integer i = ui.scratch_getRangeMax(data.getValue());
+							return new SimpleStringProperty(i.toString());
+						}
+						else {
+							return null;
+						}
 					}
 					catch (Exception e){
 						sendError(e);
