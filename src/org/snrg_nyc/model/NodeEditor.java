@@ -108,9 +108,11 @@ public class NodeEditor extends PropertiesEditor_Impl {
 		layers = nodeSettings.getLayerAttributesList();
 		properties = nodeSettings.getPropertyDefinitionList();
 		
-		for(Transferable t : objects.values()){
-			if(t instanceof PathogenSettings){
-				PathogenEditor p = new PathogenEditor(this, (PathogenSettings) t, objects);
+		for(String key : objects.keySet()){
+			if(objects.get(key) instanceof PathogenSettings){
+				PathogenSettings settings = (PathogenSettings) objects.get(key);
+				objects.remove(key);
+				PathogenEditor p = new PathogenEditor(this, settings, objects);
 				pathogens.add(p);
 			}
 		}

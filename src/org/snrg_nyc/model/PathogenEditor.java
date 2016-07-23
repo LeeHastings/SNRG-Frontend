@@ -1,6 +1,5 @@
 package org.snrg_nyc.model;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +38,12 @@ public class PathogenEditor extends PropertiesEditor_Impl{
 	protected Class<?>[] getPropertyClasses() {
 		return pathogenPropertyTypes;
 	}
-	
+	/**
+	 * Create a new pathogen editor
+	 * @param parent The {@link NodeEditor} this pathogen is attached to.
+	 * @param pathogen The name of the pathogen
+	 * @throws EditorException Thrown if the given parent is not an instance of a {@link NodeEditor}
+	 */
 	public PathogenEditor(PropertiesEditor parent, String pathogen) throws EditorException{
 		super();
 		if(!(parent instanceof NodeEditor)){
@@ -53,6 +57,13 @@ public class PathogenEditor extends PropertiesEditor_Impl{
 		pathSettings.setLayerAttributesList(layers);
 		pathSettings.setPropertyDefinitionList(properties);
 	}
+	/**
+	 * Create a pathogen Editor from a map of objects and settings
+	 * @param parent
+	 * @param settings
+	 * @param objects
+	 * @throws EditorException
+	 */
 	PathogenEditor(NodeEditor parent, PathogenSettings settings,
 			Map<String, Transferable> objects) throws EditorException
 	{
