@@ -64,8 +64,6 @@ public class EditorWindow extends BorderPane {
 		editor = new EditorPage(this.model);
 		editor.setPrefWidth(500);
 		
-		finished.bind(editor.finished);
-		
 		scene = new Scene(this, 900, 600);
 		
 		leftMenu = new GridPane();
@@ -239,6 +237,7 @@ public class EditorWindow extends BorderPane {
 				try{
 					this.model.scratch_commit();
 					updateProperties(layerSelect.getValue());
+					finishedProperty().set(true);
 				}
 				catch (Exception e1){
 					editor.sendError(e1);
@@ -273,6 +272,11 @@ public class EditorWindow extends BorderPane {
 		});
 		
 		stage.setScene(scene);
+		try {
+			updateProperties(null);
+		} catch (EditorException e1) {
+			editor.sendError(e1);
+		}
 	}
 	void show(){
 		stage.show();
@@ -303,11 +307,8 @@ public class EditorWindow extends BorderPane {
 	public PropertiesEditor getModel(){
 		return model;
 	}
-	public void sendError(Exception e){
-		editor.sendError(e);
-	}
-	public void sendInfo(String s){
-		editor.sendInfo(s);
+	public EditorPage editor(){
+		return editor;
 	}
 	public ObservableList<LayerID> getLayers() {
 		return layers;

@@ -54,10 +54,10 @@ public class UI_Main extends Application{
 			if(expName.isPresent()){
 				try{
 					window.getModel().save(expName.get());
-					window.sendInfo("The experiment was saved as "+expName.get());
+					window.editor().sendInfo("The experiment was saved as "+expName.get());
 				}
 				catch (Exception e){
-					window.sendError(e);
+					window.editor().sendError(e);
 				}
 			}
 		});
@@ -74,7 +74,7 @@ public class UI_Main extends Application{
 				if(expName.isPresent() ){
 					experimentName = expName.get();
 					window.getModel().load(expName.get());
-					window.sendInfo("The experiment was loaded as "+expName.get());
+					window.editor().sendInfo("The experiment was loaded as "+expName.get());
 					window.updateProperties(null);
 					window.getLayers().clear();
 					window.getLayers().add(new LayerID());
@@ -84,7 +84,7 @@ public class UI_Main extends Application{
 				}
 			}
 			catch (Exception e){
-				window.sendError(e);
+				window.editor().sendError(e);
 			}
 		});
 		window.finishedProperty().addListener( (o, oldval, newval)->{
@@ -93,7 +93,7 @@ public class UI_Main extends Application{
 				pathogens.getItems().addAll(
 						window.getModel().pathogen_getPathogenIDs());
 			} catch (Exception e) {
-				window.sendError(e);
+				window.editor().sendError(e);
 			}
 		});
 		pathogens.setPrefHeight(100);
@@ -109,12 +109,43 @@ public class UI_Main extends Application{
 					try {
 						setText(window.getModel().pathogen_getName(item));
 					} catch (EditorException e) {
-						window.sendError(e);
+						window.editor().sendError(e);
 						setText(">ERROR<");
 					}
 				}
 			};
 		});
+		
+		pathogens.getSelectionModel()
+		         .selectedItemProperty()
+		         .addListener((o, oldval, newval)->{
+        	if(newval == null){
+        		return;
+        	}
+			if(pathogenWindows.contains(newval)){
+				window.editor().sendWarning("This pathogen window is already open");
+			}
+			else {
+				pathogenWindows.add(newval);
+				try{
+					EditorWindow w = new EditorWindow(
+						window.getModel().pathogen_getEditor(newval),
+						new Stage(),
+						"Pathogen Editor: "+window.getModel().pathogen_getName(newval)
+					);
+					w.getStage().setOnCloseRequest(event->{
+						pathogenWindows.remove(pathogenWindows.indexOf(newval));
+						pathogens.getSelectionModel().clearSelection();
+					});
+					w.show();
+				}
+				catch(EditorException e){
+					pathogenWindows.remove(pathogenWindows.indexOf(newval));
+					window.editor().sendError(e);
+				}
+			}
+		});
+		
 		window.addAllToMenu(
 				new Label("Pathogens"), 
 				pathogens);

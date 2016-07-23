@@ -75,6 +75,7 @@ public abstract class NodeProperty implements Transferable {
 		description = null;
 		dependencyLevel = -1;
 		dependencies = new ArrayList<Integer>();
+		distType = DistType.NULL;
 	}
 	public NodeProperty(String name, String description){
 		this();
