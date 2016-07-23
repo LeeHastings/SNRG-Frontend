@@ -3,6 +3,11 @@ package org.snrg_nyc.ui.components;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
+/**
+ * A small class for delivering and displaying messages on the {@link org.snrg_nyc.ui.EditorWindow} 
+ * @author Devin Hastings
+ *
+ */
 public class UI_Message {
 	private String msg;
 	private Color color;
@@ -17,7 +22,7 @@ public class UI_Message {
 		msg = message != null? message : ">ERROR NO MESSAGE<";
 		msgType = messageType;
 		
-		switch(msgType){
+		switch(msgType){ 
 		case Info:
 			color = Color.CADETBLUE;
 			break;

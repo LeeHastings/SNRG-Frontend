@@ -8,6 +8,12 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.util.Callback;
 
+/**
+ * Get the type of a property from a {@link PropertyID},
+ * automatically stripping it of the redundant "Property".
+ * @author Devin Hastings
+ *
+ */
 public class PropertyTypeFactory implements 
 	Callback<TableColumn.CellDataFeatures<PropertyID, String>, ObservableValue<String>> {
 	

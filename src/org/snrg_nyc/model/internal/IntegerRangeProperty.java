@@ -85,7 +85,7 @@ public class IntegerRangeProperty extends EnumeratorProperty {
 		assert_validRID(rid);
 		
 		for(Range<Integer> r : ranges){
-			if(r != null && label.equals(r.getLabel())){
+			if(r != null && ranges.get(rid) != r && label.equals(r.getLabel())){
 				throw new IllegalArgumentException("Duplicate Label: "+label);
 			}
 		}

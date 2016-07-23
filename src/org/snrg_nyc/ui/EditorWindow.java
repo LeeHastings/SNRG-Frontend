@@ -1,7 +1,5 @@
 package org.snrg_nyc.ui;
 
-import java.util.Optional;
-
 import org.snrg_nyc.model.PropertiesEditor;
 import org.snrg_nyc.model.internal.EditorException;
 import org.snrg_nyc.ui.components.LayerCell;
@@ -12,6 +10,7 @@ import org.snrg_nyc.ui.components.PropertyTypeFactory;
 import org.snrg_nyc.ui.components.UI_Message;
 
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -21,9 +20,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -42,39 +39,58 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+/**
+ * This class is a UI interface for a {@link PropertiesEditor} instance.
+ * The class is a border pane, with the left side listing properties and layers, 
+ * and the center containing an {@link EditorPage} object.
+ * Feel free to use the top, right, and bottom for extra content.
+ * 
+ * @author Devin Hastings
+ */
 public class EditorWindow extends BorderPane {
 	private PropertiesEditor model;
 	private Stage stage;
 	private Scene scene;
-	private Alert quitAlert;
+	
+	/**
+	 * A single column {@link GridPane} (which provides more flexibility
+	 *  than an {@link HBox}), which contains a list of the properties and
+	 *  a box for messages from the editor.
+	 */
 	private GridPane leftMenu;
+	
 	private int menuRow = 0;
 	
 	private EditorPage editor;
 	
 	private ObservableList<PropertyID> properties = FXCollections.observableArrayList();
 	private ObservableList<LayerID> layers = FXCollections.observableArrayList();
-	private BooleanProperty finished = new SimpleBooleanProperty();
 	
+	/**
+	 * Create a new window that edits the model in the given {@link PropertiesEditor}.
+	 * @param model The {@link PropertiesEditor} to interface with.
+	 * @param initStage The javaFX {@link Stage} to show the window on.
+	 * @param title The title of the new window.
+	 */
 	@SuppressWarnings("unchecked")
 	public EditorWindow(PropertiesEditor model, Stage initStage, String title){
 		this.model = model;
 		stage = initStage;
 		stage.setTitle(title);
 		editor = new EditorPage(this.model);
-		editor.setPrefWidth(500);
 		
+		editor.setPrefWidth(500);
 		scene = new Scene(this, 900, 600);
 		
 		leftMenu = new GridPane();
-		ColumnConstraints menuCol = new ColumnConstraints();
-		menuCol.setPercentWidth(100);
-		leftMenu.getColumnConstraints().add(menuCol);
-		
 		leftMenu.setVgap(10);
 		leftMenu.setPadding(new Insets(10));
 		leftMenu.setMaxWidth(300);
 		leftMenu.setPrefWidth(300);
+
+		ColumnConstraints menuCol = new ColumnConstraints();
+		menuCol.setPercentWidth(100);
+		leftMenu.getColumnConstraints().add(menuCol);
 		
 		Text titleText = new Text("Node Properties");
 		titleText.setFont(Font.font("sans", FontWeight.LIGHT, FontPosture.REGULAR, 20));
@@ -154,24 +170,12 @@ public class EditorWindow extends BorderPane {
 			}
 		});
 		
-		editor.layerName.addListener((o, oldVal, newVal)->{
-			if(newVal!= null && !newVal.equals("")){
-				try {
-					int lid = this.model.layer_new(newVal);
-					layers.add(new LayerID(lid));
-				} catch (Exception e1) {
-					editor.sendError(e1);
-				}
-				
-			}
-		});
-		
 		Button newProp = new Button("New Property");
 		HBox.setHgrow(newProp, Priority.ALWAYS);
 		
 		Button newLayer = new Button("New Layer");
 		
-		HBox lbox = new HBox();
+		HBox lbox = new HBox(); //Box for padding button
 		HBox.setHgrow(lbox, Priority.ALWAYS);
 		lbox.setAlignment(Pos.BOTTOM_LEFT);
 		lbox.getChildren().add(newLayer);
@@ -228,24 +232,24 @@ public class EditorWindow extends BorderPane {
 		messagePane.getStyleClass().add("messages");
 		messageBox.getStyleClass().add("message-text");
 		
-		editor.advancePage.addListener(e->{
-			this.setCenter(editor);
-		});
+		editor.advancePageProperty().addListener(event->
+			setCenter(editor)
+		);
 		
-		editor.finished.addListener((o, oldval, newval) -> {
-			if(newval){ 
-				try{
-					this.model.scratch_commit();
-					updateProperties(layerSelect.getValue());
-					finishedProperty().set(true);
-				}
-				catch (Exception e1){
-					editor.sendError(e1);
-				}
+		editor.finishedProperty().addListener((o, oldval, newval) -> {
+			try {
+				updateAll();
+			} catch (Exception e) {
+				editor.sendError(e);
 			}
 		});
 		
-		editor.messages.addListener(new ListChangeListener<UI_Message>(){
+		/*
+		 * Get the messages in the editor, convert them to UI Text, and then
+		 * insert them into the messages box.  If messages were removed,
+		 * it simply deletes all the text elements and gets them again
+		 */
+		editor.messagesProperty().addListener(new ListChangeListener<UI_Message>(){
 			@Override
 			public void onChanged(Change<? extends UI_Message> c) {
 				Text t;
@@ -253,7 +257,7 @@ public class EditorWindow extends BorderPane {
 				c.next();
 				if(c.getRemovedSize() > 0){
 					messageBox.getChildren().clear();
-					for(UI_Message m : editor.messages){
+					for(UI_Message m : editor.messagesProperty()){
 						t = m.getMessageUI();
 						t.setWrappingWidth(w);
 						messageBox.getChildren().add(t);
@@ -278,10 +282,14 @@ public class EditorWindow extends BorderPane {
 			editor.sendError(e1);
 		}
 	}
-	void show(){
-		stage.show();
-	}
-	void updateProperties(LayerID lid) throws EditorException{
+	/**
+	 * Update the properties list to show the properties of a given layer, 
+	 * or the properties in the main object.
+	 * @param lid The {@link LayerID} of the layer to get properties from,
+	 * or null to read from the main list of properties
+	 * @throws EditorException Thrown if the layer ID is invalid.
+	 */
+	private void updateProperties(LayerID lid) throws EditorException{
 		properties.clear();
 		if(lid != null && lid.used()){
 			for(int i : this.model.nodeProp_getPropertyIDs(lid.get())){
@@ -294,34 +302,55 @@ public class EditorWindow extends BorderPane {
 			}
 		}
 	}
-	
-	void quit(){
-		Optional<ButtonType> input = quitAlert.showAndWait();
-		if(input.isPresent() && input.get() == ButtonType.OK){
-			stage.close();
+	/**
+	 * Update the properties and layers of the window to reflect the model.
+	 * This is used when the model has changed, such as when loading a new experiment.
+	 * @throws EditorException Thrown if there was some problem while retrieving data.
+	 */
+	public void updateAll() throws EditorException{
+		updateProperties(null);
+		layers.clear();
+		layers.add(new LayerID());
+		for(int i : model.layer_getLayerIDs()){
+			layers.add(new LayerID(i));
 		}
 	}
-	public Stage getStage(){
-		return stage;
-	}
-	public PropertiesEditor getModel(){
-		return model;
-	}
-	public EditorPage editor(){
-		return editor;
-	}
-	public ObservableList<LayerID> getLayers() {
-		return layers;
-	}
+	
+	/**
+	 * Add a node to the left hand menu of the window.
+	 * The menu is organized from top to bottom in the order 
+	 * the nodes are added.
+	 * @param n The Node to add to the menu.
+	 */
 	public void addToMenu(Node n){
 		leftMenu.add(n, 0, menuRow++);
 	}
+	/**
+	 * {@link EditorWindow#addToMenu(Node)}, but for a collection of nodes.
+	 * The nodes will be added to the menu in the order they're given.
+	 * @param nodes The nodes to add, from top to bottom, in the order they're given
+	 */
 	public void addAllToMenu(Node... nodes){
 		for(Node n : nodes){
 			addToMenu(n);
 		}
 	}
-	public BooleanProperty finishedProperty(){
-		return finished;
+
+	public void show(){
+		stage.show();
+	}
+	
+	//Getters
+	public Stage stage(){
+		return stage;
+	}
+	public Scene scene(){
+		return scene;
+	}
+	public PropertiesEditor model(){
+		return model;
+	}
+	public EditorPage editor(){
+		return editor;
 	}
 }

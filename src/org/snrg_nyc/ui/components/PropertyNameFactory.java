@@ -8,6 +8,12 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.util.Callback;
 
+/**
+ * Get the name of a property from a {@link PropertyID}, 
+ * automatically sending messages to the editor.
+ * @author Devin Hastings
+ *
+ */
 public class PropertyNameFactory implements 
 	Callback<TableColumn.CellDataFeatures<PropertyID, String>, ObservableValue<String>> {
 	

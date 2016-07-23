@@ -22,13 +22,15 @@ import org.snrg_nyc.ui.components.EditorTableCell;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ListProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.ReadOnlyListProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -54,6 +56,12 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.util.StringConverter;
 
+/**
+ * A page for editing/viewing properties and layers.  It does
+ * most of the work in the UI system.
+ * @author Devin Hastings
+ *
+ */
 public class EditorPage extends GridPane{
 	
 	public enum Mode {
@@ -62,23 +70,31 @@ public class EditorPage extends GridPane{
 		VIEW_PROP,
 		IDLE
 	}
-	protected Mode mode;
+	private Mode mode;
 
-	protected PropertiesEditor ui;
+	private PropertiesEditor ui;
 	
-	protected int pageNumber = 0;
-	protected PropertyID propViewerID;
-	protected Text title;
-	protected Line hbar;
-	protected Button nextBtn, cancel;
+	private int pageNumber = 0;
+	private PropertyID propViewerID;
+	private Text title;
+	private Line hbar;
+	private Button nextBtn, cancel;
 	
-	protected final BooleanProperty advancePage = new SimpleBooleanProperty();
-	protected final BooleanProperty finished = new SimpleBooleanProperty();
-	protected final StringProperty layerName = new SimpleStringProperty();
-	protected final ListProperty<UI_Message> messages = new SimpleListProperty<UI_Message>();
+	private final BooleanProperty advancePage = new SimpleBooleanProperty();
+	private final BooleanProperty finished = new SimpleBooleanProperty();
+	private final BooleanProperty addedProperty = new SimpleBooleanProperty();
+	private final BooleanProperty addedLayer = new SimpleBooleanProperty();
+	private final ListProperty<UI_Message> messages = new SimpleListProperty<UI_Message>();
+
+	final ObservableList<LayerID> layers = FXCollections.observableArrayList();
 	
-	protected static final Font titleFont = Font.font("sans", FontWeight.LIGHT, FontPosture.REGULAR, 20);
+	private static final Font titleFont = Font.font("sans", FontWeight.LIGHT, FontPosture.REGULAR, 20);
 	
+	/**
+	 * Create a new editor page that adds properties to the given
+	 * {@link PropertiesEditor}
+	 * @param ui The {@link PropertiesEditor} to interface with.
+	 */
 	public EditorPage(PropertiesEditor ui){
 		this.ui = ui;
 		mode = Mode.IDLE;
@@ -96,8 +112,23 @@ public class EditorPage extends GridPane{
 			}
 		});
 		
-		finished.addListener( (o, oldVal, newVal)->{
+		addedProperty.addListener( (o, oldVal, newVal)->{
 			if(newVal){
+				try {
+					ui.scratch_commit();
+				} catch (Exception e) {
+					sendError(e);
+				}
+				finished.set(true);
+			}
+		});
+		addedLayer.addListener((o, oldval, newval)->{
+			if(newval){
+				finished.set(true);
+			}
+		});
+		finished.addListener((o, oldval, newval)->{
+			if(newval){
 				pageNumber = 0;
 				mode = Mode.IDLE;
 				advancePage.set(true);
@@ -105,6 +136,9 @@ public class EditorPage extends GridPane{
 		});
 	}
 	
+	/*
+	 * Handy wrappers for sending messages to the editor
+	 */
 	public void sendError(Exception e){
 		messages.add(new UI_Message(e.getMessage(), UI_Message.Type.Error));
 		e.printStackTrace();
@@ -119,11 +153,11 @@ public class EditorPage extends GridPane{
 	}
 	
 	public void createProperty(){
-		if(mode != Mode.IDLE){
+		if(mode != Mode.IDLE && mode != Mode.VIEW_PROP){
 			sendWarning("Cannot create a property while creating a layer/property!");
 		}
 		else {
-			finished.set(false);
+			addedProperty.set(false);
 			pageNumber = 0;
 			mode = Mode.NEW_PROP;
 			advancePage.set(true);
@@ -131,17 +165,21 @@ public class EditorPage extends GridPane{
 	}
 	
 	public void createLayer(){
-		if(mode == Mode.NEW_PROP){
-			sendWarning("Cannot create a layer while creating a property!");
+		if(mode != Mode.IDLE && mode != Mode.VIEW_PROP){
+			sendWarning("Cannot create a layer while creating a layer/property!");
 		}
 		else {
-			finished.set(false);
+			addedLayer.set(false);
 			pageNumber = 0;
 			mode = Mode.NEW_LAYER;
 			advancePage.set(true);
 		}
 	}
 	
+	/**
+	 * Open the property viewer mode for a property with the given ID
+	 * @param pid The ID of the property to view.
+	 */
 	public void viewProperty(PropertyID pid){
 		if(mode == Mode.NEW_PROP || mode == Mode.NEW_LAYER){
 			sendWarning("You cannot view node properties while"
@@ -154,7 +192,8 @@ public class EditorPage extends GridPane{
 		advancePage.set(true);
 	}
 	
-	protected void updatePage(){
+	private void updatePage(){
+		finished.set(false);
 		getChildren().clear();
 		
 		title = new Text();
@@ -215,10 +254,16 @@ public class EditorPage extends GridPane{
 				);
 		});
 		
+		nextBtn.setText("Finish");
+		
 		nextBtn.setOnMouseClicked(event->{
-			layerName.set(layerTx.getText());
-			mode = Mode.IDLE;
-			advancePage.set(true);
+			try {
+				int lid = ui.layer_new(layerTx.getText());
+				layers.add(new LayerID(lid));
+				addedLayer.set(true);
+			} catch (Exception e) {
+				sendError(e);
+			}
 		});
 	}
 	
@@ -897,7 +942,7 @@ public class EditorPage extends GridPane{
 				try {
 					if(useUniform.isSelected()){
 						ui.scratch_useUniformDistribution();
-						finished.set(true);
+						addedProperty.set(true);
 					}
 					else {
 						int dl = depLvl.getValue();
@@ -1250,7 +1295,7 @@ public class EditorPage extends GridPane{
 					try{
 						float f = Float.parseFloat(initVal.getText());
 						ui.scratch_setFractionInitValue(f);
-						finished.set(true);
+						addedProperty.set(true);
 					} 
 					catch (Exception e1){
 						sendError(e1);
@@ -1566,7 +1611,7 @@ public class EditorPage extends GridPane{
 				nextBtn.setOnMouseClicked(event->{
 					try {
 						ui.scratch_setDefaultDistribution(distMap.getProbMap());
-						finished.set(true);
+						addedProperty.set(true);
 					} 
 					catch (Exception e) {
 						sendError(e);
@@ -1583,8 +1628,35 @@ public class EditorPage extends GridPane{
 			sendError(new IllegalStateException("Invalid page number: "+pageNumber));
 		}
 	}
-
+	
+	/**
+	 * Get the internal {@link PropertiesEditor} this 
+	 * page interfaces with.
+	 * @return
+	 */
 	public PropertiesEditor getModel() {
 		return ui;
+	}
+	/**
+	 * If the editor page has finished editing a property 
+	 * or layer, this is set to true.
+	 * @return The finished property, in read only form.
+	 */
+	public ReadOnlyBooleanProperty finishedProperty(){
+		return finished;
+	}
+	/**
+	 * If the editor is moving to another page, this is set to true
+	 * @return A read only version of the advance page Property.
+	 */
+	public ReadOnlyBooleanProperty advancePageProperty(){
+		return advancePage;
+	}
+	/**
+	 * The messages the editor has received
+	 * @return A read only copy of the editor messages
+	 */
+	public ReadOnlyListProperty<UI_Message> messagesProperty(){
+		return messages;
 	}
 }
