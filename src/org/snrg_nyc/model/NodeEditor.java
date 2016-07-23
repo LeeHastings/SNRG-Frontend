@@ -108,6 +108,12 @@ public class NodeEditor extends PropertiesEditor_Impl {
 		layers = nodeSettings.getLayerAttributesList();
 		properties = nodeSettings.getPropertyDefinitionList();
 		
+		for(Transferable t : objects.values()){
+			if(t instanceof PathogenSettings){
+				PathogenEditor p = new PathogenEditor(this, (PathogenSettings) t, objects);
+				pathogens.add(p);
+			}
+		}
 		loadDistributions(objects);
 	}
 

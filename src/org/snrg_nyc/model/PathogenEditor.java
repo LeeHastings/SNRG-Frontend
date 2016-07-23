@@ -53,8 +53,14 @@ public class PathogenEditor extends PropertiesEditor_Impl{
 		pathSettings.setLayerAttributesList(layers);
 		pathSettings.setPropertyDefinitionList(properties);
 	}
-	PathogenEditor(NodeEditor parent, PathogenSettings settings, Map<String, Serializable> objects){
-		//TODO implement this
+	PathogenEditor(NodeEditor parent, PathogenSettings settings,
+			Map<String, Transferable> objects) throws EditorException
+	{
+		super();
+		pathSettings = settings;
+		layers = settings.getLayerAttributesList();
+		properties = settings.getPropertyDefinitionList();
+		loadDistributions(objects);
 	}
 	public String getPathogen(){
 		return pathSettings.getName();

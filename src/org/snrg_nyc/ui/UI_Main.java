@@ -87,6 +87,7 @@ public class UI_Main extends Application{
 					mainWindow.model().load(expName.get());
 					mainWindow.editor().sendInfo("The experiment was loaded as "+expName.get());
 					mainWindow.updateAll();
+					pathogens.getItems().setAll(mainWindow.model().pathogen_getPathogenIDs());
 				}
 			}
 			catch (Exception e){
