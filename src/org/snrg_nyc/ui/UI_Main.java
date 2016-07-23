@@ -37,7 +37,11 @@ public class UI_Main extends Application{
 		quitAlert.setTitle("Quit");
 		quitAlert.setHeaderText("Are you sure you want to quit?");
 		
-		quit.setOnAction(event-> quit(window.getStage()));
+		quit.setOnAction(event-> {
+			if(shouldQuit(window.getStage())){
+				window.getStage().close();
+			}
+		});
 		
 		TextInputDialog saveDialog = new TextInputDialog();
 		saveDialog.setTitle("Save Experiment");
@@ -115,14 +119,21 @@ public class UI_Main extends Application{
 				new Label("Pathogens"), 
 				pathogens);
 		
-		window.getStage().setOnCloseRequest(event-> quit(window.getStage()) );
+		window.getStage().setOnCloseRequest(event->{
+			if(!shouldQuit(window.getStage())){
+				event.consume();
+			}
+		} );
 		window.show();
 	}
 	
-	void quit(Stage stage){
+	boolean shouldQuit(Stage stage){
 		Optional<ButtonType> input = quitAlert.showAndWait();
 		if(input.isPresent() && input.get() == ButtonType.OK){
-			stage.close();
+			return true;
+		}
+		else {
+			return false;
 		}
 	}
 	
