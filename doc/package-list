@@ -1,6 +1,6 @@
 org.snrg_nyc.model
+org.snrg_nyc.model.internal
 org.snrg_nyc.persistence
 org.snrg_nyc.test
 org.snrg_nyc.ui
 org.snrg_nyc.ui.components
-org.snrg_nyc.util
