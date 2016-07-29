@@ -2,7 +2,7 @@ package org.snrg_nyc.model;
 
 import com.google.gson.annotations.SerializedName;
 
-public class EdgeSettings extends SNRG_Settings{
+class EdgeSettings extends SNRG_Settings{
 	private static final long serialVersionUID = 1L;
 	
 	@SerializedName("LayerID")
@@ -15,6 +15,7 @@ public class EdgeSettings extends SNRG_Settings{
 	private boolean cumulativeBias = true;
 	
 	public EdgeSettings(String layerName){
+		super();
 		this.layerName = layerName;
 	}
 	

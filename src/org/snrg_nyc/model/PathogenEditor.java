@@ -1,6 +1,5 @@
 package org.snrg_nyc.model;
 
-import java.util.List;
 import java.util.Map;
 
 import org.snrg_nyc.model.internal.BooleanProperty;
@@ -22,7 +21,7 @@ public class PathogenEditor extends PropertiesEditor_Impl{
 	\*         */
 
 	/** Node Property classes that can be created in the editor */
-	private static final Class<?>[] pathogenPropertyTypes = {
+	static final Class<?>[] pathogenPropertyTypes = {
 			EnumeratorProperty.class, 
 			IntegerRangeProperty.class, 
 			BooleanProperty.class,

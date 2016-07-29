@@ -1,5 +1,6 @@
 package org.snrg_nyc.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.snrg_nyc.model.internal.NodeProperty;
@@ -7,12 +8,13 @@ import org.snrg_nyc.model.internal.NodeProperty;
 import com.google.gson.annotations.SerializedName;
 
 abstract class SNRG_Settings implements Transferable{
+	private static final long serialVersionUID = 1L;
 	
 	@SerializedName("PropertyDefinitionList")
 	private List<NodeProperty> properties;
 	
 	public SNRG_Settings(){
-		properties = null;
+		properties = new ArrayList<>();
 	}
 
 	public List<NodeProperty> getPropertyDefinitionList(){

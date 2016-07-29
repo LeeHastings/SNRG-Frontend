@@ -26,7 +26,7 @@ public class NodeEditor extends PropertiesEditor_Impl {
 	\*         */
 
 	/** Node Property classes that can be created in the editor */
-	private static final Class<?>[] nodePropertyTypes = {
+	static final Class<?>[] nodePropertyTypes = {
 			EnumeratorProperty.class,
 			IntegerRangeProperty.class,
 			BooleanProperty.class,
@@ -138,6 +138,11 @@ public class NodeEditor extends PropertiesEditor_Impl {
 	public boolean test_nodePropNameIsUnique(String name) {
 		for(PathogenEditor path : pathogens){
 			if(path != null && !path.uniquePropName(name)){
+				return false;
+			}
+		}
+		for(EdgeEditor edge : edges){
+			if(edge != null && !edge.uniquePropName(name)){
 				return false;
 			}
 		}

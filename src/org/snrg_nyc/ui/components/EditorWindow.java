@@ -45,9 +45,9 @@ import javafx.stage.Stage;
 
 /**
  * This class is a UI interface for a {@link PropertiesEditor} instance.
- * The class is a border pane, with the left side listing properties and layers, 
+ * The class is a border pane, with the left side listing properties and UI messages, 
+ * the right containing pathogens and edge settings (if enabled),
  * and the center containing an {@link EditorPage} object.
- * Feel free to use the top, right, and bottom for extra content.
  * 
  * @author Devin Hastings
  */
@@ -59,21 +59,22 @@ public class EditorWindow extends BorderPane {
 	private Alert quitAlert;
 	private String experimentName = null;
 
-	private ListView<Integer> pathogens = new ListView<>();
-	
-	/**
-	 * A single column {@link GridPane} (which provides more flexibility
-	 *  than an {@link HBox}), which contains a list of the properties and
-	 *  a box for messages from the editor.
-	 */
+	private ListView<Integer> pathogensView = null;
+	private ListView<Integer> edgesView = null;
+
 	private GridPane leftMenu;
+	private GridPane rightMenu;
 	
-	private int menuRow = 0;
+	private int leftMenuRow = 0; //Row for items in leftMenu
+	private int rightMenuRow = 0; //Row for items in rightMenu
 	
 	private EditorPage editor;
 	
 	private ObservableList<PropertyID> properties = FXCollections.observableArrayList();
 	private ObservableList<Optional<Integer>> layers = FXCollections.observableArrayList();
+	
+	static final Font titleFont = Font.font("sans", FontWeight.LIGHT, FontPosture.REGULAR, 20);
+	static final Font headFont = Font.font("sans", FontWeight.NORMAL, FontPosture.REGULAR, 15);
 	
 	/**
 	 * Create a new window that edits the model in the given {@link PropertiesEditor}.
@@ -83,7 +84,7 @@ public class EditorWindow extends BorderPane {
 	 */
 	@SuppressWarnings("unchecked")
 	EditorWindow(PropertiesEditor model, Stage initStage, String title, 
-			     boolean enableToolbar, boolean useLayers, boolean enablePathogens)
+			boolean enableToolbar, boolean enableLayers, boolean enablePathogens, boolean enableEdges)
 	{
 		this.model = model;
 		stage = initStage;
@@ -104,8 +105,8 @@ public class EditorWindow extends BorderPane {
 		leftMenu.getColumnConstraints().add(menuCol);
 		
 		Text titleText = new Text("Node Properties");
-		titleText.setFont(Font.font("sans", FontWeight.LIGHT, FontPosture.REGULAR, 20));
-		addToMenu(titleText);
+		titleText.setFont(titleFont);
+		addToLeftMenu(titleText);
 		
 		TableView<PropertyID> propertyTable = new TableView<>();
 		propertyTable.setItems(properties);
@@ -148,7 +149,7 @@ public class EditorWindow extends BorderPane {
 			}
 		});
 		
-		if(useLayers){
+		if(enableLayers){
 			ComboBox<Optional<Integer>> layerSelect = new ComboBox<>();
 			
 			layerSelect.setCellFactory(lv->new LayerCell(editor));
@@ -195,7 +196,7 @@ public class EditorWindow extends BorderPane {
 			layerBox.setAlignment(Pos.CENTER_LEFT);
 			layerBox.setPrefWidth(1000);
 			layerBox.getChildren().addAll(ll, lsBox);
-			addToMenu(layerBox);
+			addToLeftMenu(layerBox);
 		}
 		
 		
@@ -208,7 +209,7 @@ public class EditorWindow extends BorderPane {
 			editor.createProperty()
 		);
 		
-		if(useLayers){
+		if(enableLayers){
 			Button newLayer = new Button("New Layer");
 			
 			HBox lbox = new HBox(); //Box for padding button
@@ -226,7 +227,7 @@ public class EditorWindow extends BorderPane {
 			buttonBox.getChildren().add(newProp);
 		}
 
-		addAllToMenu(propertyTable,
+		addAllToLeftMenu(propertyTable,
 				     buttonBox);
 		
 		VBox messageBox = new VBox();
@@ -241,8 +242,8 @@ public class EditorWindow extends BorderPane {
 		messagePane.setHbarPolicy(ScrollBarPolicy.NEVER);
 		
 
-		leftMenu.add(new Label("Messages:"), 0, 6);
-		leftMenu.add(messagePane, 0, 7);
+		leftMenu.add(new Label("Messages:"), 0, 7);
+		leftMenu.add(messagePane, 0, 8);
 		
 		this.setLeft(leftMenu);
 		
@@ -294,6 +295,7 @@ public class EditorWindow extends BorderPane {
 				}
 			}
 		});
+		
 		
 		if(enableToolbar){
 			//Add a toolbar to the window
@@ -355,7 +357,7 @@ public class EditorWindow extends BorderPane {
 						model.load(expName.get());
 						editor.sendInfo("The experiment was loaded as "+expName.get());
 						updateAll();
-						pathogens.getItems().setAll(model.pathogen_getPathogenIDs());
+						pathogensView.getItems().setAll(model.pathogen_getPathogenIDs());
 					}
 				}
 				catch (Exception e){
@@ -370,17 +372,36 @@ public class EditorWindow extends BorderPane {
 			} );
 		} //Endif for toolbar
 		
+		
+		rightMenu = null;
+		if(enableEdges || enablePathogens){
+			rightMenu = new GridPane();
+			
+			rightMenu.getStyleClass().addAll(leftMenu.getStyleClass());
+			rightMenu.getColumnConstraints().addAll(leftMenu.getColumnConstraints());
+			
+			rightMenu.setPrefWidth(leftMenu.getPrefWidth());
+			rightMenu.setMaxWidth(leftMenu.getMaxWidth());
+			rightMenu.setHgap(leftMenu.getHgap());
+			rightMenu.setVgap(leftMenu.getVgap());
+			rightMenu.setPadding(leftMenu.getPadding());
+			
+			stage.setWidth(getWidth()+rightMenu.getPrefWidth());
+		}
+		setRight(rightMenu);
+		
 		if(enablePathogens){
+			pathogensView = new ListView<>();
 			editor.finishedProperty().addListener( (o, oldval, newval)->{
 				try {
-					pathogens.getItems().setAll(
+					pathogensView.getItems().setAll(
 							model.pathogen_getPathogenIDs());
 				} catch (Exception e) {
 					editor.sendError(e);
 				}
 			});
-			pathogens.setPrefHeight(100);
-			pathogens.setCellFactory(col ->{
+			pathogensView.setPrefHeight(150);
+			pathogensView.setCellFactory(col ->{
 				return new ListCell<Integer>(){
 					@Override
 					public void updateItem(Integer item, boolean empty){
@@ -398,14 +419,45 @@ public class EditorWindow extends BorderPane {
 					}
 				};
 			});
-			addAllToMenu(
-					new Label("Pathogens"), 
-					pathogens);
+			Text pathText = new Text("Pathogens");
+			pathText.setFont(headFont);
+			addAllToRightMenu(pathText, pathogensView);
+		} 
+		//End if for pathogens
+		
+		if(enableEdges){
+			edgesView = new ListView<>();
+			edgesView.setPrefHeight(150);
+			editor.finishedProperty().addListener(event->{
+				edgesView.getItems().setAll(model.layer_getLayerIDs());
+			});
+			edgesView.setCellFactory(lv ->{
+				return new ListCell<Integer>(){
+					@Override
+					public void updateItem(Integer item, boolean empty){
+						super.updateItem(item, empty);
+						if(empty || item == null){
+							setText(null);
+						}
+						else {
+							try {
+								setText(model.layer_getName(item));
+							} catch (EditorException e) {
+								setText(">ERROR<");
+								editor.sendError(e);
+							}
+						}
+					}
+				};
+			});
+			Text edgeText = new Text("Edge Settings");
+			edgeText.setFont(headFont);
+			addAllToRightMenu(edgeText, edgesView);
 		}
 		
 		stage.setScene(scene);
 		try {
-			updateProperties(null);
+			updateAll();
 		} catch (EditorException e1) {
 			editor.sendError(e1);
 		}
@@ -450,17 +502,31 @@ public class EditorWindow extends BorderPane {
 	 * the nodes are added.
 	 * @param n The Node to add to the menu.
 	 */
-	public void addToMenu(Node n){
-		leftMenu.add(n, 0, menuRow++);
+	public void addToLeftMenu(Node n){
+		leftMenu.add(n, 0, leftMenuRow++);
 	}
 	/**
-	 * {@link EditorWindow#addToMenu(Node)}, but for a collection of nodes.
+	 * {@link EditorWindow#addToLeftMenu(Node)}, but for a collection of nodes.
 	 * The nodes will be added to the menu in the order they're given.
 	 * @param nodes The nodes to add, from top to bottom, in the order they're given
 	 */
-	public void addAllToMenu(Node... nodes){
+	public void addAllToLeftMenu(Node... nodes){
 		for(Node n : nodes){
-			addToMenu(n);
+			addToLeftMenu(n);
+		}
+	}
+	
+	private void addToRightMenu(Node n){
+		if(rightMenu == null){
+			throw new IllegalStateException(
+					"Tried to add items to a disabled right menu!");
+		}
+		rightMenu.add(n, 0, rightMenuRow++);
+	}
+
+	private void addAllToRightMenu(Node... nodes){
+		for(Node n : nodes){
+			addToRightMenu(n);
 		}
 	}
 
@@ -469,14 +535,14 @@ public class EditorWindow extends BorderPane {
 	}
 	
 	//Getters
-	public ListView<Integer> pathogens(){
-		return pathogens;
+	public ListView<Integer> pathogensView(){
+		return pathogensView;
+	}
+	public ListView<Integer> edgesView(){
+		return edgesView;
 	}
 	public Stage stage(){
 		return stage;
-	}
-	public Scene scene(){
-		return scene;
 	}
 	public PropertiesEditor model(){
 		return model;
@@ -492,12 +558,7 @@ public class EditorWindow extends BorderPane {
 	 */
 	private boolean shouldQuit(){
 		Optional<ButtonType> input = quitAlert.showAndWait();
-		if(input.isPresent() && input.get() == ButtonType.OK){
-			return true;
-		}
-		else {
-			return false;
-		}
+		return input.isPresent() && input.get() == ButtonType.OK;
 	}
 	
 }

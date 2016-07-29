@@ -8,32 +8,40 @@ import javafx.stage.Stage;
  * A builder for creating instances of {@link EditorWindow}
  * with certain features included or removed.
  * This allows for more advanced construction
- * @author devin
+ * @author Devin Hastings
  *
  */
 public class EditorWindowBuilder {
-	private boolean enableLayers = true;
+	private boolean enableLayers = false;
 	private boolean enableToolbar = false;
 	private boolean enablePathogens = false;
+	private boolean enableEdges = false;
 	
 	public EditorWindowBuilder(){}
 	
-	public EditorWindowBuilder enableLayers(boolean enable){
-		enableLayers = enable;
+	public EditorWindowBuilder enableLayers(){
+		enableLayers = true;
 		return this;
 	}
-	public EditorWindowBuilder enableToolbar(boolean show){
-		enableToolbar = show;
+	public EditorWindowBuilder enableToolbar(){
+		enableToolbar = true;
 		return this;
 	}
-	public EditorWindowBuilder enablePathogens(boolean enable){
-		enablePathogens = enable;
+	public EditorWindowBuilder enablePathogens(){
+		enablePathogens = true;
+		return this;
+	}
+	public EditorWindowBuilder enableEdges(){
+		enableEdges = true;
 		return this;
 	}
 	
 	public EditorWindow build(PropertiesEditor model, Stage initStage, String title){
+		if(enableEdges && !enableLayers){
+			throw new IllegalArgumentException("Cannot enable edges without layers!");
+		}
 		return new EditorWindow(model, initStage, title, 
-				enableToolbar, enableLayers, enablePathogens);
+				enableToolbar, enableLayers, enablePathogens, enableEdges);
 	}
 	
 }

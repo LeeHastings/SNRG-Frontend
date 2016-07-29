@@ -6,7 +6,7 @@
 .menu{
 	-fx-background-color:
 		linear-gradient(to top, #DDD, #EEE);
-	-fx-border-color:transparent grey transparent transparent;
+	-fx-border-color:transparent grey transparent grey;
 }
 
 .messages{
