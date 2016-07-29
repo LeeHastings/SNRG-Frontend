@@ -1010,6 +1010,9 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 
 	@Override
 	public int layer_new(String name) throws EditorException {
+		if(name == null || name.length() == 0){
+			throw new EditorException("The new layer name cannot be null or empty");
+		}
 		for(NodeLayer l : layers){
 			if(l != null && l.getName().equals(name)){
 				throw new EditorException("Tried to add layer with duplicate name: "+name);

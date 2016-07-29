@@ -1,5 +1,7 @@
 package org.snrg_nyc.ui.components;
 
+import java.util.Optional;
+
 import org.snrg_nyc.model.PropertiesEditor;
 import org.snrg_nyc.model.internal.EditorException;
 import org.snrg_nyc.ui.EditorPage;
@@ -13,12 +15,21 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
@@ -44,6 +55,11 @@ public class EditorWindow extends BorderPane {
 	private PropertiesEditor model;
 	private Stage stage;
 	private Scene scene;
+
+	private Alert quitAlert;
+	private String experimentName = null;
+
+	private ListView<Integer> pathogens = new ListView<>();
 	
 	/**
 	 * A single column {@link GridPane} (which provides more flexibility
@@ -57,7 +73,7 @@ public class EditorWindow extends BorderPane {
 	private EditorPage editor;
 	
 	private ObservableList<PropertyID> properties = FXCollections.observableArrayList();
-	private ObservableList<LayerID> layers = FXCollections.observableArrayList();
+	private ObservableList<Optional<Integer>> layers = FXCollections.observableArrayList();
 	
 	/**
 	 * Create a new window that edits the model in the given {@link PropertiesEditor}.
@@ -66,7 +82,9 @@ public class EditorWindow extends BorderPane {
 	 * @param title The title of the new window.
 	 */
 	@SuppressWarnings("unchecked")
-	EditorWindow(PropertiesEditor model, Stage initStage, String title){
+	EditorWindow(PropertiesEditor model, Stage initStage, String title, 
+			     boolean enableToolbar, boolean useLayers, boolean enablePathogens)
+	{
 		this.model = model;
 		stage = initStage;
 		stage.setTitle(title);
@@ -87,6 +105,7 @@ public class EditorWindow extends BorderPane {
 		
 		Text titleText = new Text("Node Properties");
 		titleText.setFont(Font.font("sans", FontWeight.LIGHT, FontPosture.REGULAR, 20));
+		addToMenu(titleText);
 		
 		TableView<PropertyID> propertyTable = new TableView<>();
 		propertyTable.setItems(properties);
@@ -129,77 +148,85 @@ public class EditorWindow extends BorderPane {
 			}
 		});
 		
-		ComboBox<LayerID> layerSelect = new ComboBox<>();
-		
-		layerSelect.setCellFactory(lv->new LayerCell(editor));
-		layerSelect.setButtonCell(new LayerCell(editor));
-		layerSelect.setItems(layers);
-		
-		layers.add(new LayerID());
-		
-		for(int i : this.model.layer_getLayerIDs()){
-			layers.add(new LayerID(i));
+		if(useLayers){
+			ComboBox<Optional<Integer>> layerSelect = new ComboBox<>();
+			
+			layerSelect.setCellFactory(lv->new LayerCell(editor));
+			layerSelect.setButtonCell(new LayerCell(editor));
+			layerSelect.setItems(layers);
+			
+			layers.add(Optional.empty());
+			
+			for(int i : this.model.layer_getLayerIDs()){
+				layers.add(Optional.of(i));
+			}
+			
+			layerSelect.valueProperty().addListener((o, oldVal, newVal)->{
+				if(newVal != null && newVal.isPresent()){
+					try {
+						//A lot of work just to capitalize the layer!
+						String name = this.model.layer_getName(newVal.get())+" Properties";
+						Character c = name.charAt(0);
+						titleText.setText(Character.toUpperCase(c)+ name.substring(1));
+						
+					} catch (Exception e1) {
+						editor.sendError(e1);
+					}
+				} else {
+					titleText.setText("Node Properties");
+				}
+				try{
+					updateProperties(newVal);
+				}
+				catch(Exception e){
+					editor.sendError(e);
+				}
+			});
+			
+			HBox lsBox = new HBox();
+			lsBox.setAlignment(Pos.CENTER);
+			HBox.setHgrow(lsBox, Priority.ALWAYS);
+			lsBox.getChildren().add(layerSelect);
+			
+			Label ll = new Label("View a Layer:");
+			HBox.setHgrow(ll, Priority.ALWAYS);
+			
+			HBox layerBox = new HBox();
+			layerBox.setAlignment(Pos.CENTER_LEFT);
+			layerBox.setPrefWidth(1000);
+			layerBox.getChildren().addAll(ll, lsBox);
+			addToMenu(layerBox);
 		}
 		
-		layerSelect.valueProperty().addListener((o, oldVal, newVal)->{
-			if(newVal != null && newVal.used()){
-				try {
-					//A lot of work just to capitalize the layer!
-					String name = this.model.layer_getName(newVal.get())+" Properties";
-					Character c = name.charAt(0);
-					titleText.setText(Character.toUpperCase(c)+ name.substring(1));
-					
-				} catch (Exception e1) {
-					editor.sendError(e1);
-				}
-			} else {
-				titleText.setText("Node Properties");
-			}
-			try{
-				updateProperties(newVal);
-			}
-			catch(Exception e){
-				editor.sendError(e);
-			}
-		});
 		
 		Button newProp = new Button("New Property");
 		HBox.setHgrow(newProp, Priority.ALWAYS);
-		
-		Button newLayer = new Button("New Layer");
-		
-		HBox lbox = new HBox(); //Box for padding button
-		HBox.setHgrow(lbox, Priority.ALWAYS);
-		lbox.setAlignment(Pos.BOTTOM_LEFT);
-		lbox.getChildren().add(newLayer);
 
 		HBox buttonBox = new HBox();
-		buttonBox.setAlignment(Pos.BOTTOM_RIGHT);
-		buttonBox.getChildren().addAll(lbox, newProp);
 		
 		newProp.setOnMouseClicked(event -> 
 			editor.createProperty()
 		);
-		newLayer.setOnMouseClicked(event->
-			editor.createLayer()
-		);
 		
-		HBox lsBox = new HBox();
-		lsBox.setAlignment(Pos.CENTER);
-		HBox.setHgrow(lsBox, Priority.ALWAYS);
-		lsBox.getChildren().add(layerSelect);
-		
-		Label ll = new Label("View a Layer:");
-		HBox.setHgrow(ll, Priority.ALWAYS);
-		
-		HBox layerBox = new HBox();
-		layerBox.setAlignment(Pos.CENTER_LEFT);
-		layerBox.setPrefWidth(1000);
-		layerBox.getChildren().addAll(ll, lsBox);
+		if(useLayers){
+			Button newLayer = new Button("New Layer");
+			
+			HBox lbox = new HBox(); //Box for padding button
+			HBox.setHgrow(lbox, Priority.ALWAYS);
+			lbox.setAlignment(Pos.BOTTOM_LEFT);
+			lbox.getChildren().add(newLayer);
 
-		addAllToMenu(titleText,
-				     layerBox,
-				     propertyTable,
+			buttonBox.setAlignment(Pos.BOTTOM_RIGHT);
+			buttonBox.getChildren().addAll(lbox, newProp);
+			newLayer.setOnMouseClicked(event->
+				editor.createLayer()
+			);
+		}
+		else {
+			buttonBox.getChildren().add(newProp);
+		}
+
+		addAllToMenu(propertyTable,
 				     buttonBox);
 		
 		VBox messageBox = new VBox();
@@ -268,6 +295,114 @@ public class EditorWindow extends BorderPane {
 			}
 		});
 		
+		if(enableToolbar){
+			//Add a toolbar to the window
+			MenuBar topMenu = new MenuBar();
+			setTop(topMenu);
+			
+			Menu fileM = new Menu("File");
+			topMenu.getMenus().add(fileM);
+			
+			MenuItem save = new MenuItem("Save");
+			MenuItem load = new MenuItem("Load");
+			MenuItem quit = new MenuItem("Quit");
+			fileM.getItems().addAll(quit, save, load);
+			
+			//The Quit menu
+			quitAlert = new Alert(Alert.AlertType.CONFIRMATION);
+			quitAlert.setTitle("Quit");
+			quitAlert.setHeaderText("Are you sure you want to quit?");
+			
+			quit.setOnAction(event-> {
+				if(shouldQuit()){
+					stage.close();
+				}
+			});
+			
+			//The save menu
+			TextInputDialog saveDialog = new TextInputDialog();
+			saveDialog.setTitle("Save Experiment");
+			saveDialog.setHeaderText("Name the experiment");
+			saveDialog.setGraphic(null);
+			
+			save.setOnAction(event->{
+				//Default to previously used name
+				saveDialog.getEditor().setText(experimentName); 
+				Optional<String> expName = saveDialog.showAndWait();
+				if(expName.isPresent()){
+					try{
+						model.save(expName.get());
+						editor().sendInfo("The experiment was saved as "+expName.get());
+					}
+					catch (Exception e){
+						editor().sendError(e);
+					}
+				}
+			});
+			
+			//Load menu, select from a valid list of experiments
+			ChoiceDialog<String> loadDialog = new ChoiceDialog<>();
+			loadDialog.setTitle("Load Experiment");
+			loadDialog.setHeaderText("Select an experiment to load");
+			loadDialog.setGraphic(null);
+			
+			load.setOnAction(event->{
+				loadDialog.getItems().setAll(model.getExperimentNames());
+				Optional<String> expName = loadDialog.showAndWait();
+				try{
+					if(expName.isPresent() ){
+						experimentName = expName.get();
+						model.load(expName.get());
+						editor.sendInfo("The experiment was loaded as "+expName.get());
+						updateAll();
+						pathogens.getItems().setAll(model.pathogen_getPathogenIDs());
+					}
+				}
+				catch (Exception e){
+					editor.sendError(e);
+				}
+			});
+			
+			stage.setOnCloseRequest(event->{
+				if(!shouldQuit()){
+					event.consume();
+				}
+			} );
+		} //Endif for toolbar
+		
+		if(enablePathogens){
+			editor.finishedProperty().addListener( (o, oldval, newval)->{
+				try {
+					pathogens.getItems().setAll(
+							model.pathogen_getPathogenIDs());
+				} catch (Exception e) {
+					editor.sendError(e);
+				}
+			});
+			pathogens.setPrefHeight(100);
+			pathogens.setCellFactory(col ->{
+				return new ListCell<Integer>(){
+					@Override
+					public void updateItem(Integer item, boolean empty){
+						super.updateItem(item, empty);
+						if(item == null || empty){
+							setText(null);
+							return;
+						}
+						try {
+							setText(model().pathogen_getName(item));
+						} catch (EditorException e) {
+							editor().sendError(e);
+							setText(">ERROR<");
+						}
+					}
+				};
+			});
+			addAllToMenu(
+					new Label("Pathogens"), 
+					pathogens);
+		}
+		
 		stage.setScene(scene);
 		try {
 			updateProperties(null);
@@ -282,9 +417,9 @@ public class EditorWindow extends BorderPane {
 	 * or null to read from the main list of properties
 	 * @throws EditorException Thrown if the layer ID is invalid.
 	 */
-	private void updateProperties(LayerID lid) throws EditorException{
+	private void updateProperties(Optional<Integer> lid) throws EditorException{
 		properties.clear();
-		if(lid != null && lid.used()){
+		if(lid != null && lid.isPresent()){
 			for(int i : this.model.nodeProp_getPropertyIDs(lid.get())){
 				properties.add(new PropertyID(lid.get(), i));
 			}
@@ -303,9 +438,9 @@ public class EditorWindow extends BorderPane {
 	public void updateAll() throws EditorException{
 		updateProperties(null);
 		layers.clear();
-		layers.add(new LayerID());
+		layers.add(Optional.empty());
 		for(int i : model.layer_getLayerIDs()){
-			layers.add(new LayerID(i));
+			layers.add(Optional.of(i));
 		}
 	}
 	
@@ -334,6 +469,9 @@ public class EditorWindow extends BorderPane {
 	}
 	
 	//Getters
+	public ListView<Integer> pathogens(){
+		return pathogens;
+	}
 	public Stage stage(){
 		return stage;
 	}
@@ -345,6 +483,21 @@ public class EditorWindow extends BorderPane {
 	}
 	public EditorPage editor(){
 		return editor;
+	}
+	
+	/**
+	 * Open a menu that asks if the user wants to quit.
+	 * Return true if they accept, otherwise false.
+	 * @return If the program should exit.
+	 */
+	private boolean shouldQuit(){
+		Optional<ButtonType> input = quitAlert.showAndWait();
+		if(input.isPresent() && input.get() == ButtonType.OK){
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 	
 }

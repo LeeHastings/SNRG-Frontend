@@ -9,7 +9,7 @@ public class EdgeEditor extends PropertiesEditor_Impl {
 	
 	public EdgeEditor(NodeEditor parent, NodeLayer layer){
 		super();
-		settings.setLayerName(layer.getName());
+		settings = new EdgeSettings(layer.getName());
 		settings.setPropertyDefinitionList(properties);
 	}
 	@Override

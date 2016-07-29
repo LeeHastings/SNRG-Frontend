@@ -1,16 +1,18 @@
 package org.snrg_nyc.ui.components;
 
+import java.util.Optional;
+
 public class PropertyID {
 	private int pid;
-	private LayerID lid;
+	private Optional<Integer> lid;
 	
 	public PropertyID(int pid){
 		this.pid = pid;
-		lid = new LayerID();
+		lid = Optional.empty();
 	}
 	public PropertyID(int lid, int pid){
 		this.pid = pid;
-		this.lid = new LayerID(lid);
+		this.lid = Optional.of(lid);
 	}
 	public int pid(){
 		return pid;
@@ -19,6 +21,6 @@ public class PropertyID {
 		return lid.get();
 	}
 	public boolean usesLayer(){
-		return lid.used();
+		return lid.isPresent();
 	}
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 import org.snrg_nyc.model.PropertiesEditor;
 import org.snrg_nyc.model.internal.EditorException;
@@ -11,7 +12,6 @@ import org.snrg_nyc.ui.components.ConditionsCell;
 import org.snrg_nyc.ui.components.ConditionsMenu;
 import org.snrg_nyc.ui.components.DistributionTable;
 import org.snrg_nyc.ui.components.LayerCell;
-import org.snrg_nyc.ui.components.LayerID;
 import org.snrg_nyc.ui.components.PropertyID;
 import org.snrg_nyc.ui.components.PropertyNameFactory;
 import org.snrg_nyc.ui.components.PropertyTypeFactory;
@@ -86,7 +86,7 @@ public class EditorPage extends GridPane{
 	private final BooleanProperty addedLayer = new SimpleBooleanProperty();
 	private final ListProperty<UI_Message> messages = new SimpleListProperty<UI_Message>();
 
-	final ObservableList<LayerID> layers = FXCollections.observableArrayList();
+	final ObservableList<Optional<Integer>> layers = FXCollections.observableArrayList();
 	
 	private static final Font titleFont = Font.font("sans", FontWeight.LIGHT, FontPosture.REGULAR, 20);
 	
@@ -259,7 +259,7 @@ public class EditorPage extends GridPane{
 		nextBtn.setOnMouseClicked(event->{
 			try {
 				int lid = ui.layer_new(layerTx.getText());
-				layers.add(new LayerID(lid));
+				layers.add(Optional.of(lid));
 				addedLayer.set(true);
 			} catch (Exception e) {
 				sendError(e);
@@ -849,13 +849,13 @@ public class EditorPage extends GridPane{
 			desc.setPrefRowCount(4);
 			desc.setWrapText(true);
 			
-			ComboBox<LayerID> layerSelect = new ComboBox<>();
+			ComboBox<Optional<Integer>> layerSelect = new ComboBox<>();
 			layerSelect.setCellFactory(lv-> new LayerCell(this) );
 			layerSelect.setButtonCell(new LayerCell(this));
 			
-			layerSelect.getItems().add(new LayerID());
+			layerSelect.getItems().add(Optional.empty());
 			for(int i: ui.layer_getLayerIDs()){
-				layerSelect.getItems().add(new LayerID(i));
+				layerSelect.getItems().add(Optional.of(i));
 			}
 			
 			add(new Label("Name"), 0, 2);
@@ -885,7 +885,7 @@ public class EditorPage extends GridPane{
 			nextBtn.setOnMouseClicked(event->{
 				pageNumber ++;
 				try {
-					if(layerSelect.getValue() != null && layerSelect.getValue().used()){
+					if(layerSelect.getValue() != null && layerSelect.getValue().isPresent()){
 						ui.scratch_newInLayer(
 								layerSelect.getValue().get(), 
 								propName.getText(), 
