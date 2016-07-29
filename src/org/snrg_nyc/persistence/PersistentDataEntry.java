@@ -15,10 +15,10 @@ import com.google.gson.JsonParseException;
 import com.google.gson.annotations.SerializedName;
 
 /**
- * A class to wrap Serializable objects 
- * into a format that can be encoded and decoded into the required Json format easily
+ * A class to wrap {@link Transferable} objects into a format that
+ *  can be serialized and deserialized more effectively
  * 
- * @author Devin
+ * @author Devin Hastings
  */
 class PersistentDataEntry implements Serializable {
 	/**

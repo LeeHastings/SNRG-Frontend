@@ -174,7 +174,7 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 		}
 	}
 	
-	private void assert_validLID(Integer lid) throws EditorException {
+	protected void assert_validLID(Integer lid) throws EditorException {
 		if(lid == null || lid < 0 || lid >= layers.size() || layers.get(lid) == null){
 			throw new EditorException("Invalid layer ID: "+lid);
 		}
@@ -299,19 +299,9 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 		return true;
 	}
 	
-	/*                      *\
-	 * UI_Interface Methods *
-	\*                      */
-	@Override
-	public void save(String experimentName) throws EditorException {
-		Map<String, Transferable> e = getSavedObjects();
-		
-		try {
-			serializer.storeExperiment(experimentName, e);
-		} catch (PersistenceException e1) {
-			e1.printStackTrace();
-		}
-	}
+	/*                   *\
+	 * Interface Methods *
+	\*                   */
 	
 	@Override
 	public void clear(){
@@ -1093,4 +1083,53 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 		return null;
 	}
 
+	/*
+	 * Unsupported Methods
+	 * (These should be overwritten where required
+	 */
+	
+	@Override
+	public void save(String experimentName) throws EditorException{
+		throw new EditorException("This should not be called directly by this editor!");
+	}
+	@Override
+	public void load(String experimentName) throws EditorException {
+		throw new EditorException("This should not be called directly by this editor!");
+	}
+	
+	@Override
+	public PropertiesEditor pathogen_getEditor(int pathID) throws EditorException {
+		throw new EditorException("This Editor does not have internal pathogens.");
+	}
+
+	@Override
+	public List<Integer> pathogen_getPathogenIDs() throws EditorException {
+		throw new EditorException("This Editor does not have internal pathogens.");
+	}
+
+	@Override
+	public String pathogen_getName(int pathID) throws EditorException {
+		throw new EditorException("This Editor does not have internal pathogens.");
+	}
+
+	@Override
+	public int nodeProp_getPathogenID(int pid) throws EditorException {
+		throw new EditorException("This Editor does not have internal pathogens.");
+	}
+
+	@Override
+	public void scratch_setPathogenType(String type) throws EditorException {
+		throw new EditorException("This Editor does not have internal pathogens.");
+		
+	}
+
+	@Override
+	public String scratch_getPathogenType() throws EditorException {
+		throw new EditorException("This Editor does not have internal pathogens.");
+	}
+	
+	@Override
+	public PropertiesEditor layer_getEdgeEditor(int lid) throws EditorException {
+		throw new EditorException("This Editor does not use edge settings");
+	}
 }

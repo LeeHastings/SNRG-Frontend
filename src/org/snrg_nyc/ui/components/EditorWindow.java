@@ -1,13 +1,9 @@
-package org.snrg_nyc.ui;
+package org.snrg_nyc.ui.components;
 
 import org.snrg_nyc.model.PropertiesEditor;
 import org.snrg_nyc.model.internal.EditorException;
-import org.snrg_nyc.ui.components.LayerCell;
-import org.snrg_nyc.ui.components.LayerID;
-import org.snrg_nyc.ui.components.PropertyID;
-import org.snrg_nyc.ui.components.PropertyNameFactory;
-import org.snrg_nyc.ui.components.PropertyTypeFactory;
-import org.snrg_nyc.ui.components.UI_Message;
+import org.snrg_nyc.ui.EditorPage;
+import org.snrg_nyc.ui.UI_Main;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -70,7 +66,7 @@ public class EditorWindow extends BorderPane {
 	 * @param title The title of the new window.
 	 */
 	@SuppressWarnings("unchecked")
-	public EditorWindow(PropertiesEditor model, Stage initStage, String title){
+	EditorWindow(PropertiesEditor model, Stage initStage, String title){
 		this.model = model;
 		stage = initStage;
 		stage.setTitle(title);
@@ -350,4 +346,5 @@ public class EditorWindow extends BorderPane {
 	public EditorPage editor(){
 		return editor;
 	}
+	
 }

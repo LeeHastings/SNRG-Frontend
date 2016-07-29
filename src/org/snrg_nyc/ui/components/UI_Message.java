@@ -4,7 +4,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
 /**
- * A small class for delivering and displaying messages on the {@link org.snrg_nyc.ui.EditorWindow} 
+ * A small class for delivering and displaying messages on the {@link org.snrg_nyc.ui.components.EditorWindow} 
  * @author Devin Hastings
  *
  */

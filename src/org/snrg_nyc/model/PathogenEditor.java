@@ -44,14 +44,10 @@ public class PathogenEditor extends PropertiesEditor_Impl{
 	 * @param pathogen The name of the pathogen
 	 * @throws EditorException Thrown if the given parent is not an instance of a {@link NodeEditor}
 	 */
-	public PathogenEditor(PropertiesEditor parent, String pathogen) throws EditorException{
+	public PathogenEditor(NodeEditor parent, String pathogen) throws EditorException{
 		super();
-		if(!(parent instanceof NodeEditor)){
-			throw new EditorException("The given parent is not a Node Properties Editor!");
-		}
-		else {
-			this.parent = (NodeEditor) parent;
-		}
+		this.parent = parent;
+		
 		pathSettings = new PathogenSettings(pathogen);
 		
 		pathSettings.setLayerAttributesList(layers);
@@ -82,49 +78,10 @@ public class PathogenEditor extends PropertiesEditor_Impl{
 		map.put("pathogensettings_"+pathSettings.getName(), pathSettings);
 		return map;
 	}
-	@Override
-	public void save(String experimentName) throws EditorException{
-		throw new EditorException("This should not be called directly by the pathogen editor!");
-	}
-	@Override
-	public void load(String experimentName) throws EditorException {
-		throw new EditorException("This should not be called directly by the pathogen editor!");
-	}	
 
 	@Override
 	public boolean test_nodePropNameIsUnique(String name) {
 		return parent.test_nodePropNameIsUnique(name);
-	}
-
-	@Override
-	public PropertiesEditor pathogen_getEditor(int pathID) throws EditorException {
-		throw new EditorException("Pathogens do not have internal pathogens.");
-	}
-
-	@Override
-	public List<Integer> pathogen_getPathogenIDs() throws EditorException {
-		throw new EditorException("Pathogens do not have internal pathogens.");
-	}
-
-	@Override
-	public String pathogen_getName(int pathID) throws EditorException {
-		throw new EditorException("Pathogens do not have internal pathogens.");
-	}
-
-	@Override
-	public int nodeProp_getPathogenID(int pid) throws EditorException {
-		throw new EditorException("Pathogens do not have internal pathogens.");
-	}
-
-	@Override
-	public void scratch_setPathogenType(String type) throws EditorException {
-		throw new EditorException("Pathogens do not have internal pathogens.");
-		
-	}
-
-	@Override
-	public String scratch_getPathogenType() throws EditorException {
-		throw new EditorException("Pathogens do not have internal pathogens.");
 	}
 
 }

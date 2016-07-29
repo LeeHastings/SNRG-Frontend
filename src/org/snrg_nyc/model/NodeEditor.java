@@ -10,6 +10,7 @@ import org.snrg_nyc.model.internal.EditorException;
 import org.snrg_nyc.model.internal.EnumeratorProperty;
 import org.snrg_nyc.model.internal.FractionProperty;
 import org.snrg_nyc.model.internal.IntegerRangeProperty;
+import org.snrg_nyc.persistence.PersistenceException;
 
 
 /**
@@ -35,7 +36,8 @@ public class NodeEditor extends PropertiesEditor_Impl {
 	
 	private NodeSettings nodeSettings = new NodeSettings();
 	private List<PathogenEditor> pathogens;
-	
+	private List<EdgeEditor> edges;
+ 	
 	/*         *\
 	 * Methods *
 	\*         */
@@ -43,6 +45,7 @@ public class NodeEditor extends PropertiesEditor_Impl {
 	public NodeEditor(){
 		super();
 		pathogens = new ArrayList<>();
+		edges = new ArrayList<>();
 		nodeSettings.setLayerAttributesList(layers);
 		nodeSettings.setPropertyDefinitionList(properties);
 	}
@@ -62,6 +65,18 @@ public class NodeEditor extends PropertiesEditor_Impl {
 		pathogens.add(new PathogenEditor(this, name));
 		return pathogens.size() - 1;
 	}
+	
+	@Override
+	public void save(String experimentName) throws EditorException {
+		Map<String, Transferable> e = getSavedObjects();
+		
+		try {
+			serializer.storeExperiment(experimentName, e);
+		} catch (PersistenceException e1) {
+			e1.printStackTrace();
+		}
+	}
+	
 	@Override
 	public int scratch_commit() throws EditorException{
 		if(scratchProperty instanceof AttachmentProperty){
@@ -154,8 +169,9 @@ public class NodeEditor extends PropertiesEditor_Impl {
 
 	@Override
 	public int nodeProp_getPathogenID(int pid) throws EditorException {
-		// TODO Auto-generated method stub
-		return 0;
+		assert_validPID(pid);
+		assert_nodeType(properties.get(pid), AttachmentProperty.class);
+		return ((AttachmentProperty) properties.get(pid)).getPathogenID();
 	}
 
 	@Override
@@ -164,12 +180,32 @@ public class NodeEditor extends PropertiesEditor_Impl {
 		assert_nodeType(scratchProperty, AttachmentProperty.class);
 		((AttachmentProperty) scratchProperty).setPathogenName(type);
 	}
-
 	@Override
 	public String scratch_getPathogenType() throws EditorException {
-		// TODO Auto-generated method stub
-		return null;
+		assert_scratchExists();
+		assert_nodeType(scratchProperty, AttachmentProperty.class);
+		return ((AttachmentProperty) scratchProperty).getPathogenName();
 	}
-
-
+	@Override
+	public int layer_new(String name) throws EditorException {
+		int lid = super.layer_new(name);
+		
+		if(lid == edges.size()){
+			edges.add(new EdgeEditor(this, layers.get(lid)));
+		}
+		else if(lid < edges.size()){
+			edges.set(lid, new EdgeEditor(this, layers.get(lid)));
+		}
+		else {
+			layers.set(lid, null);
+			throw new EditorException("A layer was improperly added to the node settings, "
+					+ "and now a new layer cannot be properly added.");
+		}
+		return lid;
+	}
+	@Override
+	public PropertiesEditor layer_getEdgeEditor(int lid) throws EditorException{
+		assert_validLID(lid);
+		return edges.get(lid);
+	}
 }

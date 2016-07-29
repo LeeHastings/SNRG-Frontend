@@ -6,6 +6,9 @@ import java.util.Optional;
 
 import org.snrg_nyc.model.NodeEditor;
 import org.snrg_nyc.model.internal.EditorException;
+import org.snrg_nyc.ui.components.EditorWindow;
+import org.snrg_nyc.ui.components.EditorWindowBuilder;
+
 import javafx.application.Application;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
@@ -26,7 +29,8 @@ public class UI_Main extends Application{
 	@Override
 	public void start(Stage initStage){
 		//Creating the main page
-		mainWindow = new EditorWindow( new NodeEditor(), initStage, "Node Settings Editor");
+		mainWindow = new EditorWindowBuilder()
+				     .build( new NodeEditor(), initStage, "Node Settings Editor");
 		
 		//Add a toolbar to the window
 		MenuBar topMenu = new MenuBar();
@@ -145,7 +149,7 @@ public class UI_Main extends Application{
 	/**
 	 * Open a menu that asks if the user wants to quit.
 	 * Return true if they accept, otherwise false.
-	 * @return
+	 * @return If the program should exit.
 	 */
 	boolean shouldQuit(){
 		Optional<ButtonType> input = quitAlert.showAndWait();
@@ -172,11 +176,12 @@ public class UI_Main extends Application{
 		else {
 			pathogenWindows.add(pathogenID);
 			try{
-				EditorWindow w = new EditorWindow(
-					mainWindow.model().pathogen_getEditor(pathogenID),
-					new Stage(),
-					"Pathogen Editor: "+mainWindow.model().pathogen_getName(pathogenID)
-				);
+				EditorWindow w = new EditorWindowBuilder()
+					.build(
+						mainWindow.model().pathogen_getEditor(pathogenID),
+						new Stage(),
+						"Pathogen Editor: "+mainWindow.model().pathogen_getName(pathogenID)
+					);
 				w.stage().setOnCloseRequest(event->{
 					pathogenWindows.remove(pathogenWindows.indexOf(pathogenID));
 					pathogens.getSelectionModel().clearSelection();

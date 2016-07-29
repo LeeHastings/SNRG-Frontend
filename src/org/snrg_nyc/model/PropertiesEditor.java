@@ -943,6 +943,18 @@ public interface PropertiesEditor {
 	 * if a layer with the given name already exists.
 	 */
 	public void layer_setName(int lid, String name) throws EditorException;
+	
+	/**
+	 * Get the {@link PropertiesEditor} for the edge settings on the given layer.
+	 * This allows the user to edit the properties of the edge settings.
+	 * <p>
+	 * These are different from the layer properties in the node settings, which
+	 * are edited from this instance of the PropertiesEditor.
+	 * @param lid The ID of the layer to edit settings for
+	 * @throws EditorException Thrown if the layer ID is invalid.
+	 * @return A new {@link PropertiesEditor} linked to a layer's edge settings.
+	 */
+	public PropertiesEditor layer_getEdgeEditor(int lid) throws EditorException;
 
 }
 
