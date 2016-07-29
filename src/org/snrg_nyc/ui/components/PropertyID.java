@@ -18,6 +18,9 @@ public class PropertyID {
 		return pid;
 	}
 	public Integer lid(){
+		if(!lid.isPresent()){
+			throw new IllegalStateException("There is no layerID on this propertyID");
+		}
 		return lid.get();
 	}
 	public boolean usesLayer(){
