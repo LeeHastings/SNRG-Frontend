@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.snrg_nyc.model.PropertiesEditor;
 import org.snrg_nyc.model.internal.EditorException;
-import org.snrg_nyc.ui.EditorPage;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;

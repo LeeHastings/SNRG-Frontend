@@ -1,6 +1,7 @@
 package org.snrg_nyc.model;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -123,15 +124,23 @@ public class NodeEditor extends PropertiesEditor_Impl {
 		layers = nodeSettings.getLayerAttributesList();
 		properties = nodeSettings.getPropertyDefinitionList();
 		
-		for(String key : objects.keySet()){
+		loadDistributions(objects);
+		
+		Iterator<String> it = objects.keySet().iterator();
+		while(it.hasNext()){
+			String key = it.next();
 			if(objects.get(key) instanceof PathogenSettings){
 				PathogenSettings settings = (PathogenSettings) objects.get(key);
-				objects.remove(key);
+				it.remove();
 				PathogenEditor p = new PathogenEditor(this, settings, objects);
 				pathogens.add(p);
 			}
 		}
-		loadDistributions(objects);
+		//TODO validate all objects
+		validateLoadedObjects();
+		for(PathogenEditor p : pathogens){
+			p.validateLoadedObjects();
+		}
 	}
 
 	@Override

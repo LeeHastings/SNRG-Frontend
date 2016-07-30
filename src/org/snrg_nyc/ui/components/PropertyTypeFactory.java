@@ -1,7 +1,5 @@
 package org.snrg_nyc.ui.components;
 
-import org.snrg_nyc.ui.EditorPage;
-
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TableColumn;

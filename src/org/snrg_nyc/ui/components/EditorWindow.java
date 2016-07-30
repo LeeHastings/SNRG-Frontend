@@ -4,7 +4,6 @@ import java.util.Optional;
 
 import org.snrg_nyc.model.PropertiesEditor;
 import org.snrg_nyc.model.internal.EditorException;
-import org.snrg_nyc.ui.EditorPage;
 import org.snrg_nyc.ui.UI_Main;
 
 import javafx.beans.property.SimpleStringProperty;
@@ -91,7 +90,7 @@ public class EditorWindow extends BorderPane {
 		stage.setTitle(title);
 		editor = new EditorPage(this.model);
 		
-		editor.setPrefWidth(500);
+		editor.requireWidth(500);
 		scene = new Scene(this, 900, 600);
 		
 		leftMenu = new GridPane();
@@ -333,6 +332,7 @@ public class EditorWindow extends BorderPane {
 				Optional<String> expName = saveDialog.showAndWait();
 				if(expName.isPresent()){
 					try{
+						experimentName = expName.get();
 						model.save(expName.get());
 						editor().sendInfo("The experiment was saved as "+expName.get());
 					}

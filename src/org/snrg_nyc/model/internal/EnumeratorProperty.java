@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.snrg_nyc.model.internal.ValuesListProperty.ConditionalDistribution;
+import org.snrg_nyc.model.internal.ValuesListProperty.Distribution;
+
 
 public class EnumeratorProperty extends NodeProperty {
 	private static final long serialVersionUID = 1L;
@@ -28,7 +31,7 @@ public class EnumeratorProperty extends NodeProperty {
 	}
 	public int addRange(){
 		if(distributionsAreSet()){
-			throw new IllegalStateException("Cannot edit range labels once distributions are set");
+			throw new IllegalStateException(errorMessage+"Cannot edit range labels once distributions are set");
 		}
 		int len = values.size();
 		//Add new ranges into empty spots if available
@@ -47,7 +50,8 @@ public class EnumeratorProperty extends NodeProperty {
 			conDistributions = new ArrayList<>();
 		}
 		if(distType != DistType.UNIVARIAT){
-			throw new IllegalStateException("Cannot add conditional distributions to "
+			throw new IllegalStateException(errorMessage+
+					"Cannot add conditional distributions to "
 					+ "a distribution of type "+distType.toString());
 		}
 		int len = conDistributions.size();
@@ -78,8 +82,9 @@ public class EnumeratorProperty extends NodeProperty {
 	}
 	public void setConditionsOrder(List<Integer> order){
 		if(condOrder.size() != order.size()){
-			throw new IllegalArgumentException("The new conditions order "
-					+ "does not have the right number of distributions!");
+			throw new IllegalArgumentException(errorMessage+
+					"The new conditions order does not have "
+					+ "the right number of distributions!");
 		}
 		for(int cid : order){
 			if(!condOrder.contains(cid)){
@@ -93,7 +98,8 @@ public class EnumeratorProperty extends NodeProperty {
 	@Override
 	public void removeDependency(int pid){
 		if(distributionsAreSet()){
-			throw new IllegalStateException("Cannot edit dependencies once distributions are set");
+			throw new IllegalStateException(errorMessage+
+					"Cannot edit dependencies once distributions are set");
 		}
 		else {
 			super.removeDependency(pid);
@@ -102,7 +108,8 @@ public class EnumeratorProperty extends NodeProperty {
 	
 	public void removeRange(int rid){
 		if(distributionsAreSet()){
-			throw new IllegalStateException("Cannot edit range labels once distributions are set");
+			throw new IllegalStateException(errorMessage+
+					"Cannot edit range labels once distributions are set");
 		}
 		assert_validRID(rid);
 		values.set(rid, null);
@@ -121,12 +128,14 @@ public class EnumeratorProperty extends NodeProperty {
 	}
 	public void setRangeLabel(int rid, String label){
 		if(distributionsAreSet()){
-			throw new IllegalStateException("Cannot edit range labels once distributions are set");
+			throw new IllegalStateException(errorMessage+
+					"Cannot edit range labels once distributions are set");
 		}
 		assert_validRID(rid);
 		for(String s : values){
 			if(s != null && label.equals(s)){
-				throw new IllegalArgumentException("Duplicate Label: "+label);
+				throw new IllegalArgumentException(errorMessage+
+						"Duplicate Label: "+label);
 			}
 		}
 		values.set(rid, label);
@@ -166,7 +175,8 @@ public class EnumeratorProperty extends NodeProperty {
 	
 	public List<Integer> getConditionalDistributionIDs(){
 		if(distType != DistType.UNIVARIAT){
-			throw new IllegalStateException("No conditional distributions in a distribution"
+			throw new IllegalStateException(errorMessage+
+					"No conditional distributions in a distribution"
 					+ "of type "+distType.toString());
 		}
 		List<Integer> ls = new ArrayList<>();
@@ -188,7 +198,8 @@ public class EnumeratorProperty extends NodeProperty {
 	 */
 	public Map<Integer, Integer> getConDistributionConditions(int cid) throws IllegalArgumentException{
 		if(distType != DistType.UNIVARIAT){
-			throw new IllegalStateException("There are no conditional distributions in a uniform distribution");
+			throw new IllegalStateException(errorMessage+
+					"There are no conditional distributions in a uniform distribution");
 		}
 		assert_validCID(cid);
 		return conDistributions.get(cid).getConditions();
@@ -201,7 +212,8 @@ public class EnumeratorProperty extends NodeProperty {
 	 */
 	public Map<Integer, Float> getConDistributionProbMap(int cid) throws IllegalArgumentException{
 		if(distType != DistType.UNIVARIAT){
-			throw new IllegalStateException("There are no conditional distributions in a distribution"
+			throw new IllegalStateException(errorMessage+
+					"There are no conditional distributions in a distribution"
 					+ " of type "+distType.toString());
 		}
 		assert_validCID(cid);
@@ -221,7 +233,8 @@ public class EnumeratorProperty extends NodeProperty {
 	}
 	public void setDefaultDistribution(Distribution distribution){
 		if(distType != DistType.UNIVARIAT){
-			throw new IllegalStateException("There is no default distribution on a distribution of type "
+			throw new IllegalStateException(errorMessage+
+					"There is no default distribution on a distribution of type "
 					+distType.toString());
 		}
 		defaultDist = distribution;
@@ -234,11 +247,13 @@ public class EnumeratorProperty extends NodeProperty {
 	 */
 	public Map<Integer, Float> getDefaultDistribution() throws IllegalStateException{
 		if(distType != DistType.UNIVARIAT){
-			throw new IllegalStateException("There is no default distribution on a distribution of type "
+			throw new IllegalStateException(errorMessage+
+					"There is no default distribution on a distribution of type "
 					+distType.toString());
 		}
 		if(defaultDist == null){
-			throw new IllegalStateException("Default distribution was never set.!");
+			throw new IllegalStateException(errorMessage+
+					"Default distribution was never set.");
 		}
 		else {
 			return defaultDist.getProbabilities();
@@ -259,7 +274,8 @@ public class EnumeratorProperty extends NodeProperty {
 	}
 	public void printRangeItem(int rid) throws IllegalStateException{
 		if(!rangeIsSet(rid)){
-			throw new IllegalStateException("The range item with RID '"+rid+"' was not completely set!");
+			throw new IllegalStateException(errorMessage+
+					"The range item with RID '"+rid+"' was not completely set!");
 		}
 		System.out.println("Range Item "+rid);
 		System.out.println("\tLabel: "+getRangeLabel(rid));
@@ -276,7 +292,8 @@ public class EnumeratorProperty extends NodeProperty {
 	 */
 	protected void assert_validRID(int rid) throws IllegalArgumentException{
 		if (!validRID(rid)){
-			throw new IllegalArgumentException("Invalid Range Item ID: "+rid);
+			throw new IllegalArgumentException(errorMessage+
+					"Invalid Range Item ID: "+rid);
 		}
 	}
 	public boolean validRID(int rid){
@@ -289,17 +306,12 @@ public class EnumeratorProperty extends NodeProperty {
 	 */
 	protected void assert_validCID(int cid) throws IllegalArgumentException{
 		if(!(cid >= 0 && cid <=conDistributions.size() && conDistributions.get(cid)!= null)){
-			throw new IllegalArgumentException("Invalid Conditional Distribution ID: "+cid);
+			throw new IllegalArgumentException(errorMessage+
+					"Invalid Conditional Distribution ID: "+cid);
 		}
 	}
 	
-	/**
-	 * An internal method to sort range values.
-	 * @param rid1
-	 * @param rid2
-	 * @return See {@link Comparable#compareTo} for return value conventions.
-	 */
 	int compareRanges(int rid1, int rid2){
-		return 0;
+		return 0; //Never change them (sort by the order they're given)
 	}
 }

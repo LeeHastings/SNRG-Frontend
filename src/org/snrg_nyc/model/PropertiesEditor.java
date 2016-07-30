@@ -354,6 +354,23 @@ public interface PropertiesEditor {
 	public boolean nodeProp_isRangedProperty(int lid, int pid) throws EditorException;
 	
 	/**
+	 * Check if the distribution for a property is uniform
+	 * @param pid The property ID
+	 * @return If the property's distribution is uniform
+	 * @throws EditorException Thrown if the pid is invalid
+	 */
+	public boolean nodeProp_hasUniformDistribution(int pid) throws EditorException;
+	
+	/**
+	 * Check if the distribution for a property is uniform
+	 * @param lid The layer ID of the property
+	 * @param pid The property ID
+	 * @return If the property's distribution is uniform
+	 * @throws EditorException Thrown if the layer or property ID is invalid
+	 */
+	public boolean nodeProp_hasUniformDistribution(int lid, int pid) throws EditorException;
+	
+	/**
 	 * Get the pathogen type of an Attachment Property
 	 * @param pid The ID of the property
 	 * @return The pathogen type of the property

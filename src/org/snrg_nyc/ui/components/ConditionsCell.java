@@ -3,7 +3,6 @@ package org.snrg_nyc.ui.components;
 import java.util.Map.Entry;
 
 import org.snrg_nyc.model.PropertiesEditor;
-import org.snrg_nyc.ui.EditorPage;
 
 import javafx.collections.ObservableList;
 import javafx.scene.control.ListCell;

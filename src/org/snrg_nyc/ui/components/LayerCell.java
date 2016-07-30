@@ -2,8 +2,6 @@ package org.snrg_nyc.ui.components;
 
 import java.util.Optional;
 
-import org.snrg_nyc.ui.EditorPage;
-
 import javafx.scene.control.ListCell;
 
 public class LayerCell extends ListCell<Optional<Integer>> {

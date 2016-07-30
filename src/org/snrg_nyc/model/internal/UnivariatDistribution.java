@@ -155,7 +155,7 @@ public class UnivariatDistribution implements Transferable {
 					}
 					conds.put(pid,rid);
 				}
-				ep.addConditionalDistribution(new NodeProperty.ConditionalDistribution(conds, rangeProbs));
+				ep.addConditionalDistribution(new ValuesListProperty.ConditionalDistribution(conds, rangeProbs));
 			}
 			else {
 				if(distributions.indexOf(dist) != distributions.size()-1){
@@ -163,7 +163,7 @@ public class UnivariatDistribution implements Transferable {
 							"Found a default distribution before the end of the "
 							+ "distribution list in Univariat Distribution "+name);
 				}
-				ep.setDefaultDistribution(new NodeProperty.Distribution(rangeProbs));
+				ep.setDefaultDistribution(new ValuesListProperty.Distribution(rangeProbs));
 			}
 		}
 	}

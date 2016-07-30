@@ -1,10 +1,7 @@
 package org.snrg_nyc.model.internal;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import org.snrg_nyc.model.Transferable;
 
@@ -21,54 +18,13 @@ public abstract class NodeProperty implements Transferable {
 		UNIFORM,
 		UNIVARIAT
 	}
-	public static class Distribution {
-		protected Map<Integer, Float> probabilities;
-		
-		public Distribution(Map<Integer, Float> probabilities){
-			this.probabilities = new HashMap<>(probabilities);
-		}
-		
-		/** @return A copy of the probabilities map */
-		public Map<Integer, Float> getProbabilities() {
-			return new HashMap<>(probabilities);
-		}
-		
-		public void print(){
-			System.out.println("\tProbabilities");
-			for(Entry<Integer, Float> p : probabilities.entrySet()){
-				System.out.printf("\t\tValue: %d\tProbability: %.2f\n", p.getKey(), p.getValue());
-			}
-		}
-	}
-
-	public static class ConditionalDistribution extends Distribution{
-		private Map<Integer, Integer> conditions;
-		
-		public ConditionalDistribution(Map<Integer, Integer> conditions, Map<Integer, Float> probabilities){
-			super(probabilities);
-			this.conditions = new HashMap<>(conditions);
-		}
-		
-		/** @return A copy of the conditions map */
-		public Map<Integer, Integer> getConditions() {
-			return new HashMap<>(conditions);
-		}
-		
-		@Override
-		public void print(){
-			System.out.println("\tConditions: ");
-			for(Entry<Integer, Integer> c : conditions.entrySet()){
-				System.out.printf("\t\tProp ID: %d\tRange ID: %d\n", c.getKey(), c.getValue());
-			}
-			super.print();
-		}
-	}
 	
 	protected String name;
 	protected int dependencyLevel;
 	protected String description;
 	protected List<Integer> dependencies;
 	protected DistType distType;
+	protected String errorMessage;
 	
 	public NodeProperty(){
 		name = null;
@@ -79,6 +35,7 @@ public abstract class NodeProperty implements Transferable {
 	}
 	public NodeProperty(String name, String description){
 		this();
+		errorMessage = "Error in property '"+name+"': ";
 		setName(name);
 		setDescription(description);
 	}
@@ -88,15 +45,16 @@ public abstract class NodeProperty implements Transferable {
 	}
 	public void setName(String name){
 		if(name == null || name == ""){
-			throw new IllegalArgumentException("The name of a property cannot be empty or null");
+			throw new IllegalArgumentException(errorMessage+"The name of a property cannot be empty or null");
 		} 
 		else {
 			this.name = name;
+			errorMessage = "Error in property '"+name+"': ";
 		}
 	}
 	public void setDescription(String description){
 		if(description == null || description.equals("")){
-			throw new IllegalArgumentException("The description cannot be null or empty.");
+			throw new IllegalArgumentException(errorMessage+"The description cannot be null or empty.");
 		}
 		else {
 			this.description = description;
@@ -104,7 +62,7 @@ public abstract class NodeProperty implements Transferable {
 	}
 	public void setDependencyLevel(int dlvl){
 		if(dlvl < 0){
-			throw new IllegalArgumentException("The dependency level cannot be negative: "+dlvl);
+			throw new IllegalArgumentException(errorMessage+"The dependency level cannot be negative: "+dlvl);
 		}
 		else {
 			dependencyLevel = dlvl;
@@ -130,7 +88,7 @@ public abstract class NodeProperty implements Transferable {
 	public void addDependency(int pid){
 		if(dependencies.contains(pid)){
 			throw new IllegalArgumentException(
-					"Duplicate dependency ID '"+pid+"' in property '"+name+"'.");
+					errorMessage+"Duplicate dependency ID '"+pid+"' in property '"+name+"'.");
 		}
 		else {
 			dependencies.add(pid);
@@ -140,7 +98,7 @@ public abstract class NodeProperty implements Transferable {
 	public void removeDependency(int pid){
 		if(!dependencies.contains(pid)){
 			throw new IllegalArgumentException(
-					"Tried to delete nonexistant dependency ID'"+pid+"' from property '"+name+"'.");
+					errorMessage+"Tried to delete nonexistant dependency ID'"+pid+"' from property '"+name+"'.");
 		}
 		else {
 			dependencies.remove(new Integer(pid));
