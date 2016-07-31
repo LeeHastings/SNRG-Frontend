@@ -1,6 +1,7 @@
 package org.snrg_nyc.model;
 
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +44,8 @@ public class NodeEditor extends PropertiesEditor_Impl {
 	 * Methods *
 	\*         */
 	
-	public NodeEditor(){
+	public 
+	NodeEditor(){
 		super();
 		pathogens = new ArrayList<>();
 		edges = new ArrayList<>();
@@ -51,13 +53,15 @@ public class NodeEditor extends PropertiesEditor_Impl {
 		nodeSettings.setPropertyDefinitionList(properties);
 	}
 	
-	private void assert_validPathogenID(int pathID) throws EditorException{
+	private void 
+	assert_validPathogenID(int pathID) throws EditorException{
 		if(pathID < 0 || pathID >= pathogens.size() || pathogens.get(pathID) == null){
 			throw new EditorException("Invalid pathogen ID: "+pathID);
 		}
 	}
 	
-	private int pathogen_create(String name) throws EditorException {
+	private int 
+	pathogen_create(String name) throws EditorException {
 		for(PathogenEditor p : pathogens){
 			if(p != null && p.getPathogen().equals(name)){
 				throw new EditorException("Duplicate pathogen name: "+name);
@@ -68,7 +72,8 @@ public class NodeEditor extends PropertiesEditor_Impl {
 	}
 	
 	@Override
-	public void save(String experimentName) throws EditorException {
+	public void 
+	save(String experimentName) throws EditorException {
 		Map<String, Transferable> e = getSavedObjects();
 		
 		try {
@@ -79,7 +84,8 @@ public class NodeEditor extends PropertiesEditor_Impl {
 	}
 	
 	@Override
-	public int scratch_commit() throws EditorException{
+	public int 
+	scratch_commit() throws EditorException{
 		if(scratchProperty instanceof AttachmentProperty){
 			AttachmentProperty ap = (AttachmentProperty) scratchProperty;
 			int pathID = pathogen_create(ap.getPathogenName());
@@ -88,11 +94,13 @@ public class NodeEditor extends PropertiesEditor_Impl {
 		return super.scratch_commit();
 	}
 	@Override
-	protected Class<?>[] getPropertyClasses() {
+	protected Class<?>[] 
+	getPropertyClasses() {
 		return nodePropertyTypes;
 	}
 	@Override
-	public Map<String, Transferable > getSavedObjects() throws EditorException{
+	public Map<String, Transferable > 
+	getSavedObjects() throws EditorException{
 		Map<String, Transferable> map = super.getSavedObjects();
 		map.put("nodesettings", nodeSettings);
 		for(PathogenEditor p : pathogens){
@@ -101,7 +109,8 @@ public class NodeEditor extends PropertiesEditor_Impl {
 		return map;
 	}
 	@Override 
-	public void clear(){
+	public void 
+	clear(){
 		super.clear();
 		for(PathogenEditor p : pathogens){
 			if(p != null){
@@ -112,7 +121,8 @@ public class NodeEditor extends PropertiesEditor_Impl {
 	}
 	
 	@Override
-	public void load(String experimentName) throws EditorException {
+	public void 
+	load(String experimentName) throws EditorException {
 		Map<String, Transferable> objects = deserializeExperiment(experimentName);
 		System.out.println("Found map:\n"+objects.toString());
 		if(!objects.containsKey("nodesettings")){
@@ -128,12 +138,18 @@ public class NodeEditor extends PropertiesEditor_Impl {
 		
 		Iterator<String> it = objects.keySet().iterator();
 		while(it.hasNext()){
-			String key = it.next();
-			if(objects.get(key) instanceof PathogenSettings){
-				PathogenSettings settings = (PathogenSettings) objects.get(key);
-				it.remove();
-				PathogenEditor p = new PathogenEditor(this, settings, objects);
-				pathogens.add(p);
+			try{
+				String key = it.next();
+				if(objects.get(key) instanceof PathogenSettings){
+					PathogenSettings settings = (PathogenSettings) objects.get(key);
+					it.remove();
+					PathogenEditor p = new PathogenEditor(this, settings, objects);
+					pathogens.add(p);
+				}
+			}
+			catch (ConcurrentModificationException e){
+				System.out.println("Concurrent modification");
+				break;
 			}
 		}
 		//TODO validate all objects
@@ -144,7 +160,8 @@ public class NodeEditor extends PropertiesEditor_Impl {
 	}
 
 	@Override
-	public boolean test_nodePropNameIsUnique(String name) {
+	public boolean 
+	test_nodePropNameIsUnique(String name) {
 		for(PathogenEditor path : pathogens){
 			if(path != null && !path.uniquePropName(name)){
 				return false;
@@ -159,7 +176,8 @@ public class NodeEditor extends PropertiesEditor_Impl {
 	}
 
 	@Override
-	public PropertiesEditor pathogen_getEditor(int pathID) throws EditorException {
+	public PropertiesEditor 
+	pathogen_getEditor(int pathID) throws EditorException {
 		assert_validPathogenID(pathID);
 		return pathogens.get(pathID);
 	}

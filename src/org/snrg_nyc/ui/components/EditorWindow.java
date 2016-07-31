@@ -6,6 +6,7 @@ import org.snrg_nyc.model.PropertiesEditor;
 import org.snrg_nyc.model.internal.EditorException;
 import org.snrg_nyc.ui.UI_Main;
 
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -81,7 +82,7 @@ public class EditorWindow extends BorderPane {
 	 * @param initStage The javaFX {@link Stage} to show the window on.
 	 * @param title The title of the new window.
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked" })
 	EditorWindow(PropertiesEditor model, Stage initStage, String title, 
 			boolean enableToolbar, boolean enableLayers, boolean enablePathogens, boolean enableEdges)
 	{
@@ -154,12 +155,12 @@ public class EditorWindow extends BorderPane {
 			layerSelect.setCellFactory(lv->new LayerCell(editor));
 			layerSelect.setButtonCell(new LayerCell(editor));
 			layerSelect.setItems(layers);
-			
 			layers.add(Optional.empty());
 			
 			for(int i : this.model.layer_getLayerIDs()){
 				layers.add(Optional.of(i));
 			}
+			layerSelect.getSelectionModel().selectFirst();
 			
 			layerSelect.valueProperty().addListener((o, oldVal, newVal)->{
 				if(newVal != null && newVal.isPresent()){
@@ -317,6 +318,7 @@ public class EditorWindow extends BorderPane {
 			quit.setOnAction(event-> {
 				if(shouldQuit()){
 					stage.close();
+					Platform.exit();
 				}
 			});
 			
@@ -368,6 +370,9 @@ public class EditorWindow extends BorderPane {
 			stage.setOnCloseRequest(event->{
 				if(!shouldQuit()){
 					event.consume();
+				}
+				else {
+					Platform.exit();
 				}
 			} );
 		} //Endif for toolbar

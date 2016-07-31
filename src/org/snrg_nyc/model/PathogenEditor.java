@@ -63,6 +63,7 @@ public class PathogenEditor extends PropertiesEditor_Impl{
 			Map<String, Transferable> objects) throws EditorException
 	{
 		super();
+		this.parent = parent;
 		pathSettings = settings;
 		layers = settings.getLayerAttributesList();
 		properties = settings.getPropertyDefinitionList();
@@ -77,9 +78,11 @@ public class PathogenEditor extends PropertiesEditor_Impl{
 		map.put("pathogensettings_"+pathSettings.getName(), pathSettings);
 		return map;
 	}
-
 	@Override
 	public boolean test_nodePropNameIsUnique(String name) {
+		if(parent == null){
+			System.err.println("Pathogen Editor for "+getPathogen()+" has a null parent!");
+		}
 		return parent.test_nodePropNameIsUnique(name);
 	}
 

@@ -100,7 +100,8 @@ public class PropertyJsonAdapter implements JsonSerializer<NodeProperty>, JsonDe
 				try {
 					nodeProp = (NodeProperty) propClass.newInstance();
 				} catch (Exception e) {
-					throw new JsonParseException("Undefined class: "+propClass.getName());
+					e.printStackTrace();
+					throw new JsonParseException("Error while making class: "+e.toString());
 				}
 				break;
 			}

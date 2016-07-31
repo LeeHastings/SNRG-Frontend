@@ -7,6 +7,8 @@ import java.util.Map;
 
 import org.snrg_nyc.model.PropertiesEditor;
 import org.snrg_nyc.model.Transferable;
+import org.snrg_nyc.model.internal.ValuesListProperty.ConditionalDistribution;
+import org.snrg_nyc.model.internal.ValuesListProperty.Distribution;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -17,7 +19,7 @@ import com.google.gson.annotations.SerializedName;
  */
 public class UnivariatDistribution implements Transferable {
 	private static final long serialVersionUID = 1L;
-	class Condition{
+	static class Condition{
 		String Name;
 		String Value;
 		
@@ -26,7 +28,7 @@ public class UnivariatDistribution implements Transferable {
 			Value = v;
 		}
 	}
-	class ValuePair{
+	static class ValuePair{
 		String Label;
 		Float Value;
 		
@@ -60,66 +62,78 @@ public class UnivariatDistribution implements Transferable {
 	@SerializedName("DependencyDistributionList")
 	List<DistributionList> distributions;
 	
-	public UnivariatDistribution(PropertiesEditor ui, NodeProperty np) throws EditorException{
+	public 
+	UnivariatDistribution(PropertiesEditor ui, NodeProperty np) 
+			throws EditorException
+	{
 	
 		if(np.getDistributionType() != NodeProperty.DistType.UNIVARIAT){
 			throw new IllegalArgumentException(
-					"Cannot make a univariat distribution for a property with a "
-					+np.getDistributionType().name()+" distribution.");
+					"Cannot make a univariat distribution for a property "
+					+ "with a "+np.getDistributionType().name()
+					+" distribution.");
 		}
 		
 		propName = np.getName();
 		name = np.getDistributionID();
 		distributions = new ArrayList<>();
-		EnumeratorProperty ep = (EnumeratorProperty) np;
+		ValuesListProperty<?> vlp = (ValuesListProperty<?>) np;
 
 		
-		for(int i : ep.getOrderedConditions()){
+		for(int i : vlp.getOrderedConditions()){
 			List<Condition> conds = new ArrayList<>();
 			List<ValuePair> pairs = new ArrayList<>();
 			
 			for(Map.Entry<Integer, Integer> idPair : 
-				ep.getConDistributionConditions(i).entrySet()
+				vlp.getConDistributionConditions(i).entrySet()
 			){
 				conds.add(new Condition(
-						ui.nodeProp_getName(idPair.getKey()),
-						ui.nodeProp_getRangeLabel(idPair.getKey(), idPair.getValue())) 
-						);
+					ui.nodeProp_getName(idPair.getKey()),
+					ui.nodeProp_getRangeLabel(
+							idPair.getKey(), idPair.getValue())) 
+					);
 			}
 			
 			for(Map.Entry<Integer, Float> probPair : 
-				ep.getConDistributionProbMap(i).entrySet()
+				vlp.getConDistributionProbMap(i).entrySet()
 			){
 				pairs.add(new ValuePair(
-						ep.getRangeLabel(probPair.getKey()), probPair.getValue())
-						);
+					vlp.getRangeLabel(probPair.getKey()), probPair.getValue())
+					);
 			}
 			distributions.add(new ConditionalDistList(pairs, conds));
 		}
+		
 		List<ValuePair> pairs = new ArrayList<>();
-		for(Map.Entry<Integer, Float> keyPair : ep.getDefaultDistribution().entrySet()){
+		
+		for(Map.Entry<Integer, Float> keyPair : 
+			vlp.getDefaultDistribution().entrySet())
+		{
 			pairs.add(new ValuePair(
-					ep.getRangeLabel(keyPair.getKey()), keyPair.getValue())
+					vlp.getRangeLabel(keyPair.getKey()), keyPair.getValue())
 					);
 		}
 		distributions.add(new DistributionList(pairs));
 	}
 
-	public void addToProperty(PropertiesEditor ui, NodeProperty np) throws EditorException{
+	public void 
+	addToProperty(PropertiesEditor ui, NodeProperty np) throws EditorException{
 		if(!np.getName().equals(propName)){
-			throw new IllegalArgumentException("This distribution is for property '"+propName
+			throw new IllegalArgumentException(
+					"This distribution is for property '"+propName
 					+"', tried to bind it to property '"+np.getName()+"'");
 		}
 		
-		EnumeratorProperty ep;
+		ValuesListProperty<?> vlp;
 		
-		if(np instanceof EnumeratorProperty){
-			ep = (EnumeratorProperty) np;
+		if(np instanceof ValuesListProperty){
+			vlp = (ValuesListProperty<?>) np;
 		}
 		else {
-			throw new IllegalArgumentException("The given property must be able to use distributions!");
+			throw new IllegalArgumentException(
+					"The given property must be able to use distributions!");
 		}
-		ep.setDistributionType(NodeProperty.DistType.UNIVARIAT);
+		vlp.setDistributionType(NodeProperty.DistType.UNIVARIAT);
 		
 		Map<Integer, Integer> conds = new HashMap<>();
 		Map<Integer, Float> rangeProbs = new HashMap<>();
@@ -129,10 +143,11 @@ public class UnivariatDistribution implements Transferable {
 			rangeProbs.clear();
 			
 			for(ValuePair pair : dist.values){
-				Integer rid = ep.getRangeWithLabel(pair.Label);
+				Integer rid = vlp.getRangeWithLabel(pair.Label);
 				if(rid == null){
-					throw new IllegalArgumentException("No range with label '"+pair.Label
-							+"' in node property '"+ep.getName()+"'");
+					throw new IllegalArgumentException("No range with label '"
+							+pair.Label
+							+"' in node property '"+vlp.getName()+"'");
 				}
 				rangeProbs.put(rid, pair.Value);
 			}
@@ -140,48 +155,61 @@ public class UnivariatDistribution implements Transferable {
 				ConditionalDistList cDist = (ConditionalDistList) dist;
 				for(Condition c : cDist.conditions){
 					Integer pid = ui.search_nodePropWithName(c.Name);
-					if(!ep.dependsOn(pid)){
-						ep.addDependency(pid);
+					if(!vlp.dependsOn(pid)){
+						vlp.addDependency(pid);
 					}
 					if(pid == null){
 						throw new IllegalArgumentException(
-								"There is no property with the given name: "+c.Name);
+								"There is no property with the given name: "
+								+c.Name);
 					}
 					Integer rid = ui.search_rangeWithLabel(pid, c.Value);
 					if(rid == null){
 						throw new IllegalArgumentException(
-								"There is no range named '"+c.Value+"'in the property '"
+								"There is no range named '"
+								+c.Value+"'in the property '"
 								+c.Name+"'");
 					}
 					conds.put(pid,rid);
 				}
-				ep.addConditionalDistribution(new ValuesListProperty.ConditionalDistribution(conds, rangeProbs));
+				vlp.addConditionalDistribution(
+						new ConditionalDistribution(conds, rangeProbs));
 			}
 			else {
 				if(distributions.indexOf(dist) != distributions.size()-1){
 					throw new IllegalArgumentException(
-							"Found a default distribution before the end of the "
-							+ "distribution list in Univariat Distribution "+name);
+							"Found a default distribution before the end of "
+							+"the distribution list in Univariat Distribution "
+							+ name);
 				}
-				ep.setDefaultDistribution(new ValuesListProperty.Distribution(rangeProbs));
+				vlp.setDefaultDistribution(new Distribution(rangeProbs));
 			}
 		}
 	}
-	public static long getSerialversionuid() {
+	
+	public static long 
+	getSerialversionuid() {
 		return serialVersionUID;
 	}
-	public String getName() {
+	
+	public String 
+	getName() {
 		return name;
 	}
-	public String getPropName() {
+	
+	public String 
+	getPropName() {
 		return propName;
 	}
-	public List<DistributionList> getDistributions() {
+	
+	public List<DistributionList> 
+	getDistributions() {
 		return distributions;
 	}
 
 	@Override
-	public String getObjectID() {
+	public String 
+	getObjectID() {
 		return name;
 	}
 	

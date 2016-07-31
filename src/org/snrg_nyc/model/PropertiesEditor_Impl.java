@@ -11,7 +11,6 @@ import java.util.Map.Entry;
 import org.snrg_nyc.model.internal.AttachmentProperty;
 import org.snrg_nyc.model.internal.DistributionJsonAdapter;
 import org.snrg_nyc.model.internal.EditorException;
-import org.snrg_nyc.model.internal.EnumeratorProperty;
 import org.snrg_nyc.model.internal.FractionProperty;
 import org.snrg_nyc.model.internal.IntegerRangeProperty;
 import org.snrg_nyc.model.internal.NodeLayer;
@@ -21,6 +20,7 @@ import org.snrg_nyc.model.internal.PropertyJsonAdapter;
 import org.snrg_nyc.model.internal.UnivariatDistribution;
 import org.snrg_nyc.model.internal.ValuesListProperty;
 import org.snrg_nyc.model.internal.ValuesListProperty.ConditionalDistribution;
+import org.snrg_nyc.model.internal.ValuesListProperty.Distribution;
 import org.snrg_nyc.persistence.ExperimentSerializer;
 import org.snrg_nyc.persistence.PersistenceException;
 import org.snrg_nyc.persistence.JsonFileSerializer;
@@ -96,8 +96,8 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 				continue;
 			}
 			for(NodeProperty np : l.getProperties()){
-				if(np != null && np instanceof EnumeratorProperty
-				   && ((EnumeratorProperty) np).getDistributionType() 
+				if(np != null && np instanceof ValuesListProperty
+				   && ((ValuesListProperty<?>) np).getDistributionType() 
 				      == NodeProperty.DistType.UNIVARIAT
 				){
 					UnivariatDistribution u = 
@@ -107,8 +107,8 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 			}
 		}
 		for(NodeProperty np : properties){
-			if(np != null && np instanceof EnumeratorProperty
-			   && ((EnumeratorProperty) np).getDistributionType() 
+			if(np != null && np instanceof ValuesListProperty
+			   && ((ValuesListProperty<?>) np).getDistributionType() 
 			      == NodeProperty.DistType.UNIVARIAT
 			){
 				UnivariatDistribution u = new UnivariatDistribution(this,np);
@@ -154,7 +154,7 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 					else{
 						System.out.println(
 								"Warning: no property found for distribution '"
-								+uniD.getName()+"'");
+								+uniD.getName()+"' in "+this.getClass().getSimpleName());
 					}
 				}
 				else {
@@ -172,8 +172,8 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	protected void 
 	validateLoadedObjects() throws EditorException {
 		for(NodeProperty p : properties){
-			if(p instanceof EnumeratorProperty){
-				EnumeratorProperty en = (EnumeratorProperty)p;
+			if(p instanceof ValuesListProperty){
+				ValuesListProperty<?> en = (ValuesListProperty<?>)p;
 				if(en.getDistributionType() == DistType.UNIVARIAT){
 					en.getDefaultDistribution();
 				}
@@ -271,33 +271,33 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 			throws EditorException
 	{
 		assert_scratchExists();
-		assert_nodeType(scratchProperty, EnumeratorProperty.class);
+		assert_nodeType(scratchProperty, ValuesListProperty.class);
 		
 		if(dependencyConditions.isEmpty()){
 			throw new EditorException(
 					"The set of dependency conditions cannot be empty!");
 		}
-		EnumeratorProperty enm = null;
+		ValuesListProperty<?> vlp = null;
 		for(Integer pid: dependencyConditions.keySet()){
 			if(pid == null || dependencyConditions.get(pid) == null){
 				throw new EditorException("Error in new dependency conditions:"
 						+ " some values are null");
 			}
 			assert_validPID(pid);
-			assert_nodeType(properties.get(pid), EnumeratorProperty.class);
+			assert_nodeType(properties.get(pid), ValuesListProperty.class);
 			if(!scratchProperty.dependsOn(pid)){
 				throw new EditorException(
 						"Error while adding conditional distribution: "
 						+ "tried to use property ID '"+pid+"' as a dependency,"
 						+ " but it is not in the list of dependencies.");
 			}
-			enm = ((EnumeratorProperty) properties.get(pid));
+			vlp = ((ValuesListProperty<?>) properties.get(pid));
 			
-			if(!enm.validRID(dependencyConditions.get(pid)) ){ 
+			if(!vlp.validRID(dependencyConditions.get(pid)) ){ 
 				String msg = String.format(
 						"Error while adding conditional distribution: "
 						+ "range ID '%d' was not found in property '%s'",
-						dependencyConditions.get(pid), enm.getName());
+						dependencyConditions.get(pid), vlp.getName());
 				throw new EditorException(msg);
 			}
 		}
@@ -316,7 +316,7 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	private void 
 	assert_probMap(Map<Integer, Float> probabilities) throws EditorException{
 		assert_scratchExists();
-		assert_nodeType(scratchProperty, EnumeratorProperty.class);
+		assert_nodeType(scratchProperty, ValuesListProperty.class);
 		for(Entry<Integer, Float> entry : probabilities.entrySet()){
 			if(entry.getValue() == null || entry.getKey() == null){
 				throw new EditorException("Error while adding distribution:"
@@ -330,8 +330,8 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 			}
 		}
 		
-		EnumeratorProperty ens = ((EnumeratorProperty) scratchProperty);
-		List<Integer> rangeIDs = ens.getUnSortedRangeIDs();
+		ValuesListProperty<?> vlp = ((ValuesListProperty<?>) scratchProperty);
+		List<Integer> rangeIDs = vlp.getUnSortedRangeIDs();
 		
 		if(probabilities.size() > rangeIDs.size()){
 			throw new EditorException("Error while adding distribution: "
@@ -342,22 +342,29 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 			if(!probabilities.containsKey(rid)){
 				throw new EditorException("Error while adding distribution:"
 					+ " probability map is missing the range ID for range '"
-						+ens.getRangeLabel(rid)+"'.");
+						+vlp.getRangeLabel(rid)+"'.");
 			}
 		}
 	}
 	
 	void 
 	assert_noConditionals() throws EditorException{
-		assert_nodeType(scratchProperty, EnumeratorProperty.class);
+		assert_nodeType(scratchProperty, ValuesListProperty.class);
 		
-		if( ((EnumeratorProperty)scratchProperty).distributionsAreSet() ){
+		if( ((ValuesListProperty<?>)scratchProperty).distributionsAreSet() ){
 			throw new EditorException("Tried to modify range labels of a "
 					+ "property with distributions.");
 		}
 	}
 	
-
+	/**
+	 * An internal method for checking if a property name is unique solely 
+	 * against the internal properties of this editor (rather than its parent
+	 *  or children editors)
+	 * @param name The name to compare the other properties against
+	 * @return True if the name is unique (there is no property with this name)
+	 * , otherwise false.
+	 */
 	protected boolean 
 	uniquePropName(String name){
 		for(NodeProperty p : properties){
@@ -453,16 +460,16 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	public List<Integer> 
 	nodeProp_getRangeItemIDs(int pid) throws EditorException {
 		assert_validPID(pid);
-		assert_nodeType(properties.get(pid), EnumeratorProperty.class);
-		return ((EnumeratorProperty) properties.get(pid)).getSortedRangeIDs();
+		assert_nodeType(properties.get(pid), ValuesListProperty.class);
+		return ((ValuesListProperty<?>) properties.get(pid)).getSortedRangeIDs();
 	}
 
 	@Override
 	public String 
 	nodeProp_getRangeLabel(int pid, int rid) throws EditorException {
 		assert_validPID(pid);
-		assert_nodeType(properties.get(pid), EnumeratorProperty.class);
-		return ((EnumeratorProperty) properties.get(pid)).getRangeLabel(rid);
+		assert_nodeType(properties.get(pid), ValuesListProperty.class);
+		return ((ValuesListProperty<?>) properties.get(pid)).getRangeLabel(rid);
 	}
 
 	@Override
@@ -573,16 +580,16 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	public boolean 
 	nodeProp_isRangedProperty(int pid) throws EditorException {
 		assert_validPID(pid);
-		return (properties.get(pid) instanceof EnumeratorProperty);
+		return (properties.get(pid) instanceof ValuesListProperty);
 	}
 	
 	@Override
 	public List<Integer> 
 	nodeProp_getConditionalDistributionIDs(int pid) throws EditorException {
 		assert_validPID(pid);
-		assert_nodeType(properties.get(pid), EnumeratorProperty.class);
+		assert_nodeType(properties.get(pid), ValuesListProperty.class);
 		
-		return ((EnumeratorProperty) properties.get(pid))
+		return ((ValuesListProperty<?>) properties.get(pid))
 				.getOrderedConditions();
 	}
 
@@ -590,8 +597,8 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	public Map<Integer, Integer> 
 	nodeProp_getDistributionConditions(int pid,int cid) throws EditorException{
 		assert_validPID(pid);
-		assert_nodeType(properties.get(pid), EnumeratorProperty.class);
-		return ((EnumeratorProperty) properties.get(pid))
+		assert_nodeType(properties.get(pid), ValuesListProperty.class);
+		return ((ValuesListProperty<?>) properties.get(pid))
 				.getConDistributionConditions(cid);
 	}
 
@@ -599,8 +606,8 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	public Map<Integer, Float> 
 	nodeProp_getDistribution(int pid, int cid) throws EditorException {
 		assert_validPID(pid);
-		assert_nodeType(properties.get(pid), EnumeratorProperty.class);
-		return ((EnumeratorProperty) properties.get(pid))
+		assert_nodeType(properties.get(pid), ValuesListProperty.class);
+		return ((ValuesListProperty<?>) properties.get(pid))
 				.getConDistributionProbMap(cid);
 	}
 
@@ -608,15 +615,15 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	public Map<Integer, Float> 
 	nodeProp_getDefaultDistribution(int pid) throws EditorException {
 		assert_validPID(pid);
-		assert_nodeType(properties.get(pid), EnumeratorProperty.class);
+		assert_nodeType(properties.get(pid), ValuesListProperty.class);
 		
-		if(!((EnumeratorProperty) properties.get(pid))
+		if(!((ValuesListProperty<?>) properties.get(pid))
 				.hasDefaultDistribution())
 		{
 			throw new EditorException("The default distribution for property '"
 					+properties.get(pid).getName()+"' was not set");
 		}
-		return ((EnumeratorProperty) properties.get(pid))
+		return ((ValuesListProperty<?>) properties.get(pid))
 				.getDefaultDistribution();
 	}
 	
@@ -632,8 +639,8 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	nodeProp_getRangeItemIDs(int lid, int pid) throws EditorException {
 		assert_validPID(lid, pid);
 		NodeProperty np = layers.get(lid).getProperty(pid);
-		assert_nodeType(np, EnumeratorProperty.class);
-		return ((EnumeratorProperty) np).getSortedRangeIDs();
+		assert_nodeType(np, ValuesListProperty.class);
+		return ((ValuesListProperty<?>) np).getSortedRangeIDs();
 	}
 
 	@Override
@@ -641,8 +648,8 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	nodeProp_getRangeLabel(int lid, int pid, int rid) throws EditorException {
 		assert_validPID(lid, pid);
 		NodeProperty np = layers.get(lid).getProperty(pid);
-		assert_nodeType(np, EnumeratorProperty.class);
-		return ((EnumeratorProperty) np).getRangeLabel(rid);
+		assert_nodeType(np, ValuesListProperty.class);
+		return ((ValuesListProperty<?>) np).getRangeLabel(rid);
 	}
 
 	@Override
@@ -704,8 +711,8 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	nodeProp_getDefaultDistribution(int lid, int pid) throws EditorException {
 		assert_validPID(lid, pid);
 		NodeProperty np = layers.get(lid).getProperty(pid);
-		assert_nodeType(np, EnumeratorProperty.class);
-		return ((EnumeratorProperty) np).getDefaultDistribution();
+		assert_nodeType(np, ValuesListProperty.class);
+		return ((ValuesListProperty<?>) np).getDefaultDistribution();
 	}
 	
 	@Override
@@ -722,8 +729,8 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	{
 		assert_validPID(lid, pid);
 		NodeProperty np = layers.get(lid).getProperty(pid);
-		assert_nodeType(np, EnumeratorProperty.class);
-		return ((EnumeratorProperty) np).getOrderedConditions();
+		assert_nodeType(np, ValuesListProperty.class);
+		return ((ValuesListProperty<?>) np).getOrderedConditions();
 	}
 
 	@Override
@@ -733,8 +740,8 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	{
 		assert_validPID(lid, pid);
 		NodeProperty np = layers.get(lid).getProperty(pid);
-		assert_nodeType(np, EnumeratorProperty.class);
-		return((EnumeratorProperty) np).getConDistributionConditions(cid);
+		assert_nodeType(np, ValuesListProperty.class);
+		return((ValuesListProperty<?>) np).getConDistributionConditions(cid);
 	}
 
 	@Override
@@ -742,8 +749,8 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	nodeProp_getDistribution(int lid, int pid, int cid) throws EditorException{
 		assert_validPID(lid, pid);
 		NodeProperty np = layers.get(lid).getProperty(pid);
-		assert_nodeType(np, EnumeratorProperty.class);
-		return ((EnumeratorProperty) np).getConDistributionProbMap(cid);
+		assert_nodeType(np, ValuesListProperty.class);
+		return ((ValuesListProperty<?>) np).getConDistributionProbMap(cid);
 	}
 	
 	@Override 
@@ -780,6 +787,7 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 							(NodeProperty) con.newInstance(name, description);
 				}
 				catch(Exception e){
+					e.printStackTrace();
 					throw new EditorException(e.toString());
 				}
 				break;
@@ -817,8 +825,8 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	public void 
 	scratch_setDependencyLevel(int level) throws EditorException {
 		assert_scratchExists();
-		if(scratchProperty instanceof EnumeratorProperty 
-			&& ((EnumeratorProperty) scratchProperty).dependenciesAreSet())
+		if(scratchProperty instanceof ValuesListProperty 
+			&& ((ValuesListProperty<?>) scratchProperty).dependenciesAreSet())
 		{
 			throw new EditorException(
 					"Cannot change dependency level once dependencies "
@@ -835,14 +843,14 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	scratch_addRange() throws EditorException {
 		assert_scratchExists();
 		assert_noConditionals();
-		return ((EnumeratorProperty) scratchProperty).addRange();
+		return ((ValuesListProperty<?>) scratchProperty).addRange();
 	}
 	
 	@Override
 	public int 
 	scratch_addRange(String label) throws EditorException{
 		int rid = scratch_addRange();
-		((EnumeratorProperty) scratchProperty).setRangeLabel(rid, label);
+		((ValuesListProperty<?>) scratchProperty).setRangeLabel(rid, label);
 		return rid;
 	}
 	
@@ -851,23 +859,23 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	scratch_removeRange(int rid) throws EditorException {
 		assert_scratchExists();
 		assert_noConditionals();
-		((EnumeratorProperty) scratchProperty).removeRange(rid);
+		((ValuesListProperty<?>) scratchProperty).removeRange(rid);
 	}
 	
 	@Override
 	public List<Integer> 
 	scratch_getRangeIDs() throws EditorException {
 		assert_scratchExists();
-		assert_nodeType(scratchProperty, EnumeratorProperty.class);
-		return ((EnumeratorProperty) scratchProperty).getSortedRangeIDs();
+		assert_nodeType(scratchProperty, ValuesListProperty.class);
+		return ((ValuesListProperty<?>) scratchProperty).getSortedRangeIDs();
 	}
 	
 	@Override
 	public String 
 	scratch_getRangeLabel(int rid) throws EditorException {
 		assert_scratchExists();
-		assert_nodeType(scratchProperty, EnumeratorProperty.class);
-		return ((EnumeratorProperty) scratchProperty).getRangeLabel(rid);
+		assert_nodeType(scratchProperty, ValuesListProperty.class);
+		return ((ValuesListProperty<?>) scratchProperty).getRangeLabel(rid);
 	}
 
 	@Override
@@ -875,7 +883,7 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	scratch_setRangeLabel(int rid, String label) throws EditorException {
 		assert_scratchExists();
 		assert_noConditionals();
-		((EnumeratorProperty) scratchProperty).setRangeLabel(rid, label);
+		((ValuesListProperty<?>) scratchProperty).setRangeLabel(rid, label);
 	}
 
 	@Override
@@ -908,8 +916,8 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	public boolean 
 	scratch_rangeIsSet(int rid) throws EditorException{
 		assert_scratchExists();
-		assert_nodeType(scratchProperty, EnumeratorProperty.class);
-		EnumeratorProperty enm = ((EnumeratorProperty) scratchProperty);
+		assert_nodeType(scratchProperty, ValuesListProperty.class);
+		ValuesListProperty<?> enm = ((ValuesListProperty<?>) scratchProperty);
 		if(!enm.validRID(rid)){
 			throw new EditorException("Invalid range ID: "+rid);
 		}
@@ -962,8 +970,8 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	public void 
 	scratch_useUniformDistribution() throws EditorException{
 		assert_scratchExists();
-		assert_nodeType(scratchProperty, EnumeratorProperty.class);
-		((EnumeratorProperty) scratchProperty).useUniformDistribution();
+		assert_nodeType(scratchProperty, ValuesListProperty.class);
+		((ValuesListProperty<?>) scratchProperty).useUniformDistribution();
 		scratchProperty.setDependencyLevel(0);
 	}
 
@@ -987,7 +995,7 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 		for(int pid : nodeProp_getPropertyIDs()){
 			if(properties.get(pid).getDependencyLevel() 
 					< scratchProperty.getDependencyLevel() 
-					&& properties.get(pid) instanceof EnumeratorProperty){
+					&& properties.get(pid) instanceof ValuesListProperty){
 				deps.add(pid);
 			}
 		}
@@ -1023,8 +1031,8 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	scratch_removeDependency(int pid) throws EditorException {
 		assert_scratchExists();
 		assert_validPID(pid);
-		if(scratchProperty instanceof EnumeratorProperty 
-			&& ((EnumeratorProperty) scratchProperty).distributionsAreSet())
+		if(scratchProperty instanceof ValuesListProperty 
+			&& ((ValuesListProperty<?>) scratchProperty).distributionsAreSet())
 		{
 			throw new EditorException(
 					"Cannot remove dependencies if distributions are set.");
@@ -1051,11 +1059,11 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 			throws EditorException 
 	{
 		assert_scratchExists();
-		assert_nodeType(scratchProperty, EnumeratorProperty.class);
+		assert_nodeType(scratchProperty, ValuesListProperty.class);
 		assert_depConds(dependencyConditions);
 		assert_probMap(probabilities);
 		
-		return ((EnumeratorProperty) scratchProperty)
+		return ((ValuesListProperty<?>) scratchProperty)
 				.addConditionalDistribution(
 				new ConditionalDistribution(
 						dependencyConditions, probabilities)
@@ -1067,8 +1075,8 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	public void 
 	scratch_removeConditionalDistribution(int cid) throws EditorException {
 		assert_scratchExists();
-		assert_nodeType(scratchProperty, EnumeratorProperty.class);
-		((EnumeratorProperty) scratchProperty)
+		assert_nodeType(scratchProperty, ValuesListProperty.class);
+		((ValuesListProperty<?>) scratchProperty)
 		.removeConditionalDistribution(cid);
 	}
 	
@@ -1077,8 +1085,8 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	scratch_clearDistributions(){
 		try {
 			assert_scratchExists();
-			assert_nodeType(scratchProperty, EnumeratorProperty.class);
-			((EnumeratorProperty) scratchProperty)
+			assert_nodeType(scratchProperty, ValuesListProperty.class);
+			((ValuesListProperty<?>) scratchProperty)
 			.getConditionalDistributions().clear();
 		} catch (EditorException e) {
 			//The only caught exception, 
@@ -1097,11 +1105,11 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 			throws EditorException 
 	{	
 		assert_scratchExists();
-		assert_nodeType(scratchProperty, EnumeratorProperty.class);
+		assert_nodeType(scratchProperty, ValuesListProperty.class);
 		assert_depConds(dependencyConditions);
 		assert_probMap(probabilities);
 		
-		((EnumeratorProperty) scratchProperty)
+		((ValuesListProperty<?>) scratchProperty)
 		.setConditionalDistribution(
 			cid, 
 			new ConditionalDistribution(dependencyConditions, probabilities));
@@ -1113,8 +1121,8 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 			throws EditorException 
 	{
 		assert_scratchExists();
-		assert_nodeType(scratchProperty, EnumeratorProperty.class);
-		((EnumeratorProperty) scratchProperty).setConditionsOrder(ordering);
+		assert_nodeType(scratchProperty, ValuesListProperty.class);
+		((ValuesListProperty<?>) scratchProperty).setConditionsOrder(ordering);
 	}
 
 	@Override
@@ -1123,8 +1131,8 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 			throws EditorException 
 	{
 		assert_probMap(distribution);
-		((EnumeratorProperty) scratchProperty).setDefaultDistribution(
-				new ValuesListProperty.Distribution(distribution));
+		((ValuesListProperty<?>) scratchProperty).setDefaultDistribution(
+				new Distribution(distribution));
 	}
 
 	@Override
@@ -1146,18 +1154,20 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 						+ " as an existing property: "+np.getName());
 			}
 		}
-		if(scratchProperty instanceof EnumeratorProperty){
-			EnumeratorProperty ep = (EnumeratorProperty)scratchProperty;
-			if( !ep.hasDefaultDistribution() && ep.getDistributionType() 
+		if(scratchProperty instanceof ValuesListProperty){
+			ValuesListProperty<?> vlp = (ValuesListProperty<?>)scratchProperty;
+			
+			if( !vlp.hasDefaultDistribution() && vlp.getDistributionType() 
 					== NodeProperty.DistType.UNIVARIAT )
 			{
 				throw new EditorException("Tried to add a scratch property "
 						+ "without a default distribution.");
 			}
-			if(ep instanceof IntegerRangeProperty){
-				for (int i :ep.getUnSortedRangeIDs()){
-					if( !ep.rangeIsSet(i) ){
-						throw new EditorException("Range '"+ep.getRangeLabel(i)
+			
+			if(vlp instanceof IntegerRangeProperty){
+				for (int i :vlp.getUnSortedRangeIDs() ){
+					if( !vlp.rangeIsSet(i) ){
+						throw new EditorException("Range '"+vlp.getRangeLabel(i)
 						+"' in the scratch property was not properly set");
 					}
 				}
@@ -1214,8 +1224,8 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	public List<Integer> 
 	scratch_getConditionalDistributionIDs() throws EditorException {
 		assert_scratchExists();
-		assert_nodeType(scratchProperty, EnumeratorProperty.class);
-		return ((EnumeratorProperty)scratchProperty)
+		assert_nodeType(scratchProperty, ValuesListProperty.class);
+		return ((ValuesListProperty<?>)scratchProperty)
 				.getConditionalDistributionIDs();
 	}
 
@@ -1223,8 +1233,8 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	public Map<Integer, Integer> 
 	scratch_getDistributionCondition(int cid) throws EditorException {
 		assert_scratchExists();
-		assert_nodeType(scratchProperty, EnumeratorProperty.class);
-		return ((EnumeratorProperty) scratchProperty)
+		assert_nodeType(scratchProperty, ValuesListProperty.class);
+		return ((ValuesListProperty<?>) scratchProperty)
 				.getConDistributionConditions(cid);
 	}
 
@@ -1232,8 +1242,8 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	public Map<Integer, Float> 
 	scratch_getDistribution(int cid) throws EditorException {
 		assert_scratchExists();
-		assert_nodeType(scratchProperty, EnumeratorProperty.class);
-		return ((EnumeratorProperty) scratchProperty)
+		assert_nodeType(scratchProperty, ValuesListProperty.class);
+		return ((ValuesListProperty<?>) scratchProperty)
 				.getConDistributionProbMap(cid);
 	}
 
@@ -1241,15 +1251,15 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	public Map<Integer, Float> 
 	scratch_getDefaultDistribution() throws EditorException {
 		assert_scratchExists();
-		assert_nodeType(scratchProperty, EnumeratorProperty.class);
-		return ((EnumeratorProperty) scratchProperty).getDefaultDistribution();
+		assert_nodeType(scratchProperty, ValuesListProperty.class);
+		return ((ValuesListProperty<?>) scratchProperty).getDefaultDistribution();
 	}
 
 	@Override
 	public boolean 
 	scratch_isRangedProperty() throws EditorException {
 		assert_scratchExists();
-		return (scratchProperty instanceof EnumeratorProperty);
+		return (scratchProperty instanceof ValuesListProperty);
 	}
 
 	/*                     *\
@@ -1332,9 +1342,9 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	public Integer 
 	search_rangeWithLabel(int pid, String label) throws EditorException {
 		assert_validPID(pid);
-		assert_nodeType(properties.get(pid), EnumeratorProperty.class);
+		assert_nodeType(properties.get(pid), ValuesListProperty.class);
 		
-		EnumeratorProperty en = (EnumeratorProperty) properties.get(pid);
+		ValuesListProperty<?> en = (ValuesListProperty<?>) properties.get(pid);
 		
 		for(int i:en.getUnSortedRangeIDs()){
 			if(en.getRangeLabel(i).equals(label)){

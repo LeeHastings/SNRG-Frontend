@@ -868,26 +868,30 @@ public class EditorPage extends GridPane{
 			for(int i: model.layer_getLayerIDs()){
 				layerSelect.getItems().add(Optional.of(i));
 			}
+			layerSelect.getSelectionModel().selectFirst();
 			
 			add(new Label("Name"), 0, 2);
-			add(new Label("Type"), 0, 3);
-			add(new Label("Description"), 0, 4);
-			add(new Label("Layer"), 0, 6);
+			add(new Label("Layer"), 0, 3);
+			add(new Label("Type"), 0, 4);
+			add(new Label("Description"), 0, 5);
 			
 			add(propName, 1, 2);
-			add(type, 1, 3);
-			add(desc, 1, 4, 1, 2);
-			add(layerSelect, 1, 6);
+			add(layerSelect, 1, 3);
+			add(type, 1, 4);
+			add(desc, 1, 5, 1, 2);
 			
 			checkNext = () -> {
 				nextBtn.setDisable(
 						type.getValue() == null 
 						|| propName.getText() == null
-						|| propName.getText().equals("") 
+						|| propName.getText().length() == 0 
 						|| !model.test_nodePropNameIsUnique(propName.getText())
 						|| desc.getText() == null
-						|| desc.getText().equals("")
+						|| desc.getText().length() == 0
 				);
+				if(!model.test_nodePropNameIsUnique(propName.getText())){
+					sendWarning("Property name already exists: "+propName.getText());
+				}
 			};
 			
 			desc.textProperty().addListener(e -> checkNext.run() );
