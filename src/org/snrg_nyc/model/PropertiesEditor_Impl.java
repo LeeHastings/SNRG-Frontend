@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.snrg_nyc.model.internal.AttachmentProperty;
+import org.snrg_nyc.model.internal.BooleanProperty;
 import org.snrg_nyc.model.internal.DistributionJsonAdapter;
 import org.snrg_nyc.model.internal.EditorException;
 import org.snrg_nyc.model.internal.FractionProperty;
@@ -195,7 +196,7 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 		}
 	}
 	
-	private void 
+	protected void 
 	assert_validPID(int lid, int pid) throws EditorException{
 		assert_validLID(lid);
 		if(!layers.get(lid).validPID(pid)){
@@ -515,7 +516,7 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 
 	@Override
 	public float 
-	nodeProp_getInitValue(int pid) throws EditorException {
+	nodeProp_getFractionInitValue(int pid) throws EditorException {
 		assert_validPID(pid);
 		assert_nodeType(properties.get(pid), FractionProperty.class);
 		
@@ -529,7 +530,7 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 
 	@Override
 	public float 
-	nodeProp_getInitValue(int lid, int pid) throws EditorException {
+	nodeProp_getFractionInitValue(int lid, int pid) throws EditorException {
 		assert_validPID(lid, pid);
 		assert_nodeType(
 				layers.get(lid).getProperty(pid), FractionProperty.class);
@@ -542,6 +543,37 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 					"' in layer '"+lid+"'");
 		}
 		return fp.getInitValue();
+	}
+	
+	@Override
+	public boolean 
+	nodeProp_getBooleanInitValue(int pid) throws EditorException {
+		assert_validPID(pid);
+		assert_nodeType(properties.get(pid), BooleanProperty.class);
+		
+		BooleanProperty bp = (BooleanProperty) properties.get(pid);
+		if(!bp.hasInitValue()){
+			throw new EditorException(
+					"No initial value for boolean property '"+pid+"'" );
+		}
+		return bp.getInitValue();
+	}
+
+	@Override
+	public boolean 
+	nodeProp_getBooleanInitValue(int lid, int pid) throws EditorException {
+		assert_validPID(lid, pid);
+		assert_nodeType(
+				layers.get(lid).getProperty(pid), BooleanProperty.class);
+		BooleanProperty bp = 
+				(BooleanProperty) layers.get(lid).getProperty(pid);
+		
+		if(!bp.hasInitValue()){
+			throw new EditorException(
+					"No initial value for boolean property '"+pid+
+					"' in layer '"+lid+"'");
+		}
+		return bp.getInitValue();
 	}
 	
 	@Override
@@ -941,7 +973,7 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 
 	@Override
 	public float 
-	scratch_getInitValue() throws EditorException {
+	scratch_getFractionInitValue() throws EditorException {
 		assert_scratchExists();
 		assert_nodeType(scratchProperty, FractionProperty.class);
 		if( !((FractionProperty) scratchProperty).hasInitValue() ){
@@ -952,6 +984,19 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 			return ((FractionProperty) scratchProperty).getInitValue();
 		}
 	}
+	@Override
+	public boolean scratch_getBooleanInitValue() throws EditorException {
+		assert_scratchExists();
+		assert_nodeType(scratchProperty, FractionProperty.class);
+		if( !((BooleanProperty) scratchProperty).hasInitValue() ){
+			throw new EditorException(
+					"Initial value for the scratch property has not been set");
+		}
+		else {
+			return ((BooleanProperty) scratchProperty).getInitValue();
+		}
+	}
+
 
 	@Override
 	public void 
@@ -962,6 +1007,13 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 		scratchProperty.setDependencyLevel(0);
 	}
 
+	@Override
+	public void scratch_setBooleanInitValue(boolean init) throws EditorException {
+		assert_scratchExists();
+		assert_nodeType(scratchProperty, BooleanProperty.class);
+		((BooleanProperty) scratchProperty).setInitValue(init);
+		
+	}
 	@Override
 	public void 
 	scratch_setFractionInitValue(float init) throws EditorException {
@@ -1370,6 +1422,10 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	@Override
 	public List<Integer> 
 	pathogen_getPathogenIDs() throws EditorException {
+		throw new EditorException(noPathogensMsg);
+	}
+	@Override
+	public int nodeProp_getPathogenID(int lid, int pid) throws EditorException {
 		throw new EditorException(noPathogensMsg);
 	}
 

@@ -85,7 +85,6 @@ class PathogenEditor extends PropertiesEditor_Impl{
 		}
 		return parent.test_nodePropNameIsUnique(name);
 	}
-
 }
 	
 	

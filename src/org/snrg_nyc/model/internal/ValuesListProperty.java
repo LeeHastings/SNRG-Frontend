@@ -78,6 +78,7 @@ public abstract class ValuesListProperty<T extends ListValue> extends NodeProper
 		defaultDist=null;
 		distType = DistType.UNIVARIAT;
 		values = new ArrayList<>();
+		ids = new ArrayList<>();
 		valueFactory = factory;
 	}
 	

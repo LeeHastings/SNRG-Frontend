@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 
 import org.snrg_nyc.model.PropertiesEditor;
+import org.snrg_nyc.model.PropertyReader;
 import org.snrg_nyc.model.internal.EditorException;
 
 import javafx.beans.property.BooleanProperty;
@@ -267,7 +268,7 @@ public class EditorPage extends GridPane{
 	private void propertyViewerPage(){
 		title.setText("Node Property Viewer");
 		cancel.setText("Exit");
-		PropertyID id = propViewerID;
+		PropertyReader prop = new UI_PropertyReader(model,propViewerID);
 		
 		nextBtn.setOnMouseClicked(event->{
 			pageNumber++;
@@ -280,18 +281,10 @@ public class EditorPage extends GridPane{
 		boolean uniformDist = false;
 		
 		try{
-			if(id.usesLayer()){
-				propType = model.nodeProp_getType(id.lid(), id.pid());
-				depLvl = model.nodeProp_getDependencyLevel(id.lid(), id.pid());
-				propName = model.nodeProp_getName(id.lid(), id.pid());
-				uniformDist = model.nodeProp_hasUniformDistribution(id.lid(), id.pid());
-			}
-			else {
-				propType = model.nodeProp_getType(id.pid());
-				depLvl = model.nodeProp_getDependencyLevel(id.pid());
-				propName = model.nodeProp_getName(id.pid());
-				uniformDist = model.nodeProp_hasUniformDistribution(id.pid());
-			}
+			propType = prop.type();
+			depLvl = prop.dependencyLevel();
+			propName = prop.name();
+			uniformDist = prop.uniformDistribution();
 		}
 		catch(Exception e){
 			sendError(e);
@@ -301,12 +294,7 @@ public class EditorPage extends GridPane{
 		case 0:
 			
 			try {
-				if(id.usesLayer()){
-					nextBtn.setDisable(!model.nodeProp_isRangedProperty(id.lid(), id.pid()));
-				}
-				else {
-					nextBtn.setDisable(!model.nodeProp_isRangedProperty(id.pid()));
-				}
+				nextBtn.setDisable(!prop.isRanged());
 			} catch (EditorException e1) {
 				sendError(e1);
 			}
@@ -323,12 +311,7 @@ public class EditorPage extends GridPane{
 			description=new Text();
 			description.setWrappingWidth(w);
 			try{
-				if(id.usesLayer()){
-					description.setText(model.nodeProp_getDescription(id.lid(), id.pid()));
-				}
-				else {
-					description.setText(model.nodeProp_getDescription(id.pid()));
-				}
+				description.setText(prop.description());
 			}
 			catch(Exception e){
 				sendError(e);
@@ -338,12 +321,6 @@ public class EditorPage extends GridPane{
 			dependencyLevel=new Text();
 			dependencyLevel.setWrappingWidth(w);
 			try{
-				if(id.usesLayer()){
-					depLvl = model.nodeProp_getDependencyLevel(id.lid(), id.pid());
-				}
-				else {
-					depLvl = model.nodeProp_getDependencyLevel(id.pid());
-				}
 				dependencyLevel.setText(Integer.toString(depLvl));
 			}
 			catch(Exception e){
@@ -379,13 +356,7 @@ public class EditorPage extends GridPane{
 				
 				String depString = "";
 				try{
-					List<Integer> deps;
-					if(id.usesLayer()){
-						deps = model.nodeProp_getDependencyIDs(id.lid(), id.pid());
-					}
-					else{
-						deps = model.nodeProp_getDependencyIDs(id.pid());
-					}
+					List<Integer> deps = prop.dependencies();
 					if(deps.size() == 0){
 						depString = "(None)";
 					}
@@ -408,14 +379,7 @@ public class EditorPage extends GridPane{
 			case "AttachmentProperty":
 				Text pathogenType = new Text();
 				try {
-					if(id.usesLayer()){
-						pathogenType.setText(
-								model.nodeProp_getPathogenType(id.lid(), id.pid()));
-					}
-					else {
-						pathogenType.setText(
-								model.nodeProp_getPathogenType(id.pid()));
-					}
+					pathogenType.setText(prop.pathogenType());
 				}
 				catch(EditorException e){
 					pathogenType.setText(">ERROR<");
@@ -427,12 +391,7 @@ public class EditorPage extends GridPane{
 				break;
 			case "EnumeratorProperty":
 				try {
-					if(id.usesLayer()){
-						rangeIDs = model.nodeProp_getRangeItemIDs(id.lid(),id.pid());
-					}
-					else {
-						rangeIDs = model.nodeProp_getRangeItemIDs(id.pid());
-					}
+					rangeIDs = prop.rangeIDs();
 				}
 				catch(Exception e){
 					sendError(e);
@@ -443,16 +402,9 @@ public class EditorPage extends GridPane{
 				
 				for(int rid : rangeIDs){
 					try {
-						if(id.usesLayer()){
-							enumValues.getItems().add(
-								model.nodeProp_getRangeLabel(id.lid(), id.pid(), rid));
-						}
-						else {
-							enumValues.getItems().add(
-								model.nodeProp_getRangeLabel(id.pid(), rid));
-						}
-						
-					} catch (EditorException e) {
+						enumValues.getItems().add(prop.rangeLabel(rid));
+					} 
+					catch (EditorException e) {
 						sendError(e);
 						enumValues.getItems().add(">ERROR<");
 					}
@@ -464,12 +416,7 @@ public class EditorPage extends GridPane{
 				
 			case "IntegerRangeProperty":
 				try {
-					if(id.usesLayer()){
-						rangeIDs = model.nodeProp_getRangeItemIDs(id.lid(),id.pid());
-					}
-					else {
-						rangeIDs = model.nodeProp_getRangeItemIDs(id.pid());
-					}
+					rangeIDs = prop.rangeIDs();
 				}
 				catch(Exception e){
 					sendError(e);
@@ -487,15 +434,7 @@ public class EditorPage extends GridPane{
 				labelCol.setCellValueFactory(col->{
 					int rid = col.getValue();
 					try{
-						if(id.usesLayer()){
-							return new SimpleStringProperty(
-									model.nodeProp_getRangeLabel(id.lid(), id.pid(), rid));
-						}
-						else {
-							return new SimpleStringProperty(
-									model.nodeProp_getRangeLabel(id.pid(), rid));
-						}
-						
+						return new SimpleStringProperty(prop.rangeLabel(rid));
 					}
 					catch(Exception e){
 						sendError(e);
@@ -505,13 +444,7 @@ public class EditorPage extends GridPane{
 				minCol.setCellValueFactory(col->{
 					int rid = col.getValue();
 					try {
-						int min;
-						if(id.usesLayer()){
-							min = model.nodeProp_getRangeMin(id.lid(), id.pid(), rid);
-						}
-						else {
-							min = model.nodeProp_getRangeMin(id.pid(), rid);
-						}
+						int min = prop.rangeMin(rid);
 						return new SimpleStringProperty(Integer.toString(min));
 					} catch (Exception e) {
 						sendError(e);
@@ -521,13 +454,7 @@ public class EditorPage extends GridPane{
 				maxCol.setCellValueFactory(col->{
 					int rid = col.getValue();
 					try{
-						int max;
-						if(id.usesLayer()){
-							max = model.nodeProp_getRangeMax(id.lid(), id.pid(), rid);
-						}
-						else {
-							max = model.nodeProp_getRangeMax(id.pid(), rid);
-						}
+						int max = prop.rangeMax(rid);
 						return new SimpleStringProperty(Integer.toString(max));
 					}
 					catch(Exception e){
@@ -549,18 +476,17 @@ public class EditorPage extends GridPane{
 				add(rangeItems, 1, 8, 3, 2);
 				
 				break;
+			case "BooleanProperty": 
 			case "FractionProperty":
 				add(new Label("Init Value"), 0, 8);
-				String initVal;
+				String initVal = null;
 				try{
-					float init;
-					if(id.usesLayer()){
-						init = model.nodeProp_getInitValue(id.lid(), id.pid());
+					if(propType.equals("BooleanProperty")){
+						initVal = Boolean.toString(prop.initBool());
 					}
-					else {
-						init = model.nodeProp_getInitValue(id.pid());
+					else if(propType.equals("FractionProperty")){
+						initVal = Float.toString(prop.initFraction());
 					}
-					initVal = Float.toString(init);
 				}
 				catch(Exception e){
 					sendError(e);
@@ -588,12 +514,7 @@ public class EditorPage extends GridPane{
 			
 			try {
 				if(depLvl > 0){
-					if(id.usesLayer()){
-						cids.addAll(model.nodeProp_getConditionalDistributionIDs(id.lid(), id.pid()) );
-					}
-					else {
-						cids.addAll(model.nodeProp_getConditionalDistributionIDs(id.pid()) );
-					}
+					cids.addAll(prop.distributionIDs());
 					hasDistributions = !cids.isEmpty();
 				}
 				else {
@@ -684,14 +605,7 @@ public class EditorPage extends GridPane{
 				rangeCol.setCellValueFactory(col->{
 					int rid = col.getValue().getKey();
 					try{
-						if(id.usesLayer()){
-							return new SimpleStringProperty(
-									model.nodeProp_getRangeLabel(id.lid(),id.pid(), rid));
-						}
-						else {
-							return new SimpleStringProperty(
-									model.nodeProp_getRangeLabel(id.pid(), rid));
-						}
+						return new SimpleStringProperty(prop.rangeLabel(rid));
 					}
 					catch(Exception e){
 						sendError(e);
@@ -724,15 +638,8 @@ public class EditorPage extends GridPane{
 					
 					conditions.getItems().clear();
 					try {
-						if(id.usesLayer()){
-							conditions.getItems().addAll(
-								model.nodeProp_getDistributionConditions(
-									id.lid(), id.pid(), cid).entrySet());
-						}
-						else {
-							conditions.getItems().addAll(
-								model.nodeProp_getDistributionConditions(id.pid(), cid).entrySet());
-						}
+						conditions.getItems().addAll(
+								prop.distributionConditions(cid).entrySet());
 					} 
 					catch (EditorException e) {
 						sendError(e);
@@ -740,15 +647,10 @@ public class EditorPage extends GridPane{
 					
 					distribution.getItems().clear();
 					try {
-						if(id.usesLayer()){
-							distribution.getItems().addAll(
-								model.nodeProp_getDistribution(id.lid(),id.pid(), cid).entrySet());
-						}
-						else {
-							distribution.getItems().addAll(
-									model.nodeProp_getDistribution(id.pid(), cid).entrySet());
-						}
-					} catch (EditorException e) {
+						distribution.getItems().addAll(
+								prop.distributionMap(cid).entrySet());
+					} 
+					catch (EditorException e) {
 						sendError(e);
 					}
 					
@@ -796,14 +698,7 @@ public class EditorPage extends GridPane{
 			rangeCol.setCellValueFactory(col->{
 				int rid = col.getValue().getKey();
 				try {
-					if(id.usesLayer()){
-						return new SimpleStringProperty(
-								model.nodeProp_getRangeLabel(id.lid(), id.pid(), rid));
-					}
-					else {
-						return new SimpleStringProperty(
-								model.nodeProp_getRangeLabel(id.pid(), rid));
-					}
+					return new SimpleStringProperty(prop.rangeLabel(rid));
 				} 
 				catch (Exception e) {
 					sendError(e);
@@ -818,16 +713,9 @@ public class EditorPage extends GridPane{
 			centering.getChildren().add(distribution);
 			
 			try {
-				if(id.usesLayer()){
-					distribution.getItems().addAll(
-							model.nodeProp_getDefaultDistribution(id.lid(), id.pid()).entrySet());
-				}
-				else {
-					distribution.getItems().addAll(
-							model.nodeProp_getDefaultDistribution(id.pid()).entrySet());
-				}
-				
-			} catch (EditorException e) {
+				distribution.getItems().addAll(prop.defaultDistribution().entrySet());
+			} 
+			catch (EditorException e) {
 				sendError(e);
 			}
 			add(new Label("Default Distribution"), 0, row++);
@@ -1278,7 +1166,7 @@ public class EditorPage extends GridPane{
 				});
 				
 				break;
-			case "BooleanProperty":
+			case "BooleanRangeProperty":
 				nextBtn.setDisable(false);
 				break;
 			case "AttachmentProperty":

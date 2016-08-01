@@ -247,6 +247,16 @@ public interface PropertiesEditor {
 	public int nodeProp_getPathogenID(int pid) throws EditorException;
 	
 	/**
+	 * Get the pathogen ID for an attachment property
+	 * @param lid The layer ID
+	 * @param pid The Property ID
+	 * @return The pathogen ID
+	 * @throws EditorException Thrown if the layer or pathogen ID is invalid,
+	 * or if the property is not an attachment property
+	 */
+	public int nodeProp_getPathogenID(int lid, int pid) throws EditorException;
+	
+	/**
 	 * Get the type of a node property.
 	 * @param pid The ID of the node property, should be from {@link PropertiesEditor#nodeProp_getPropertyIDs()}
 	 * @return The type of the property as a string.
@@ -287,16 +297,35 @@ public interface PropertiesEditor {
 	 * @return The intitial value which the fraction property was set to use.
 	 * @throws EditorException Thrown if the PID is not valid, or if the property is not a fraction property.
 	 */
-	public float nodeProp_getInitValue(int pid) throws EditorException;
+	public float nodeProp_getFractionInitValue(int pid) throws EditorException;
 	/**
-	 * Identical to {@link PropertiesEditor#nodeProp_getInitValue(int)}, but for layer properties.
+	 * Identical to {@link PropertiesEditor#nodeProp_getFractionInitValue(int)}, but for layer properties.
 	 * @param lid The node layer ID, from {@link PropertiesEditor#layer_getLayerIDs()}
 	 * @param pid The property ID, from {@link PropertiesEditor#nodeProp_getPropertyIDs(int)}
 	 * @return The initial value the fractional property was set to use.
 	 * @throws EditorException Thrown if the LID or PID is invalid, or if the given property
 	 * is not a fraction property.
 	 */
-	public float nodeProp_getInitValue(int lid, int pid) throws EditorException;
+	public float nodeProp_getFractionInitValue(int lid, int pid) throws EditorException;
+	
+	/**
+	 * Get the initial value on a boolean property
+	 * @param pid The ID of the property
+	 * @return The value the property was set to
+	 * @throws EditorException Thrown id the PID is invalid or if the given
+	 * property is not a boolean property.
+	 */
+	public boolean nodeProp_getBooleanInitValue(int pid) throws EditorException;
+	
+	/**
+	 * Get the initial value on a boolean property
+	 * @param lid The layer ID
+	 * @param pid The property ID in the layer
+	 * @return The value the property was set to
+	 * @throws EditorException Thrown id the LID or PID is invalid, or if the
+	 * given property is not a boolean property.
+	 */
+	public boolean nodeProp_getBooleanInitValue(int lid, int pid) throws EditorException;
 	
 	/**
 	 * Get a node property's description
@@ -692,19 +721,37 @@ public interface PropertiesEditor {
 	 * @throws EditorException Thrown if the scratch object is not a fraction property, 
 	 * or if the intitial value has not been set.
 	 */
-	public float scratch_getInitValue() throws EditorException;
+	public float scratch_getFractionInitValue() throws EditorException;
 	
 	/**
-	 * Get a list of node property IDs with dependency levels strictly less than the scratch property's
-	 * dependency level.
-	 * <p> Note that the property IDs given are in the <i>base properties</i>.  Layer properties
-	 * cannot currently be used as dependencies.
-	 * @return A list of integer property IDs
-	 * @throws EditorException Thrown if the scratch property's dependency level has not been set
-	 * , or if the scratch property is currently null, which means
-	 * {@link PropertiesEditor#scratch_new(String, String, String)} needs to be called.
+	 * Set the initial value for a boolean property
+	 * @param init The value to use for the property
+	 * @throws EditorException Thrown if the scratch property is not a boolean 
+	 * property
 	 */
-	public List<Integer> scratch_getPotentialDependencies() throws EditorException;
+	public void scratch_setBooleanInitValue(boolean init) throws EditorException;
+	
+	/**
+	 * Get the initial value for a boolean property
+	 * @return The initial value
+	 * @throws EditorException Thrown if the scratch property is not a boolean
+	 *  property, or if the initial value was not set
+	 */
+	public boolean scratch_getBooleanInitValue() throws EditorException;
+	
+	/**
+	 * Get a list of node property IDs with dependency levels strictly less 
+	 * than the scratch property's dependency level.
+	 * <p> Note that the property IDs given are in the <i>base properties</i>.
+	 * Layer properties cannot currently be used as dependencies.
+	 * @return A list of integer property IDs
+	 * @throws EditorException Thrown if the scratch property's dependency 
+	 * level has not been set, or if the scratch property is currently null, 
+	 * which means {@link PropertiesEditor#scratch_new(String, String, String)}
+	 * needs to be called.
+	 */
+	public List<Integer> 
+	scratch_getPotentialDependencies() throws EditorException;
 	
 	/**
 	 * Add a node property as a dependency to the scratch node property.

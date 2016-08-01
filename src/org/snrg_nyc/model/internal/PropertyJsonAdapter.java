@@ -60,7 +60,7 @@ public class PropertyJsonAdapter implements JsonSerializer<NodeProperty>, JsonDe
 				ranges.add(rangeJs);
 			}
 		}
-		else if(nodeProp instanceof BooleanProperty){
+		else if(nodeProp instanceof BooleanRangeProperty){
 			if(nodeProp instanceof AttachmentProperty){
 				innerJs.addProperty(pathogenLabel, ((AttachmentProperty)nodeProp).getPathogenName() );
 			}
@@ -75,10 +75,10 @@ public class PropertyJsonAdapter implements JsonSerializer<NodeProperty>, JsonDe
 				values.add( new JsonPrimitive(en.getRangeLabel(i)) );
 			}
 		}
-		else if(nodeProp instanceof FractionProperty){
+		else if(nodeProp instanceof ValueProperty){
 			innerJs.addProperty(
 					initValLabel, 
-					((FractionProperty) nodeProp).getInitValue());
+					((ValueProperty<?>) nodeProp).getInitValue().toString());
 		}
 		innerJs.addProperty(distIDLabel, nodeProp.getDistributionID());
 		return propertyJs;
@@ -94,9 +94,8 @@ public class PropertyJsonAdapter implements JsonSerializer<NodeProperty>, JsonDe
 		
 		for(Class<?> propClass : propertyTypes){
 			if(nodePropJs.has(propClass.getSimpleName())){
-				innerJs = nodePropJs
-						             .get(propClass.getSimpleName())
-						             .getAsJsonObject();
+				innerJs = nodePropJs.get(propClass.getSimpleName())
+									.getAsJsonObject();
 				try {
 					nodeProp = (NodeProperty) propClass.newInstance();
 				} catch (Exception e) {
@@ -108,7 +107,7 @@ public class PropertyJsonAdapter implements JsonSerializer<NodeProperty>, JsonDe
 		}
 		if(nodeProp == null || innerJs == null){
 			throw new JsonParseException(
-					"The given property was not in the list of known property types: "+innerJs);
+					"The given property was not in the list of known property types: "+nodePropJs);
 		}
 		nodeProp.setName(innerJs.get(nameLabel).getAsString());
 		nodeProp.setDescription(innerJs.get(descLabel).getAsString());
@@ -126,7 +125,7 @@ public class PropertyJsonAdapter implements JsonSerializer<NodeProperty>, JsonDe
 				irp.setRangeMax(rid, range.get("Max").getAsInt());
 			}
 		}
-		else if(nodeProp instanceof BooleanProperty){
+		else if(nodeProp instanceof BooleanRangeProperty){
 			if(nodeProp instanceof AttachmentProperty){
 				((AttachmentProperty) nodeProp).setPathogenName(innerJs.get(pathogenLabel).getAsString());
 			}

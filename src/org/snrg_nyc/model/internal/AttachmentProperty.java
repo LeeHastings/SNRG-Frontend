@@ -1,6 +1,6 @@
 package org.snrg_nyc.model.internal;
 
-public class AttachmentProperty extends BooleanProperty {
+public class AttachmentProperty extends BooleanRangeProperty {
 	private static final long serialVersionUID = 1L;
 	
 	private int pathogenID;	

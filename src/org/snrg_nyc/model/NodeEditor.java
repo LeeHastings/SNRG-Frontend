@@ -215,26 +215,40 @@ public class NodeEditor extends PropertiesEditor_Impl {
 	}
 
 	@Override
-	public String pathogen_getName(int pathID) throws EditorException {
+	public String 
+	pathogen_getName(int pathID) throws EditorException {
 		assert_validPathogenID(pathID);
 		return pathogens.get(pathID).getPathogen();
 	}
 
 	@Override
-	public int nodeProp_getPathogenID(int pid) throws EditorException {
+	public int 
+	nodeProp_getPathogenID(int pid) throws EditorException {
 		assert_validPID(pid);
 		assert_nodeType(properties.get(pid), AttachmentProperty.class);
 		return ((AttachmentProperty) properties.get(pid)).getPathogenID();
 	}
-
+	
 	@Override
-	public void scratch_setPathogenType(String type) throws EditorException {
+	public int 
+	nodeProp_getPathogenID(int lid, int pid) throws EditorException {
+		assert_validPID(lid, pid);
+		assert_nodeType(
+				layers.get(lid).getProperty(pid), AttachmentProperty.class);
+		
+		return ((AttachmentProperty) layers.get(lid).getProperty(pid))
+				.getPathogenID();
+	}
+	@Override
+	public void 
+	scratch_setPathogenType(String type) throws EditorException {
 		assert_scratchExists();
 		assert_nodeType(scratchProperty, AttachmentProperty.class);
 		((AttachmentProperty) scratchProperty).setPathogenName(type);
 	}
 	@Override
-	public String scratch_getPathogenType() throws EditorException {
+	public String 
+	scratch_getPathogenType() throws EditorException {
 		assert_scratchExists();
 		assert_nodeType(scratchProperty, AttachmentProperty.class);
 		return ((AttachmentProperty) scratchProperty).getPathogenName();
