@@ -9,6 +9,7 @@ import java.util.Optional;
 import org.snrg_nyc.model.PropertiesEditor;
 import org.snrg_nyc.model.PropertyReader;
 import org.snrg_nyc.model.internal.EditorException;
+import org.snrg_nyc.util.Executor;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
@@ -24,6 +25,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
@@ -1191,28 +1193,59 @@ public class EditorPage extends GridPane{
 					checkNext.run();
 				});
 				break;
+			case "BooleanProperty":
 			case "FractionProperty":
+				Node initVal = null;
+				final Executor update = new Executor();
 				
-				TextField initVal = new TextField();
+				if(type.equals("FractionProperty")){
+					TextField initFloat = new TextField();
+					initFloat.textProperty().addListener((o, oldVal, newVal)->{
+						if(!newVal.matches("\\d*\\.?\\d+")){
+							nextBtn.setDisable(true);
+							initFloat.setText(newVal.replaceAll("[^0-9.]", ""));
+						}
+						else {
+							nextBtn.setDisable(false);
+						}
+					});
+					update.setAction( ()->{
+						float f = Float.parseFloat(initFloat.getText());
+						try {
+							model.scratch_setFractionInitValue(f);
+						} catch (EditorException e1) {
+							sendError(e1);
+						}
+					});
+				}
+				else if(type.equals("BooleanProperty")){
+					ComboBox<Boolean> valSelect = new ComboBox<>();
+					valSelect.getItems().addAll(true, false);
+					valSelect.setOnAction(event->{
+						if(valSelect.getValue() != null){
+							nextBtn.setDisable(false);
+						}
+					});
+					update.setAction(()->{
+						boolean b = valSelect.getValue();
+						try{
+							model.scratch_setBooleanInitValue(b);
+						}
+						catch(EditorException e){
+							sendError(e);
+						}
+					});
+					initVal = valSelect;
+				}
+
 				nextBtn.setText("Finish");
 				
 				add(new Label("Value"), 0, 4);
 				add(initVal, 1, 4);
 				
-				initVal.textProperty().addListener((o, oldVal, newVal)->{
-					if(!newVal.matches("\\d*\\.?\\d+")){
-						nextBtn.setDisable(true);
-						initVal.setText(newVal.replaceAll("[^0-9.]", ""));
-					}
-					else {
-						nextBtn.setDisable(false);
-					}
-				});;
-				
 				nextBtn.setOnMouseClicked(e->{
 					try{
-						float f = Float.parseFloat(initVal.getText());
-						model.scratch_setFractionInitValue(f);
+						update.run();
 						addedProperty.set(true);
 					} 
 					catch (Exception e1){

@@ -142,10 +142,14 @@ public class PropertyJsonAdapter implements JsonSerializer<NodeProperty>, JsonDe
 			((FractionProperty) nodeProp).setInitValue(
 					innerJs.get(initValLabel).getAsFloat());
 		}
+		else if(nodeProp instanceof BooleanProperty){
+			((BooleanProperty) nodeProp).setInitValue(
+					innerJs.get(initValLabel).getAsBoolean());
+		}
 		
 		switch(innerJs.get(distIDLabel).getAsString()){
 		case "null":
-			if(!(nodeProp instanceof FractionProperty)){
+			if(!(nodeProp instanceof ValueProperty)){
 				throw new IllegalStateException(
 						"A null distribution on an invalid node property: "+nodeProp.getName());
 			}

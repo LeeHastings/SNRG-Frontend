@@ -539,8 +539,9 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 		
 		if(!fp.hasInitValue()){
 			throw new EditorException(
-					"No initial value for fraction property '"+pid+
-					"' in layer '"+lid+"'");
+					"No initial value for fraction property '"
+							+properties.get(pid).getName()+
+							"' in layer '"+lid+"'");
 		}
 		return fp.getInitValue();
 	}
@@ -554,7 +555,8 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 		BooleanProperty bp = (BooleanProperty) properties.get(pid);
 		if(!bp.hasInitValue()){
 			throw new EditorException(
-					"No initial value for boolean property '"+pid+"'" );
+					"No initial value for boolean property '"
+							+properties.get(pid).getName()+"'" );
 		}
 		return bp.getInitValue();
 	}
