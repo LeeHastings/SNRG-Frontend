@@ -22,14 +22,16 @@ public class UI_Main extends Application{
 	EditorWindow mainWindow;
 
 	@Override
-	public void start(Stage initStage){
+	public void 
+	start(Stage initStage){
 		//Creating the main page
 		mainWindow = new EditorWindowBuilder()
 				     .enableToolbar()
 				     .enableLayers()
 				     .enablePathogens()
 				     .enableEdges()
-				     .build( new NodeEditor(), initStage, "Node Settings Editor");
+				     .build( new NodeEditor(), initStage, 
+				    		 "Node Settings Editor");
 		
 		//Enable opening windows for pathogens
 		mainWindow.pathogensView().getSelectionModel()
@@ -54,7 +56,8 @@ public class UI_Main extends Application{
 		mainWindow.show();
 	}
 	
-	public static void main(String[] args){
+	public static void 
+	main(String[] args){
 		launch(args);
 	}
 	
@@ -62,9 +65,11 @@ public class UI_Main extends Application{
 	 * Open a new window for a pathogen editor
 	 * @param pathogenID The ID of the pathogen to edit
 	 */
-	void openPathogenWindow(int pathogenID){
+	void 
+	openPathogenWindow(int pathogenID){
 		if(pathogenWindows.contains(pathogenID)){
-			mainWindow.editor().sendWarning("This pathogen window is already open");
+			mainWindow.editor()
+			.sendWarning("This pathogen window is already open");
 		}
 		else {
 			pathogenWindows.add(pathogenID);
@@ -75,11 +80,15 @@ public class UI_Main extends Application{
 					.build(
 						mainWindow.model().pathogen_getEditor(pathogenID),
 						new Stage(),
-						"Pathogen Editor: "+mainWindow.model().pathogen_getName(pathogenID)
+						"Pathogen Editor: "
+						+mainWindow.model().pathogen_getName(pathogenID)
 					);
 				w.stage().setOnCloseRequest(event->{
-					pathogenWindows.remove(pathogenWindows.indexOf(pathogenID));
-					mainWindow.pathogensView().getSelectionModel().clearSelection();
+					pathogenWindows.remove(
+							pathogenWindows.indexOf(pathogenID));
+					
+					mainWindow.pathogensView()
+							  .getSelectionModel().clearSelection();
 				});
 				w.show();
 			}
@@ -90,10 +99,12 @@ public class UI_Main extends Application{
 		}
 	}
 	
-	public void openEdgeWindow(int layerID){
+	public void 
+	openEdgeWindow(int layerID){
 		if(edgeWindows.contains(layerID)){
-			mainWindow.editor().sendWarning(
-					"There is already an edge settings window open for this layer");
+			mainWindow.editor()
+				      .sendWarning("There is already an edge settings window "
+				      		+ "open for this layer");
 		}
 		else {
 			edgeWindows.add(layerID);
@@ -103,12 +114,14 @@ public class UI_Main extends Application{
 					.build(
 						mainWindow.model().layer_getEdgeEditor(layerID),
 						new Stage(),
-						"Edge Editor: "+mainWindow.model().layer_getName(layerID)
+						"Edge Editor: "
+								+mainWindow.model().layer_getName(layerID)
 					);
 				
 				w.stage().setOnCloseRequest(event->{
 					edgeWindows.remove(edgeWindows.indexOf(layerID));
-					mainWindow.edgesView().getSelectionModel().clearSelection();
+					mainWindow.edgesView()
+						.getSelectionModel().clearSelection();
 				});
 				w.show();
 			} catch (EditorException e) {

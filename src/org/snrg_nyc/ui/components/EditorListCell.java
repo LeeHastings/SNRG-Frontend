@@ -41,32 +41,27 @@ public class EditorListCell<T> extends TextFieldListCell<T> {
 			escPressed = false;
 		}
 		else if(getGraphic() != null){
-			
 			String t = ((TextField) getGraphic()).getText();
-			if(getConverter() == null){
+			
+			if(t == null || t.length() == 0){
+				super.cancelEdit();
+			}
+			else if(getConverter() == null){
 				throw new IllegalStateException("The StringConverter cannot be null!");
 			}
 			else {
-				setGraphic(null);
 				commitEdit(getConverter().fromString(t));
 			}
-			
 		}
 	}
 	@Override
 	public void updateItem(T item, boolean empty){
 		super.updateItem(item, empty);
-		if(empty || getItem() == null){
+		if(empty){
 			return;
 		}
 		else {
-			String text = getString();
-			if(text == null || text.equals("")){
-				setText("<empty>");
-			}
-			else {
-				setText(text);
-			}
+			setText(getString());
 		}
 	}
 	private String getString(){

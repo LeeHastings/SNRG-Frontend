@@ -14,7 +14,7 @@ import org.snrg_nyc.model.internal.IntegerRangeProperty;
  * @author Devin Hastings
  *
  */
-public class PathogenEditor extends PropertiesEditor_Impl{
+class PathogenEditor extends PropertiesEditor_Impl{
 	
 	/*         *\
 	 * Members *

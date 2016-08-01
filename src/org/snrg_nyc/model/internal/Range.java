@@ -1,10 +1,11 @@
 package org.snrg_nyc.model.internal;
 
-class Range<T extends Number> extends ListValue implements Comparable<Range<T>> {
+class Range<T extends Number> extends ListValue {
 	private T max;
 	private T min;
 	
-	public Range(String label, T min, T max){
+	public 
+	Range(String label, T min, T max){
 		super(label);
 		if(min.doubleValue() >= max.doubleValue()){
 			throw new IllegalArgumentException("Min ("+min+") must be strictly less than max ("+max+")");
@@ -14,15 +15,18 @@ class Range<T extends Number> extends ListValue implements Comparable<Range<T>> 
 		}
 	}
 	
-	public Range(){
+	public 
+	Range(){
 		super(null);
 		min = null;
 		max = null;
 	}
-	public T getMin(){
+	public T 
+	getMin(){
 		return min;
 	}
-	public T getMax(){
+	public T 
+	getMax(){
 		return max;
 	}
 	public void 
@@ -51,10 +55,9 @@ class Range<T extends Number> extends ListValue implements Comparable<Range<T>> 
 	}
 	
 	/**
-	 * Compare ranges by their lower bounds
+	 * Order ranges by their lower bounds
 	 * @param rhs A Range object of the same type
 	 */
-	@Override
 	public int 
 	compareTo(Range<T> rhs) {
 		if(this.getMin() == null || rhs.getMin() == null){

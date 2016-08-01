@@ -1,7 +1,6 @@
 package org.snrg_nyc.model;
 
 import java.util.ArrayList;
-import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -17,9 +16,8 @@ import org.snrg_nyc.persistence.PersistenceException;
 
 /**
  * An editor class for creating node properties.
- * The only public methods are those listed in the {@link PropertiesEditor}.
+ * The only public methods should be those listed in {@link PropertiesEditor}.
  * @author Devin Hastings
- *
  */
 public class NodeEditor extends PropertiesEditor_Impl {
 	
@@ -93,11 +91,13 @@ public class NodeEditor extends PropertiesEditor_Impl {
 		}
 		return super.scratch_commit();
 	}
+	
 	@Override
 	protected Class<?>[] 
 	getPropertyClasses() {
 		return nodePropertyTypes;
 	}
+	
 	@Override
 	public Map<String, Transferable > 
 	getSavedObjects() throws EditorException{
@@ -106,8 +106,12 @@ public class NodeEditor extends PropertiesEditor_Impl {
 		for(PathogenEditor p : pathogens){
 			map.putAll(p.getSavedObjects());
 		}
+		for(EdgeEditor e : edges){
+			map.putAll(e.getSavedObjects());
+		}
 		return map;
 	}
+	
 	@Override 
 	public void 
 	clear(){
@@ -124,7 +128,8 @@ public class NodeEditor extends PropertiesEditor_Impl {
 	public void 
 	load(String experimentName) throws EditorException {
 		Map<String, Transferable> objects = deserializeExperiment(experimentName);
-		System.out.println("Found map:\n"+objects.toString());
+		//System.out.println("Found map:\n"+objects.toString());
+		
 		if(!objects.containsKey("nodesettings")){
 			throw new EditorException("Tried to open an experiment without node settings!");
 		}
@@ -138,21 +143,37 @@ public class NodeEditor extends PropertiesEditor_Impl {
 		
 		Iterator<String> it = objects.keySet().iterator();
 		while(it.hasNext()){
-			try{
-				String key = it.next();
-				if(objects.get(key) instanceof PathogenSettings){
-					PathogenSettings settings = (PathogenSettings) objects.get(key);
-					it.remove();
-					PathogenEditor p = new PathogenEditor(this, settings, objects);
-					pathogens.add(p);
+			String key = it.next();
+			Transferable object = objects.get(key);
+			if(object instanceof PathogenSettings){
+				PathogenSettings settings = (PathogenSettings) object;
+				it.remove();
+				PathogenEditor p = new PathogenEditor(this, settings, objects);
+				pathogens.add(p);
+			}
+			else if(object instanceof EdgeSettings){
+				EdgeSettings settings = (EdgeSettings) object;
+				it.remove();
+
+				String layer = settings.getLayerName();
+				int idx = -1;
+				for(int i = 0; i < layers.size(); i++){
+					if(layers.get(i).getName().equals(layer)){
+						idx = i;
+					}
 				}
+				if(idx == -1){
+					throw new EditorException("Unknown layer in edge settings: "+layer);
+				}
+				//Edges and layers indexes must match up
+				//TODO: Consider using hashmap instead?
+				while(idx >= edges.size()){
+					edges.add(null);
+				}
+				edges.set(idx, new EdgeEditor(this, settings, objects));
 			}
-			catch (ConcurrentModificationException e){
-				System.out.println("Concurrent modification");
-				break;
-			}
+			
 		}
-		//TODO validate all objects
 		validateLoadedObjects();
 		for(PathogenEditor p : pathogens){
 			p.validateLoadedObjects();
@@ -238,6 +259,9 @@ public class NodeEditor extends PropertiesEditor_Impl {
 	@Override
 	public PropertiesEditor layer_getEdgeEditor(int lid) throws EditorException{
 		assert_validLID(lid);
+		if(lid >= edges.size()){
+			throw new EditorException("Layer ID is outside of edge settings bounds: "+lid);
+		}
 		return edges.get(lid);
 	}
 }

@@ -16,12 +16,13 @@ public class DistributionTable extends TableView<Integer> {
 	private BooleanProperty readyProperty = new SimpleBooleanProperty();
 	
 	@SuppressWarnings("unchecked")
-	public DistributionTable(EditorPage editor) throws EditorException{
+	public 
+	DistributionTable(EditorPage editor) throws EditorException{
 		super();
 		this.probMap = new HashMap<>();
 		
 		TableColumn<Integer, String> nameCol = new TableColumn<>("Range");
-		TableColumn<Integer, String> probCol = new TableColumn<>("Probability");
+		TableColumn<Integer, String> probCol =new TableColumn<>("Probability");
 		
 		getColumns().addAll(nameCol, probCol);
 		
@@ -35,7 +36,9 @@ public class DistributionTable extends TableView<Integer> {
 		setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 		nameCol.setCellValueFactory(col ->{
 			try {
-				return new SimpleStringProperty(editor.getModel().scratch_getRangeLabel(col.getValue()));
+				return new SimpleStringProperty(
+						editor.getModel()
+						      .scratch_getRangeLabel(col.getValue()));
 			} catch (Exception e) {
 				editor.sendError(e);
 				return new SimpleStringProperty(">ERROR<");
@@ -55,7 +58,9 @@ public class DistributionTable extends TableView<Integer> {
 					probMap.put(id, f);
 				}
 				catch(NumberFormatException e){
-					editor.sendError(e);
+					editor.sendError(
+						new NumberFormatException("Input '"
+							+event.newText()+"' is not a decimal number!"));
 				}
 				finally{
 					setReady();
@@ -67,7 +72,8 @@ public class DistributionTable extends TableView<Integer> {
 		probCol.setCellValueFactory(col->{
 			if(col.getValue() != null){
 				Float f = probMap.get(col.getValue());
-				return new SimpleStringProperty( f==null? null : f.toString() );
+				return new SimpleStringProperty( 
+						f==null? null : f.toString() );
 			}
 			else {
 				return null;
@@ -75,12 +81,15 @@ public class DistributionTable extends TableView<Integer> {
 		});
 	}
 	
-	public Map<Integer, Float> getProbMap(){
+	public Map<Integer, Float> 
+	getProbMap(){
 		return probMap;
 	}
-	public void setPropMap(Map<Integer, Float> newMap){
+	public void 
+	setPropMap(Map<Integer, Float> newMap){
 		if(newMap.size() != probMap.size()){
-			throw new IllegalArgumentException("The new probMap is of a different size!");
+			throw new IllegalArgumentException(
+					"The new probMap is of a different size!");
 		}
 		for(int rid : newMap.keySet()){
 			if(!probMap.containsKey(rid)){
@@ -91,15 +100,18 @@ public class DistributionTable extends TableView<Integer> {
 		setReady();
 	}
 	
-	public BooleanProperty readyProperty(){
+	public BooleanProperty 
+	readyProperty(){
 		return readyProperty;
 	}
 	
-	public boolean isReady(){
+	public boolean 
+	isReady(){
 		return readyProperty.get();
 	}
 	
-	private void setReady(){
+	private void 
+	setReady(){
 		for(Float f : probMap.values()){
 			if(f == null){
 				readyProperty.set(false);

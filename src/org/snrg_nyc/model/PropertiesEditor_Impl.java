@@ -3,7 +3,6 @@ package org.snrg_nyc.model;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -122,9 +121,8 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	loadDistributions(Map<String, Transferable> objects) 
 			throws EditorException 
 	{
-		Iterator<String> it = objects.keySet().iterator();
-		while(it.hasNext()){
-			String key = it.next();
+		for(String key : objects.keySet()){
+			
 			if(objects.get(key) instanceof UnivariatDistribution){
 				UnivariatDistribution uniD = 
 						(UnivariatDistribution) objects.get(key);
@@ -149,22 +147,11 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 							np = layers.get(lid).getProperty(pid);
 						}
 						uniD.addToProperty(this, np);
-						it.remove();
-					}
-					else{
-						System.out.println(
-								"Warning: no property found for distribution '"
-								+uniD.getName()+"' in "+this.getClass().getSimpleName());
 					}
 				}
 				else {
 					uniD.addToProperty(this, properties.get(pid));
-					it.remove();
 				}
-			}
-			else{
-				System.out.println("Tried to load unsupported object: "
-						+objects.getClass().getName());
 			}
 		}
 	}

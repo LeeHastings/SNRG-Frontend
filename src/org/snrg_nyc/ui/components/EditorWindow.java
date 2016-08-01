@@ -10,6 +10,7 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
+import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -104,7 +105,7 @@ public class EditorWindow extends BorderPane {
 		menuCol.setPercentWidth(100);
 		leftMenu.getColumnConstraints().add(menuCol);
 		
-		Text titleText = new Text("Node Properties");
+		Text titleText = new Text("Properties");
 		titleText.setFont(titleFont);
 		addToLeftMenu(titleText);
 		
@@ -174,7 +175,7 @@ public class EditorWindow extends BorderPane {
 						editor.sendError(e1);
 					}
 				} else {
-					titleText.setText("Node Properties");
+					titleText.setText("Properties");
 				}
 				try{
 					updateProperties(newVal);
@@ -454,6 +455,26 @@ public class EditorWindow extends BorderPane {
 						}
 					}
 				};
+			});
+			layers.addListener((Change<? extends Optional<Integer>> change)->{
+				change.next();
+				if(change.getRemovedSize() == 0){
+					for(Optional<Integer> lid : change.getAddedSubList()){
+						if(lid.isPresent() && 
+								!edgesView.getItems().contains(lid.get()))
+						{
+							edgesView.getItems().add(lid.get());
+						}
+					}
+				}
+				else {
+					for(Optional<Integer> lid : change.getRemoved()){
+						if(lid.isPresent()){
+							edgesView.getItems().remove(
+									edgesView.getItems().indexOf(lid.get()));
+						}
+					}
+				}
 			});
 			Text edgeText = new Text("Edge Settings");
 			edgeText.setFont(headFont);

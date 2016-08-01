@@ -7,6 +7,8 @@ import java.util.Map;
 import org.snrg_nyc.model.NodeEditor;
 import org.snrg_nyc.model.PropertiesEditor;
 
+//TODO update this test for pathogens, edges, and layers
+
 public class UnitTest {
 	static PropertiesEditor bl;
 	

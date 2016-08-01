@@ -842,7 +842,7 @@ public class EditorPage extends GridPane{
 
 	@SuppressWarnings("unchecked")
 	private void newPropertyPage(){
-		title.setText("New Node Property");
+		title.setText("New Property");
 		
 		//Function to see if the next button should be enabled
 		Runnable checkNext;
@@ -881,22 +881,26 @@ public class EditorPage extends GridPane{
 			add(desc, 1, 5, 1, 2);
 			
 			checkNext = () -> {
-				nextBtn.setDisable(
-						type.getValue() == null 
-						|| propName.getText() == null
-						|| propName.getText().length() == 0 
-						|| !model.test_nodePropNameIsUnique(propName.getText())
-						|| desc.getText() == null
-						|| desc.getText().length() == 0
-				);
 				if(!model.test_nodePropNameIsUnique(propName.getText())){
-					sendWarning("Property name already exists: "+propName.getText());
+					sendWarning("Property name already exists: "
+								+propName.getText());
+					nextBtn.setDisable(true);
+				}
+				else {
+					nextBtn.setDisable(
+							type.getValue() == null 
+							|| propName.getText() == null
+							|| propName.getText().length() == 0 
+							|| desc.getText() == null
+							|| desc.getText().length() == 0
+					);
 				}
 			};
 			
-			desc.textProperty().addListener(e -> checkNext.run() );
-			type.setOnAction(e-> checkNext.run());
-			propName.setOnAction(e->checkNext.run());
+			desc.textProperty().addListener(    e -> checkNext.run());
+			propName.textProperty().addListener(e -> checkNext.run());
+			type.setOnAction(e -> checkNext.run());
+			
 			nextBtn.setOnMouseClicked(event->{
 				pageNumber ++;
 				try {
@@ -983,9 +987,12 @@ public class EditorPage extends GridPane{
 						@Override
 						public Integer fromString(String newVal) {
 							int r = cell.getItem();
+							if(newVal.equals("<empty>")){
+								return r; //cancel edit if the cell is empty
+							}
 							try {
 								model.scratch_setRangeLabel(r, newVal);
-							} catch (EditorException e) {
+							} catch (Exception e) {
 								sendError(e);
 							}
 							return r;
@@ -993,7 +1000,13 @@ public class EditorPage extends GridPane{
 						@Override
 						public String toString(Integer rid) {
 							try {
-								return model.scratch_getRangeLabel(rid);
+								String s = model.scratch_getRangeLabel(rid);
+								if(s == null || s.length() == 0){
+									return "<empty>";
+								}
+								else {
+									return s;
+								}
 							} catch (EditorException e) {
 								sendError(e);
 								return null;
@@ -1023,12 +1036,14 @@ public class EditorPage extends GridPane{
 				checkNext = ()->{
 					try {
 						for(int i : model.scratch_getRangeIDs()){
-							if(model.scratch_getRangeLabel(i).length() < 1){
+							String label = model.scratch_getRangeLabel(i);
+							if(label == null || label.length() ==0){
 								nextBtn.setDisable(true);
 								return;
 							}
 						}
-					} catch (Exception e) {
+					} 
+					catch (Exception e) {
 						sendError(e);
 						nextBtn.setDisable(true);
 					}
@@ -1106,13 +1121,16 @@ public class EditorPage extends GridPane{
 				labelCol.setCellFactory(col -> {
 					EditorTableCell<Integer> cell = new EditorTableCell<>();
 					cell.setOnEditCommit((event)->{
-						if(event.newText() == null){
+						if(event.newText() == null 
+						   || event.newText().length() == 0)
+						{
 							return;
 						}
 						try {
-							int rid = event.cell().getTableView()
-							     .getItems()
-							     .get(event.cell().getIndex());
+							int rid = event.cell()
+								.getTableView()
+								.getItems()
+								.get(event.cell().getIndex());
 							model.scratch_setRangeLabel(rid, event.newText());
 						} 
 						catch (Exception e1) {
@@ -1180,7 +1198,7 @@ public class EditorPage extends GridPane{
 				labelCol.setCellValueFactory(data ->{
 					try{
 						String s = model.scratch_getRangeLabel(data.getValue());
-						if(s == null || s.equals("")){
+						if(s == null || s.length() == 0){
 							return new SimpleStringProperty("<empty>");
 						}
 						else {

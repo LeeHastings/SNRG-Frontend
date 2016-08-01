@@ -55,6 +55,7 @@ public abstract class ValuesListProperty<T extends ListValue> extends NodeProper
 		}
 	}
 	protected List<T> values;
+	protected List<Integer> ids;
 	
 	private AbstractFactory<T> valueFactory;
 	private List<ConditionalDistribution> conDistributions;
@@ -80,30 +81,13 @@ public abstract class ValuesListProperty<T extends ListValue> extends NodeProper
 		valueFactory = factory;
 	}
 	
-	public int 
-	addRange(){
-		if(distributionsAreSet()){
-			throw new IllegalStateException(errorMessage+
-					"Cannot edit range labels once distributions are set");
-		}
-		int len = values.size();
-		
-		T newValue = valueFactory.build();
-		for(int rid = 0; rid < len; rid++){
-			if(values.get(rid) == null){
-				values.set(rid, newValue);
-				return rid;
-			}
-		}
-		values.add(newValue);
-		return len;
-	}
-	
-	public boolean distributionsAreSet(){
+	public boolean 
+	distributionsAreSet(){
 		return(defaultDist != null && conDistributions.size() > 0);
 	}
 
-	public boolean validRID(int rid){
+	public boolean 
+	validRID(int rid){
 		return (rid >= 0 && rid < values.size() && values.get(rid) != null);
 	}
 	/**
@@ -132,13 +116,39 @@ public abstract class ValuesListProperty<T extends ListValue> extends NodeProper
 					"Invalid Range Item ID: "+rid);
 		}
 	}
-	public void removeRange(int rid){
+	
+	public int 
+	addRange(){
+		int rid = -1;
+		if(distributionsAreSet()){
+			throw new IllegalStateException(errorMessage+
+					"Cannot edit range labels once distributions are set");
+		}
+		int len = values.size();
+		
+		T newValue = valueFactory.build();
+		for(int i = 0; i < len; i++){
+			if(values.get(i) == null){
+				values.set(i, newValue);
+				rid = i;
+			}
+		}
+		if(rid == -1){
+			values.add(newValue);
+			rid = len;
+		}
+		ids.add(rid);
+		return rid;
+	}
+	public void 
+	removeRange(int rid){
 		if(distributionsAreSet()){
 			throw new IllegalStateException(errorMessage+
 					"Cannot edit range labels once distributions are set");
 		}
 		assert_validRID(rid);
 		values.set(rid, null);
+		ids.remove(rid);
 	}
 	public Integer getRangeWithLabel(String label){
 		for(ListValue s : values){
@@ -153,36 +163,35 @@ public abstract class ValuesListProperty<T extends ListValue> extends NodeProper
 		return values.get(rid).getLabel();
 	}
 	public void setRangeLabel(int rid, String label){
+		if(label == null || label.length() == 0){
+			throw new IllegalArgumentException(
+					"Cannot set a range label to an empty string.");
+		}
 		if(distributionsAreSet()){
 			throw new IllegalStateException(errorMessage+
 					"Cannot edit range labels once distributions are set");
 		}
 		assert_validRID(rid);
-		for(ListValue s : values){
-			if(s != null && label.equals(s)){
-				throw new IllegalArgumentException(errorMessage+
-						"Duplicate Label: "+label);
+		for(int rid2 : ids){
+			if(rid2 != rid && values.get(rid2).getLabel().equals(label) ){
+				throw new IllegalStateException("Duplicate range label: "
+						+label);
 			}
 		}
 		values.get(rid).setLabel(label);
 	}
 
-	public List<Integer> getSortedRangeIDs(){
-		List<Integer> rangeOrder = new ArrayList<>(getUnSortedRangeIDs());
+	public List<Integer> 
+	getSortedRangeIDs(){
+		List<Integer> rangeOrder = new ArrayList<>(ids);
 		rangeOrder.sort((a, b)->compareRanges(a, b));
 		return rangeOrder;
 	}
 	
 	public List<Integer> getUnSortedRangeIDs(){
-		List<Integer> ids = new ArrayList<>();
-		int len  = values.size();
-		for(int i = 0; i < len; i++){
-			if(values.get(i) != null){
-				ids.add(i);
-			}
-		}
-		return ids;
+		return new ArrayList<>(ids);
 	}
+	
 	@Override
 	public void useUniformDistribution(){
 		distType = DistType.UNIFORM;
