@@ -11,6 +11,7 @@ import org.snrg_nyc.model.internal.EditorException;
 import org.snrg_nyc.util.Executor;
 import org.snrg_nyc.util.PropertyID;
 import org.snrg_nyc.util.PropertyReader;
+import org.snrg_nyc.util.LayerPropertyReader;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
@@ -271,7 +272,7 @@ public class EditorPage extends GridPane{
 	private void propertyViewerPage(){
 		title.setText("Node Property Viewer");
 		cancel.setText("Exit");
-		PropertyReader prop = new UI_PropertyReader(model,propViewerID);
+		PropertyReader prop = new LayerPropertyReader(model,propViewerID);
 		
 		nextBtn.setOnMouseClicked(event->{
 			pageNumber++;

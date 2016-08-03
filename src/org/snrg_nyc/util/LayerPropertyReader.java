@@ -1,25 +1,23 @@
-package org.snrg_nyc.ui.components;
+package org.snrg_nyc.util;
 
 import java.util.List;
 import java.util.Map;
 
 import org.snrg_nyc.model.PropertiesEditor;
 import org.snrg_nyc.model.internal.EditorException;
-import org.snrg_nyc.util.PropertyID;
-import org.snrg_nyc.util.PropertyReader;
 
-public class UI_PropertyReader implements PropertyReader {
+public class LayerPropertyReader implements PropertyReader {
 	PropertyID id;
 	PropertiesEditor model;
-	public UI_PropertyReader(PropertiesEditor model, int pid){
+	public LayerPropertyReader(PropertiesEditor model, int pid){
 		id = new PropertyID(pid);
 		this.model = model;
 	}
-	public UI_PropertyReader(PropertiesEditor model, int lid, int pid){
+	public LayerPropertyReader(PropertiesEditor model, int lid, int pid){
 		id = new PropertyID(lid, pid);
 		this.model = model;
 	}
-	public UI_PropertyReader(PropertiesEditor model,PropertyID id){
+	public LayerPropertyReader(PropertiesEditor model,PropertyID id){
 		this.id = id;
 		this.model = model;
 	}

@@ -1,5 +1,5 @@
 package org.snrg_nyc.util;
 
-public interface AbstractFactory<T> {
+public interface SimpleFactory<T> {
 	public T build();
 }

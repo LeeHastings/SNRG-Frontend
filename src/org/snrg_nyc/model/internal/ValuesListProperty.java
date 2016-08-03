@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.snrg_nyc.util.AbstractFactory;
+import org.snrg_nyc.util.SimpleFactory;
 
 
 public abstract class ValuesListProperty<T extends ListValue> extends NodeProperty {
@@ -57,22 +57,22 @@ public abstract class ValuesListProperty<T extends ListValue> extends NodeProper
 	protected List<T> values;
 	protected List<Integer> ids;
 	
-	private AbstractFactory<T> valueFactory;
+	private SimpleFactory<T> valueFactory;
 	private List<ConditionalDistribution> conDistributions;
 	private List<Integer> condOrder;
 	private Distribution defaultDist;
 	
-	public ValuesListProperty(String name, String desc, AbstractFactory<T> factory) {
+	public ValuesListProperty(String name, String desc, SimpleFactory<T> factory) {
 		super(name, desc);
 		init(factory);
 	}
 
-	public ValuesListProperty( AbstractFactory<T> factory) {
+	public ValuesListProperty( SimpleFactory<T> factory) {
 		super();
 		init(factory);
 	}
 	
-	private void init(AbstractFactory<T> factory){
+	private void init(SimpleFactory<T> factory){
 		conDistributions = new ArrayList<>();
 		condOrder = new ArrayList<>();
 		defaultDist=null;
