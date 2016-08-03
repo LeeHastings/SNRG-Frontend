@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.snrg_nyc.model.Transferable;
+import org.snrg_nyc.util.Transferable;
 
 import com.google.gson.Gson;
 

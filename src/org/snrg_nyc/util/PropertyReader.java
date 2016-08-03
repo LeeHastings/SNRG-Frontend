@@ -1,8 +1,9 @@
-package org.snrg_nyc.model;
+package org.snrg_nyc.util;
 
 import java.util.List;
 import java.util.Map;
 
+import org.snrg_nyc.model.PropertiesEditor;
 import org.snrg_nyc.model.internal.EditorException;
 
 /**

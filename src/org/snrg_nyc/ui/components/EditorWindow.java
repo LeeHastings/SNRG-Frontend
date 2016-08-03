@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.snrg_nyc.model.PropertiesEditor;
 import org.snrg_nyc.model.internal.EditorException;
 import org.snrg_nyc.ui.UI_Main;
+import org.snrg_nyc.util.PropertyID;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;

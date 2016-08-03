@@ -3,7 +3,7 @@ package org.snrg_nyc.model.internal;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.snrg_nyc.model.Transferable;
+import org.snrg_nyc.util.Transferable;
 
 /**
  * The base class for all node properties

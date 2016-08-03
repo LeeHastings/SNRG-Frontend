@@ -4,8 +4,8 @@ import java.io.Serializable;
 import java.lang.reflect.Type;
 
 import org.snrg_nyc.model.PropertiesEditor;
-import org.snrg_nyc.model.Transferable;
 import org.snrg_nyc.model.internal.NodeProperty;
+import org.snrg_nyc.util.Transferable;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;

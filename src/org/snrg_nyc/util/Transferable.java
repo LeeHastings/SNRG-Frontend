@@ -1,4 +1,4 @@
-package org.snrg_nyc.model;
+package org.snrg_nyc.util;
 
 import java.io.Serializable;
 

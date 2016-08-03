@@ -1,4 +1,4 @@
-package org.snrg_nyc.ui.components;
+package org.snrg_nyc.util;
 
 import java.util.Optional;
 

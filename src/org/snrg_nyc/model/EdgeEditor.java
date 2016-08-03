@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.snrg_nyc.model.internal.EditorException;
 import org.snrg_nyc.model.internal.NodeLayer;
+import org.snrg_nyc.util.Transferable;
 
 class EdgeEditor extends PropertiesEditor_Impl {
 	private static String noLayersMsg = "There are no layers in this editor";

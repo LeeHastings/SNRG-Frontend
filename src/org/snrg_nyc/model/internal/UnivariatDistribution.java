@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.snrg_nyc.model.PropertiesEditor;
-import org.snrg_nyc.model.Transferable;
 import org.snrg_nyc.model.internal.ValuesListProperty.ConditionalDistribution;
 import org.snrg_nyc.model.internal.ValuesListProperty.Distribution;
+import org.snrg_nyc.util.Transferable;
 
 import com.google.gson.annotations.SerializedName;
 

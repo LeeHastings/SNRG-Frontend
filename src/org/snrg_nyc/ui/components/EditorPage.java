@@ -7,9 +7,10 @@ import java.util.Map.Entry;
 import java.util.Optional;
 
 import org.snrg_nyc.model.PropertiesEditor;
-import org.snrg_nyc.model.PropertyReader;
 import org.snrg_nyc.model.internal.EditorException;
 import org.snrg_nyc.util.Executor;
+import org.snrg_nyc.util.PropertyID;
+import org.snrg_nyc.util.PropertyReader;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;

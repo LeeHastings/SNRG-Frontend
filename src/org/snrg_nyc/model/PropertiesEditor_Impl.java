@@ -23,6 +23,7 @@ import org.snrg_nyc.model.internal.ValuesListProperty.ConditionalDistribution;
 import org.snrg_nyc.model.internal.ValuesListProperty.Distribution;
 import org.snrg_nyc.persistence.ExperimentSerializer;
 import org.snrg_nyc.persistence.PersistenceException;
+import org.snrg_nyc.util.Transferable;
 import org.snrg_nyc.persistence.JsonFileSerializer;
 
 import com.google.gson.GsonBuilder;

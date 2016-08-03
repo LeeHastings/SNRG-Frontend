@@ -4,8 +4,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.snrg_nyc.model.PropertiesEditor;
-import org.snrg_nyc.model.PropertyReader;
 import org.snrg_nyc.model.internal.EditorException;
+import org.snrg_nyc.util.PropertyID;
+import org.snrg_nyc.util.PropertyReader;
 
 public class UI_PropertyReader implements PropertyReader {
 	PropertyID id;

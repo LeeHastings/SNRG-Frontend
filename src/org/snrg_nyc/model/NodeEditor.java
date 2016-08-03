@@ -12,6 +12,7 @@ import org.snrg_nyc.model.internal.EnumeratorProperty;
 import org.snrg_nyc.model.internal.FractionProperty;
 import org.snrg_nyc.model.internal.IntegerRangeProperty;
 import org.snrg_nyc.persistence.PersistenceException;
+import org.snrg_nyc.util.Transferable;
 
 
 /**
