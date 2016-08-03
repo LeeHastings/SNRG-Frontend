@@ -6,12 +6,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 
+import org.snrg_nyc.model.LayerPropertyReader;
 import org.snrg_nyc.model.PropertiesEditor;
+import org.snrg_nyc.model.PropertyReader;
 import org.snrg_nyc.model.internal.EditorException;
 import org.snrg_nyc.util.Executor;
 import org.snrg_nyc.util.PropertyID;
-import org.snrg_nyc.util.PropertyReader;
-import org.snrg_nyc.util.LayerPropertyReader;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
@@ -31,6 +31,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
@@ -196,14 +197,13 @@ public class EditorPage extends GridPane{
 	private void updatePage(){
 		finished.set(false);
 		getChildren().clear();
-		
 		title = new Text();
 		title.setFont(titleFont);
 		add(title, 0,0,5,1);
 		
 		hbar = new Line();
 		hbar.setStartX(20);
-		hbar.setEndX(getPrefWidth());
+		hbar.setEndX(500);
 		add(hbar, 0, 1, 5, 1);
 		
 		nextBtn = new Button("Next");
@@ -337,26 +337,23 @@ public class EditorPage extends GridPane{
 			add(new Label("Description"),      0, 4);
 			add(new Label("Dependency Level"), 0, 5);
 			
-			add(name,            1, 2, 2, 1);
-			add(type,            1, 3, 2, 1);
-			add(description,     1, 4, 2, 1);
-			add(dependencyLevel, 1, 5, 2, 1);
+			add(name,            1, 2);
+			add(type,            1, 3);
+			add(description,     1, 4);
+			add(dependencyLevel, 1, 5);
 			
 			if(uniformDist){
 				add(new Label("Distribution"), 0, 6);
-				add(new Text("uniform"), 1, 6, 2, 1);
-				nextBtn.setOnMouseClicked(event->{
-					finished.set(true);
-					advancePage.set(true);
-				});
-				nextBtn.setText("Finish");
+				add(new Text("uniform"),       1, 6);
+				
+				nextBtn.setDisable(true);
 			}
 			else if(depLvl > 0){
 				Text dependencies = new Text();
 				dependencies.setWrappingWidth(w);
 
 				add(new Label("Dependencies"), 0, 6);
-				add(dependencies, 1, 6, 2, 1);
+				add(dependencies,              1, 6);
 				
 				String depString = "";
 				try{
@@ -382,6 +379,9 @@ public class EditorPage extends GridPane{
 			switch(propType){
 			case "AttachmentProperty":
 				Text pathogenType = new Text();
+
+				add(new Label("Pathogen Type"), 0, 7);
+				add(pathogenType,               1, 7);
 				try {
 					pathogenType.setText(prop.pathogenType());
 				}
@@ -389,9 +389,6 @@ public class EditorPage extends GridPane{
 					pathogenType.setText(">ERROR<");
 					sendError(e);
 				}
-				
-				add(new Label("Pathogen Type"), 0, 7);
-				add(pathogenType, 1, 7);
 				break;
 			case "EnumeratorProperty":
 				try {
@@ -413,9 +410,8 @@ public class EditorPage extends GridPane{
 						enumValues.getItems().add(">ERROR<");
 					}
 				}
-				enumValues.setPrefWidth(125);
 				add(new Label("Enum Values"), 0, 8);
-				add(enumValues, 1, 8, 3, 2);
+				add(enumValues,               1, 8, 3, 2);
 				break;
 				
 			case "IntegerRangeProperty":
@@ -475,9 +471,8 @@ public class EditorPage extends GridPane{
 				catch(Exception e){
 					sendError(e);
 				}
-				rangeItems.setMinWidth(125);
 				add(new Label("Range Items"), 0, 8);
-				add(rangeItems, 1, 8, 3, 2);
+				add(rangeItems,               1, 8, 3, 2);
 				
 				break;
 			case "BooleanProperty": 
@@ -831,10 +826,14 @@ public class EditorPage extends GridPane{
 			Spinner<Integer> depLvl = new Spinner<>();
 			depLvl.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 100));
 			
-			if(!type.equals("FractionProperty")){
-				add(useUniform, 0, 8, 3, 1);
-				add(new Label("Dependency Level"), 0, 2);
-				add(depLvl, 1, 2);
+			try {
+				if(model.scratch_isRangedProperty()){
+					add(useUniform, 0, 8, 3, 1);
+					add(new Label("Dependency Level"), 0, 2);
+					add(depLvl, 1, 2);
+				}
+			} catch (EditorException e2) {
+				sendError(e2);
 			}
 			
 			useUniform.setOnMouseClicked(event ->{
@@ -1219,6 +1218,7 @@ public class EditorPage extends GridPane{
 							sendError(e1);
 						}
 					});
+					initVal = initFloat;
 				}
 				else if(type.equals("BooleanProperty")){
 					ComboBox<Boolean> valSelect = new ComboBox<>();

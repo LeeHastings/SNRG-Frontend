@@ -174,7 +174,9 @@ public abstract class ValuesListProperty<T extends ListValue> extends NodeProper
 		}
 		assert_validRID(rid);
 		for(int rid2 : ids){
-			if(rid2 != rid && values.get(rid2).getLabel().equals(label) ){
+			if(rid2 != rid && values.get(rid2).getLabel() != null
+			   && values.get(rid2).getLabel().equals(label))
+			{
 				throw new IllegalStateException("Duplicate range label: "
 						+label);
 			}
