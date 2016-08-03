@@ -523,16 +523,19 @@ public interface PropertiesEditor {
 	public List<Integer> pathogen_getPathogenIDs() throws EditorException;
 	
 	/**
-	 * 
-	 * @param pathID
-	 * @return
-	 * @throws EditorException
+	 * Get the name of a pathogen
+	 * @param pathID The pathogen ID, from 
+	 * {@link PropertiesEditor#pathogen_getPathogenIDs()}
+	 * @return The name of the given pathogen
+	 * @throws EditorException Thrown if the editor does not support pathogens,
+	 * or if the pathogen ID is invalid
 	 */
 	public String pathogen_getName(int pathID) throws EditorException;
 	
 	/**
 	 * Get a PropertiesEditor for the given pathogen in order to add properties
-	 * @param pathID The ID of the pathogen, from {@link PropertiesEditor#pathogen_create}
+	 * @param pathID The ID of the pathogen, which is from 
+	 * {@link PropertiesEditor#pathogen_getPathogenIDs()}
 	 * @return A PropertiesEditor that is tied to the pathogen
 	 * @throws EditorException Thrown if the given ID does not exist.
 	 */
