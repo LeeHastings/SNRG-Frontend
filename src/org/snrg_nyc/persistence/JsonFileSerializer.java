@@ -16,97 +16,27 @@ import java.util.Map;
 
 import org.snrg_nyc.util.Transferable;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
-public class JsonFileSerializer implements ExperimentSerializer {
+public class JsonFileSerializer extends JsonSerializer {
 	public static final Path savePath = Paths.get("save_data");
-	private Gson gson;
-	
+	private Path saveDir;
 	static {
 		if(!Files.exists(savePath)){
 			savePath.toFile().mkdir();
 		}
 	}
 	
-	/**
-	 * @param gBuilder A GsonBuilder with any settings that the user requires,
-	 *  such as type adapters and style settings.
-	 * Internally, the GsonBuilder is then provided with type adapters for internal classes and built.
-	 */
-	public JsonFileSerializer(GsonBuilder gBuilder){
-		super();		
-		gson = gBuilder
-			   .registerTypeAdapter(
-					   PersistentDataEntry.class, 
-					   new PersistentDataEntry.JsonAdapter())
-			   .create();
+	public JsonFileSerializer(GsonBuilder gBuilder) {
+		super(gBuilder);
 	}
-	@Override
-	public void storeExperiment(String name, Map<String, Transferable> dataEntries) throws PersistenceException {
-		Path saveDir = savePath.resolve(name);
-
-		System.out.println("Saving to "+saveDir.toString());
-		
-		if(!Files.exists(saveDir)){
-			saveDir.toFile().mkdir();
-		}
-		else { //Delete old files in directory
-			try {
-				Files.list(saveDir).forEach( f ->{
-					try {
-						Files.delete(f);
-					} 
-					catch (Exception e) { //Get out of the loop!
-						throw new RuntimeException(e.getLocalizedMessage());
-					}
-				});
-			} 
-			catch (IOException e) {
-				throw new PersistenceException("Error while getting files: "+e.getLocalizedMessage());
-			}
-		}
-		
-		for(String fileName : dataEntries.keySet()){
-			Writer w = null;
-			try {
-				File f = saveDir.resolve(fileName+".json").toFile();
-				w = new FileWriter(f);
-			} 
-			catch (IOException e) {
-				throw new PersistenceException("Error while creating new file: "+e.getLocalizedMessage());
-			}
-			
-			try {
-				PersistentDataEntry pde = new PersistentDataEntry(name, dataEntries.get(fileName));
-				w.write(gson.toJson(pde) );
-			} catch (IOException e) {
-				throw new PersistenceException("Error while writing file: "+e.getLocalizedMessage());
-			}
-			finally {
-				try {
-					w.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-			
-			if(w != null){
-				try {
-					w.close();
-				} catch (IOException e) {
-					throw new PersistenceException("Error while closing file: "+e.getLocalizedMessage());
-				}
-			}
-		}
-		
-	}
+	
 
 	@Override
 	public Map<String, Transferable> loadExperiment(String name) throws PersistenceException {
-		Path saveDir = savePath.resolve(name);
+		saveDir = savePath.resolve(name);
 		if(!Files.exists(saveDir)){
 			throw new PersistenceException("No experiment with name: "+name);
 		}
@@ -121,7 +51,7 @@ public class JsonFileSerializer implements ExperimentSerializer {
 						Reader r = new FileReader(p.toFile());
 						JsonElement js = new JsonParser().parse(r);
 						
-						PersistentDataEntry pde = gson.fromJson(js, PersistentDataEntry.class);
+						PersistentDataEntry pde = gson().fromJson(js, PersistentDataEntry.class);
 						Transferable obj = pde.getObject();
 						
 						loaded.put(fileName, obj);
@@ -152,6 +82,67 @@ public class JsonFileSerializer implements ExperimentSerializer {
 			e.printStackTrace();
 		}
 		return experimentNames;
+	}
+
+	@Override
+	protected void validateEnvironment(String name) throws PersistenceException {
+		saveDir = savePath.resolve(name);
+
+		System.out.println("Saving to "+saveDir.toString());
+		
+		if(!Files.exists(saveDir)){
+			saveDir.toFile().mkdir();
+		}
+		else { //Delete old files in directory
+			try {
+				Files.list(saveDir).forEach( f ->{
+					try {
+						Files.delete(f);
+					} 
+					catch (Exception e) { //Get out of the loop!
+						throw new RuntimeException(e.getLocalizedMessage());
+					}
+				});
+			} 
+			catch (IOException e) {
+				e.printStackTrace();
+				throw new PersistenceException("Error while getting files: "+e.getLocalizedMessage());
+			}
+		}
+	}
+
+	@Override
+	protected void storeFile(String name, String data) throws PersistenceException {
+		Writer w = null;
+		try {
+			File f = saveDir.resolve(name+".json").toFile();
+			w = new FileWriter(f);
+		} 
+		catch (IOException e) {
+			throw new PersistenceException("Error while creating new file: "+e.getLocalizedMessage());
+		}
+		
+		try {
+			w.write(data);
+		} catch (IOException e) {
+			throw new PersistenceException("Error while writing file: "+e.getLocalizedMessage());
+		}
+		finally {
+			try {
+				w.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		if(w != null){
+			try {
+				w.close();
+			} catch (IOException e) {
+				throw new PersistenceException("Error while closing file: "+e.getLocalizedMessage());
+			}
+		}
+		
 	}
 
 }

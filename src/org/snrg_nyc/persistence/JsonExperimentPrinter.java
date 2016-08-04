@@ -7,59 +7,61 @@ import java.util.Map;
 
 import org.snrg_nyc.util.Transferable;
 
-import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 /**
  * Simple class to test JSON serialization.  Prints directly to the console.
  * @author Devin Hastings
  *
  */
-@Deprecated
-public class JsonExperimentPrinter implements ExperimentSerializer {
+public class JsonExperimentPrinter extends JsonSerializer {
+	private Map<String, Map<String, Transferable>> experiments;
 	
-	private Map<String, Map<String, String>> experiments = new HashMap<>();
-	private Gson gson;
-	
-	public JsonExperimentPrinter(Gson g){
-		super();
-		gson = g;
-	}
-	@Override
-	public void storeExperiment(String name, Map<String, Transferable> dataEntries) 
-			throws PersistenceException 
-	{
-		PersistentDataEntry pData;
-		Map<String, String> jsonData = new HashMap<>();
-		for(String file : dataEntries.keySet()){
-			pData = new PersistentDataEntry(name,dataEntries.get(file));
-			System.out.printf("\n%s.json\n====================\n",file);
-			System.out.println(gson.toJson(pData));
-			
-			jsonData.put(file, gson.toJson(pData));
-		}
-		experiments.put(name, jsonData);
+	public JsonExperimentPrinter(GsonBuilder gBuilder) {
+		super(gBuilder);
+		experiments = new HashMap<>();
 	}
 
 	@Override
 	public Map<String, Transferable> loadExperiment(String name) throws PersistenceException {
-		Map<String, Transferable> experiment = new HashMap<>();
-		
-		if(experiments.containsKey(name)){
-			for(String key : experiments.get(name).keySet()){
-				PersistentDataEntry pde = gson.fromJson(experiments.get(name).get(key), PersistentDataEntry.class);
-				experiment.put(key, pde.getObject());
-			}
+		if(!experiments.containsKey(name)){
+			throw new PersistenceException("No experiment with name: "+name);
 		}
 		else {
-			throw new PersistenceException("Missing experiment: "+name);
+			return experiments.get(name);
 		}
-		return experiment;
 	}
 
 	@Override
-	public List<String> savedExperiments() {
+	public List<String> 
+	savedExperiments() {
 		return new ArrayList<String>(experiments.keySet());
 	}
+
+	@Override
+	protected void 
+	validateEnvironment(String name) throws PersistenceException {
+		if(experiments == null){
+			experiments = new HashMap<>();
+		}
+		if(gson() == null){
+			throw new PersistenceException("The Gson adapter is null!");
+		}
+	}
+	@Override
+	public void 
+	storeExperiment(String name, Map<String, Transferable> objects)
+			throws PersistenceException
+	{
+		super.storeExperiment(name, objects);
+		experiments.put(name, objects);
+	}
+
+	@Override
+	protected void storeFile(String name, String data) throws PersistenceException {
+		System.out.printf("\n%s\n================\n%s", name, data);
+	}
+
 
 
 }
