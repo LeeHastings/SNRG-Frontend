@@ -79,11 +79,14 @@ public class EditorPage extends GridPane{
 	private final BooleanProperty finished = new SimpleBooleanProperty();
 	private final BooleanProperty addedProperty = new SimpleBooleanProperty();
 	private final BooleanProperty addedLayer = new SimpleBooleanProperty();
-	private final ListProperty<UI_Message> messages = new SimpleListProperty<UI_Message>();
+	private final ListProperty<UI_Message> messages = 
+			new SimpleListProperty<UI_Message>();
 
-	final ObservableList<Optional<Integer>> layers = FXCollections.observableArrayList();
+	final ObservableList<Optional<Integer>> layers =
+			FXCollections.observableArrayList();
 	
-	private static final Font titleFont = Font.font("sans", FontWeight.LIGHT, FontPosture.REGULAR, 20);
+	private static final Font titleFont = Font.font(
+			"sans", FontWeight.LIGHT, FontPosture.REGULAR, 20);
 	
 	/**
 	 * Create a new editor page that adds properties to the given
@@ -134,7 +137,8 @@ public class EditorPage extends GridPane{
 	/*
 	 * Handy wrappers for sending messages to the editor
 	 */
-	public void sendError(Exception e){
+	public void 
+	sendError(Exception e){
 		String message = e.getMessage();
 		if(message == null){
 			message = e.getClass().getSimpleName();
@@ -143,17 +147,21 @@ public class EditorPage extends GridPane{
 		e.printStackTrace();
 	}
 	
-	public void sendWarning(String s){
+	public void 
+	sendWarning(String s){
 		messages.add(new UI_Message(s, UI_Message.Type.Warning));
 	}
 	
-	public void sendInfo(String s){
+	public void 
+	sendInfo(String s){
 		messages.add(new UI_Message(s, UI_Message.Type.Info));
 	}
 	
-	public void createProperty(){
+	public void 
+	createProperty(){
 		if(mode != Mode.IDLE && mode != Mode.VIEW_PROP){
-			sendWarning("Cannot create a property while creating a layer/property!");
+			sendWarning("Cannot create a property "
+					+ "while creating a layer/property!");
 		}
 		else {
 			addedProperty.set(false);
@@ -163,9 +171,11 @@ public class EditorPage extends GridPane{
 		}
 	}
 	
-	public void createLayer(){
+	public void 
+	createLayer(){
 		if(mode != Mode.IDLE && mode != Mode.VIEW_PROP){
-			sendWarning("Cannot create a layer while creating a layer/property!");
+			sendWarning(
+					"Cannot create a layer while creating a layer/property!");
 			return;
 		}
 		else {
@@ -180,7 +190,8 @@ public class EditorPage extends GridPane{
 	 * Open the property viewer mode for a property with the given ID
 	 * @param pid The ID of the property to view.
 	 */
-	public void viewProperty(PropertyID pid){
+	public void 
+	viewProperty(PropertyID pid){
 		if(mode == Mode.NEW_PROP || mode == Mode.NEW_LAYER){
 			sendWarning("You cannot view node properties while"
 					+ " editing a property/layer!");
@@ -193,7 +204,8 @@ public class EditorPage extends GridPane{
 		advancePage.set(true);
 	}
 	
-	private void updatePage(){
+	private void 
+	updatePage(){
 		finished.set(false);
 		getChildren().clear();
 		title = new Text();
@@ -238,7 +250,8 @@ public class EditorPage extends GridPane{
 		}
 	}
 	
-	private void newLayerPage(){
+	private void 
+	newLayerPage(){
 		title.setText("New Layer");
 
 		TextField layerTx = new TextField();
@@ -268,7 +281,8 @@ public class EditorPage extends GridPane{
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void propertyViewerPage(){
+	private void 
+	propertyViewerPage(){
 		title.setText("Node Property Viewer");
 		cancel.setText("Exit");
 		PropertyReader prop = new LayerPropertyReader(model,propViewerID);
@@ -422,12 +436,14 @@ public class EditorPage extends GridPane{
 					rangeIDs = new ArrayList<>();
 				}
 				TableView<Integer> rangeItems = new TableView<>();
-				TableColumn<Integer, String> labelCol = new TableColumn<>("Label");
+				TableColumn<Integer, String> labelCol = 
+						new TableColumn<>("Label");
 				TableColumn<Integer, String> minCol = new TableColumn<>("Min");
 				TableColumn<Integer, String> maxCol = new TableColumn<>("Max");
 				
 				rangeItems.setPrefHeight(140);
-				rangeItems.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+				rangeItems.setColumnResizePolicy(
+						TableView.CONSTRAINED_RESIZE_POLICY);
 				rangeItems.getColumns().addAll(labelCol, minCol, maxCol);
 				
 				labelCol.setCellValueFactory(col->{
@@ -538,7 +554,8 @@ public class EditorPage extends GridPane{
 				distBPane.setCenter(distGPane);
 				
 				//Conditional Distribution navigation
-				final IntegerProperty indexProperty = new SimpleIntegerProperty(0);
+				final IntegerProperty indexProperty = 
+						new SimpleIntegerProperty(0);
 				
 				HBox buttonBar = new HBox();
 				buttonBar.setAlignment(Pos.CENTER);
@@ -558,12 +575,20 @@ public class EditorPage extends GridPane{
 				
 				Text condMessage = new Text();
 
-				TableView<Entry<Integer, Integer>> conditions = new TableView<>();
-				conditions.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+				TableView<Entry<Integer, Integer>> conditions =
+						new TableView<>();
+				
+				conditions.setColumnResizePolicy(
+						TableView.CONSTRAINED_RESIZE_POLICY);
+				
 				conditions.setPrefSize(200, 120);
 				
-				TableColumn<Entry<Integer, Integer>, String> depCol = new TableColumn<>("Dependency");
-				TableColumn<Entry<Integer, Integer>, String> valCol = new TableColumn<>("Value");
+				TableColumn<Entry<Integer, Integer>, String> depCol = 
+						new TableColumn<>("Dependency");
+				
+				TableColumn<Entry<Integer, Integer>, String> valCol =
+						new TableColumn<>("Value");
+				
 				conditions.getColumns().addAll(depCol, valCol);
 				
 				depCol.setCellValueFactory(col->{
@@ -591,12 +616,19 @@ public class EditorPage extends GridPane{
 					}
 				});
 
-				TableView<Entry<Integer, Float>> distribution = new TableView<>();
-				distribution.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+				TableView<Entry<Integer, Float>> distribution =
+						new TableView<>();
+				
+				distribution.setColumnResizePolicy(
+						TableView.CONSTRAINED_RESIZE_POLICY);
+				
 				distribution.setPrefSize(250, 120);
 				
-				TableColumn<Entry<Integer, Float>, String> rangeCol = new TableColumn<>("Range");
-				TableColumn<Entry<Integer, Float>, Number> probCol = new TableColumn<>("Probability");
+				TableColumn<Entry<Integer, Float>, String> rangeCol = 
+						new TableColumn<>("Range");
+				
+				TableColumn<Entry<Integer, Float>, Number> probCol = 
+						new TableColumn<>("Probability");
 				
 				distribution.getColumns().addAll(rangeCol, probCol);
 				
@@ -685,11 +717,15 @@ public class EditorPage extends GridPane{
 			centering.setAlignment(Pos.TOP_CENTER);
 			
 			TableView<Entry<Integer, Float>> distribution = new TableView<>();
-			TableColumn<Entry<Integer, Float>, String> rangeCol = new TableColumn<>("Range");
-			TableColumn<Entry<Integer, Float>, Number> probCol = new TableColumn<>("Probability");
+			TableColumn<Entry<Integer, Float>, String> rangeCol =
+					new TableColumn<>("Range");
+			
+			TableColumn<Entry<Integer, Float>, Number> probCol = 
+					new TableColumn<>("Probability");
 			
 			distribution.setPrefSize(250, 140);
-			distribution.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+			distribution.setColumnResizePolicy(
+					TableView.CONSTRAINED_RESIZE_POLICY);
 			
 			distribution.getColumns().addAll(rangeCol, probCol);
 			
@@ -711,7 +747,8 @@ public class EditorPage extends GridPane{
 			centering.getChildren().add(distribution);
 			
 			try {
-				distribution.getItems().addAll(prop.defaultDistribution().entrySet());
+				distribution.getItems().addAll(
+						prop.defaultDistribution().entrySet());
 			} 
 			catch (EditorException e) {
 				sendError(e);
@@ -721,13 +758,15 @@ public class EditorPage extends GridPane{
 			
 			break;
 		default:
-			messages.add(new UI_Message("Unknown page number: "+pageNumber, UI_Message.Type.Error));
+			sendError(new IllegalStateException(
+					"Illegal page number: "+pageNumber));
 			break;
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	private void newPropertyPage(){
+	private void 
+	newPropertyPage(){
 		title.setText("New Property");
 		
 		//Function to see if the next button should be enabled
@@ -790,7 +829,9 @@ public class EditorPage extends GridPane{
 			nextBtn.setOnMouseClicked(event->{
 				pageNumber ++;
 				try {
-					if(layerSelect.getValue() != null && layerSelect.getValue().isPresent()){
+					if(layerSelect.getValue() != null 
+					   && layerSelect.getValue().isPresent())
+					{
 						model.scratch_newInLayer(
 								layerSelect.getValue().get(), 
 								propName.getText(), 
@@ -823,7 +864,8 @@ public class EditorPage extends GridPane{
 			CheckBox useUniform = new CheckBox("Use Uniform Distribution");
 
 			Spinner<Integer> depLvl = new Spinner<>();
-			depLvl.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 100));
+			depLvl.setValueFactory(
+					new SpinnerValueFactory.IntegerSpinnerValueFactory(0,100));
 			
 			try {
 				if(model.scratch_isRangedProperty()){
@@ -856,7 +898,8 @@ public class EditorPage extends GridPane{
 					else {
 						int dl = depLvl.getValue();
 						model.scratch_setDependencyLevel(dl);
-						//Skip dependencies and conditional distributions if the dependency level is 0
+						//Skip dependencies and conditional distributions
+						//if the dependency level is 0
 						pageNumber = (dl > 0)? 2 : 4; 
 						advancePage.set(true);
 					}
@@ -870,7 +913,9 @@ public class EditorPage extends GridPane{
 			case "EnumeratorProperty":
 				ListView<Integer> values = new ListView<>();
 				
-				values.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+				values.getSelectionModel().setSelectionMode(
+						SelectionMode.SINGLE);
+				
 				values.setCellFactory(lv ->{
 					EditorListCell<Integer> cell = new EditorListCell<>(null);
 					cell.setConverter(new StringConverter<Integer>(){
@@ -959,10 +1004,11 @@ public class EditorPage extends GridPane{
 							sendWarning("Select a range to remove");
 						}
 						else {
-							int rid = values.getSelectionModel().getSelectedItem();
-							int id = values.getSelectionModel().getSelectedIndex();
+							int index = values.getSelectionModel()
+									       .getSelectedIndex();
+							int rid = values.getItems().get(index);
 							model.scratch_removeRange(rid);
-							values.getItems().remove(id);
+							values.getItems().remove(index);
 						}
 					}
 					catch(Exception e){
@@ -976,7 +1022,8 @@ public class EditorPage extends GridPane{
 			case "IntegerRangeProperty":
 				
 				TableView<Integer> ranges = new TableView<>();
-				TableColumn<Integer, String> labelCol = new TableColumn<>("Label");
+				TableColumn<Integer, String> labelCol = 
+						new TableColumn<>("Label");
 				TableColumn<Integer, String> minCol = new TableColumn<>("Min");
 				TableColumn<Integer, String> maxCol = new TableColumn<>("Max");
 				ranges.setPrefHeight(200);
@@ -1087,7 +1134,8 @@ public class EditorPage extends GridPane{
 				
 				labelCol.setCellValueFactory(data ->{
 					try{
-						String s = model.scratch_getRangeLabel(data.getValue());
+						String s = 
+								model.scratch_getRangeLabel(data.getValue());
 						if(s == null || s.length() == 0){
 							return new SimpleStringProperty("<empty>");
 						}
@@ -1104,7 +1152,8 @@ public class EditorPage extends GridPane{
 				minCol.setCellValueFactory(data ->{
 					try {
 						if(model.scratch_rangeIsSet(data.getValue())){
-							Integer i = model.scratch_getRangeMin(data.getValue());
+							Integer i = 
+									model.scratch_getRangeMin(data.getValue());
 							return new SimpleStringProperty(i.toString());
 						}
 						else {
@@ -1119,7 +1168,8 @@ public class EditorPage extends GridPane{
 				maxCol.setCellValueFactory(data->{
 					try{
 						if(model.scratch_rangeIsSet(data.getValue())){
-							Integer i = model.scratch_getRangeMax(data.getValue());
+							Integer i = 
+									model.scratch_getRangeMax(data.getValue());
 							return new SimpleStringProperty(i.toString());
 						}
 						else {
@@ -1133,7 +1183,8 @@ public class EditorPage extends GridPane{
 				});
 				
 				ranges.getColumns().addAll(labelCol, minCol, maxCol);
-				ranges.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+				ranges.setColumnResizePolicy(
+						TableView.CONSTRAINED_RESIZE_POLICY);
 				
 				labelCol.setEditable(true);
 				minCol.setEditable(true);
@@ -1156,10 +1207,11 @@ public class EditorPage extends GridPane{
 							sendWarning("Select a range to remove");
 						}
 						else {
-							int rid = ranges.getSelectionModel().getSelectedItem();
-							int id = ranges.getSelectionModel().getSelectedIndex();
+							int index = ranges.getSelectionModel()
+									          .getSelectedIndex();
+							int rid = ranges.getItems().get(index);
 							model.scratch_removeRange(rid);
-							ranges.getItems().remove(id);
+							ranges.getItems().remove(index);
 						}
 					}
 					catch(Exception e){
@@ -1203,7 +1255,8 @@ public class EditorPage extends GridPane{
 					initFloat.textProperty().addListener((o, oldVal, newVal)->{
 						if(!newVal.matches("\\d*\\.?\\d+")){
 							nextBtn.setDisable(true);
-							initFloat.setText(newVal.replaceAll("[^0-9.]", ""));
+							initFloat.setText(
+									newVal.replaceAll("[^0-9.]", ""));
 						}
 						else {
 							nextBtn.setDisable(false);
@@ -1259,16 +1312,20 @@ public class EditorPage extends GridPane{
 		else if(pageNumber == 2){
 			title.setText(title.getText() + " - Add Dependencies");
 			TableView<PropertyID> potentialDependencies = new TableView<>();
-			TableColumn<PropertyID, String> nameCol = new TableColumn<>("Name");
-			TableColumn<PropertyID, String> typeCol = new TableColumn<>("Type");
+			TableColumn<PropertyID, String> nameCol = 
+					new TableColumn<>("Name");
+			TableColumn<PropertyID, String> typeCol = 
+					new TableColumn<>("Type");
 			
 			nameCol.setCellValueFactory(new PropertyNameFactory(this));
 			typeCol.setCellValueFactory(new PropertyTypeFactory(this));
 			
 			TableView<PropertyID> scratchDependencies = new TableView<>();
 
-			TableColumn<PropertyID, String> nameCol2 = new TableColumn<>("Name");
-			TableColumn<PropertyID, String> typeCol2 = new TableColumn<>("Type");
+			TableColumn<PropertyID, String> nameCol2 = 
+					new TableColumn<>("Name");
+			TableColumn<PropertyID, String> typeCol2 = 
+					new TableColumn<>("Type");
 			
 			nameCol2.setCellValueFactory(new PropertyNameFactory(this));
 			typeCol2.setCellValueFactory(new PropertyTypeFactory(this));
@@ -1277,15 +1334,20 @@ public class EditorPage extends GridPane{
 			potentialDependencies.getColumns().addAll(nameCol, typeCol);
 			potentialDependencies.setPrefSize(220, 200);
 			
-			scratchDependencies.setPrefWidth(potentialDependencies.getPrefWidth());
-			scratchDependencies.setPrefHeight(potentialDependencies.getPrefHeight());
+			scratchDependencies.setPrefWidth(
+					potentialDependencies.getPrefWidth());
+			
+			scratchDependencies.setPrefHeight(
+					potentialDependencies.getPrefHeight());
 			
 			
 			scratchDependencies.getColumns().addAll(nameCol2, typeCol2);
 			
 			
-			scratchDependencies.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-			potentialDependencies.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+			scratchDependencies.setColumnResizePolicy(
+					TableView.CONSTRAINED_RESIZE_POLICY);
+			potentialDependencies.setColumnResizePolicy(
+					TableView.CONSTRAINED_RESIZE_POLICY);
 			
 			try{
 				for(int pid : model.scratch_getPotentialDependencies()){
@@ -1320,7 +1382,8 @@ public class EditorPage extends GridPane{
 					sendWarning("Select a dependency to add.");
 				}
 				else {
-					int i = potentialDependencies.getSelectionModel().getSelectedIndex();
+					int i = potentialDependencies.getSelectionModel()
+							                     .getSelectedIndex();
 					PropertyID pid = potentialDependencies.getItems().get(i);
 					try{
 						model.scratch_addDependency(pid.pid());
@@ -1337,7 +1400,8 @@ public class EditorPage extends GridPane{
 					sendWarning("Select a dependency to remove.");
 				}
 				else {
-					int i = scratchDependencies.getSelectionModel().getSelectedIndex();
+					int i = scratchDependencies.getSelectionModel()
+							                   .getSelectedIndex();
 					PropertyID pid= scratchDependencies.getItems().get(i);
 					try{
 						model.scratch_removeDependency(pid.pid());
@@ -1437,7 +1501,8 @@ public class EditorPage extends GridPane{
 			nextBtn.disableProperty().bind(cleared.not());
 			nextBtn.setOnMouseClicked(event->{
 				try {
-					model.scratch_reorderConditionalDistributions(distributions.getItems());
+					model.scratch_reorderConditionalDistributions(
+							distributions.getItems());
 				} catch (Exception e) {
 					sendError(e);
 				}
@@ -1450,9 +1515,11 @@ public class EditorPage extends GridPane{
 					sendWarning("Select a distribution to remove");
 				}
 				else {
-					int index = distributions.getSelectionModel().getSelectedIndex();
+					int index = distributions.getSelectionModel()
+							                 .getSelectedIndex();
 					try {
-						model.scratch_removeConditionalDistribution(distributions.getItems().get(index));
+						model.scratch_removeConditionalDistribution(
+								distributions.getItems().get(index));
 						distributions.getItems().remove(index);
 					} 
 					catch (Exception e) {
@@ -1466,11 +1533,13 @@ public class EditorPage extends GridPane{
 			final Runnable updateMenu = () ->{
 				try {
 
-					final DistributionTable distMap = new DistributionTable(this);
+					final DistributionTable distMap = 
+							new DistributionTable(this);
 					distMap.setPrefSize(300, 250);
 					distMap.setId("distMap");
 					
-					final ConditionsMenu condsMenu = new ConditionsMenu(model, this);
+					final ConditionsMenu condsMenu = 
+							new ConditionsMenu(model, this);
 					condsMenu.setPrefSize(300, 250);
 					condsMenu.setId("condMenu");
 
@@ -1480,12 +1549,14 @@ public class EditorPage extends GridPane{
 					distCreator.add(distMap,  1, 1);
 					
 					finBtn.disableProperty().bind( 
-							distMap.readyProperty().and(condsMenu.readyProperty()).not() );
+							distMap.readyProperty()
+							       .and(condsMenu.readyProperty()).not() );
 					
 					finBtn.setOnMouseClicked(e->{
 						try{
 							int cid = model.scratch_addConditionalDistribution(
-									condsMenu.getConditions(), distMap.getProbMap());
+									condsMenu.getConditions(), 
+									distMap.getProbMap());
 							distributions.getItems().add(cid);
 							cleared.set(true);
 						}
@@ -1511,16 +1582,21 @@ public class EditorPage extends GridPane{
 					
 				if(cleared.get() && cid != null){
 					updateMenu.run();
-					DistributionTable distMap = (DistributionTable) lookup("#distMap");
-					ConditionsMenu condMenu = (ConditionsMenu) lookup("#condMenu");
+					DistributionTable distMap = 
+							(DistributionTable) lookup("#distMap");
+					ConditionsMenu condMenu = 
+							(ConditionsMenu) lookup("#condMenu");
 					
 					try{
 						if(distMap == null || condMenu == null){
-							throw new IllegalStateException("Missing distribution map/conditions menu!");
+							throw new IllegalStateException("Missing "
+									+ "distribution map/conditions menu!");
 						}
 						
-						Map<Integer, Float> probMap = model.scratch_getDistribution(cid);
-						Map<Integer, Integer> conditions = model.scratch_getDistributionCondition(cid);
+						Map<Integer, Float> probMap = 
+								model.scratch_getDistribution(cid);
+						Map<Integer, Integer> conditions = 
+								model.scratch_getDistributionCondition(cid);
 						distMap.setPropMap(probMap);
 						condMenu.setCondiditions(conditions);
 						distMap.refresh();
@@ -1531,7 +1607,8 @@ public class EditorPage extends GridPane{
 					finBtn.setOnMouseClicked(event->{
 						try {
 							model.scratch_updateConditionalDistribution(
-									cid, condMenu.getConditions() , distMap.getProbMap());
+									cid, condMenu.getConditions() , 
+									distMap.getProbMap());
 							sendInfo("Updated conditional distribution "+cid);
 							distributions.refresh();
 							cleared.set(true);
@@ -1562,7 +1639,8 @@ public class EditorPage extends GridPane{
 
 				nextBtn.setOnMouseClicked(event->{
 					try {
-						model.scratch_setDefaultDistribution(distMap.getProbMap());
+						model.scratch_setDefaultDistribution(
+								distMap.getProbMap());
 						addedProperty.set(true);
 					} 
 					catch (Exception e) {
@@ -1577,7 +1655,8 @@ public class EditorPage extends GridPane{
 			}
 		}
 		else {
-			sendError(new IllegalStateException("Invalid page number: "+pageNumber));
+			sendError(new IllegalStateException("Invalid page number: "
+					                            +pageNumber));
 		}
 	}
 	
@@ -1586,7 +1665,8 @@ public class EditorPage extends GridPane{
 	 * page interfaces with.
 	 * @return
 	 */
-	public PropertiesEditor getModel() {
+	public PropertiesEditor 
+	getModel() {
 		return model;
 	}
 	/**
@@ -1594,24 +1674,28 @@ public class EditorPage extends GridPane{
 	 * or layer, this is set to true.
 	 * @return The finished property, in read only form.
 	 */
-	public ReadOnlyBooleanProperty finishedProperty(){
+	public ReadOnlyBooleanProperty 
+	finishedProperty(){
 		return finished;
 	}
 	/**
 	 * If the editor is moving to another page, this is set to true
 	 * @return A read only version of the advance page Property.
 	 */
-	public ReadOnlyBooleanProperty advancePageProperty(){
+	public ReadOnlyBooleanProperty 
+	advancePageProperty(){
 		return advancePage;
 	}
 	/**
 	 * The messages the editor has received
 	 * @return A read only copy of the editor messages
 	 */
-	public ReadOnlyListProperty<UI_Message> messagesProperty(){
+	public ReadOnlyListProperty<UI_Message> 
+	messagesProperty(){
 		return messages;
 	}
-	public void requireWidth(double w){
+	public void 
+	requireWidth(double w){
 		setPrefWidth(w);
 		setMaxWidth(w);
 		setMinWidth(w);
