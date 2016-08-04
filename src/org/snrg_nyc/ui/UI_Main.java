@@ -31,7 +31,7 @@ public class UI_Main extends Application{
 				     .enablePathogens()
 				     .enableEdges()
 				     .build( new NodeEditor(), initStage, 
-				    		 "Node Settings Editor");
+				             "Node Settings Editor");
 		
 		//Enable opening windows for pathogens
 		mainWindow.pathogensView().getSelectionModel()

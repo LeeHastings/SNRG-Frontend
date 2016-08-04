@@ -264,8 +264,7 @@ public class EditorWindow extends BorderPane {
 			buttonBox.getChildren().add(newProp);
 		}
 
-		addAllToLeftMenu(propertyTable,
-				     buttonBox);
+		addAllToLeftMenu(propertyTable, buttonBox);
 		
 		VBox messageBox = new VBox();
 		messageBox.setMinHeight(80);

@@ -12,7 +12,8 @@ import org.snrg_nyc.model.PropertiesEditor;
 public class UnitTest {
 	static PropertiesEditor bl;
 	
-	public static void main(String[] args){
+	public static void 
+	main(String[] args){
 		
 		bl = new NodeEditor();
 		System.out.println("Node Property types:");
