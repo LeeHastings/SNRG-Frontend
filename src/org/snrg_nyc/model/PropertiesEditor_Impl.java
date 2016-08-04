@@ -65,7 +65,11 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 		scratchProperty = null;
 		scratchLayerID = null;
 		
-		GsonBuilder g = new GsonBuilder()
+		serializer = new JsonFileSerializer(jsonConfig());
+	}
+	
+	protected GsonBuilder jsonConfig(){
+		return new GsonBuilder()
                 .setPrettyPrinting()
                 .disableHtmlEscaping()
                 .registerTypeAdapter(
@@ -76,13 +80,6 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
                 		NodeProperty.class, 
                 		new PropertyJsonAdapter(getPropertyClasses())
         		);
-		
-		serializer = new JsonFileSerializer(g);
-	}
-	
-	protected void 
-	setSerializer(ExperimentSerializer s){
-		serializer = s;
 	}
 	
 	protected abstract 

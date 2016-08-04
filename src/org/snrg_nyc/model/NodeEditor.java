@@ -11,6 +11,8 @@ import org.snrg_nyc.model.internal.EditorException;
 import org.snrg_nyc.model.internal.EnumeratorProperty;
 import org.snrg_nyc.model.internal.FractionProperty;
 import org.snrg_nyc.model.internal.IntegerRangeProperty;
+import org.snrg_nyc.persistence.JsonExperimentPrinter;
+import org.snrg_nyc.persistence.JsonFileSerializer;
 import org.snrg_nyc.persistence.PersistenceException;
 import org.snrg_nyc.util.Transferable;
 
@@ -20,7 +22,7 @@ import org.snrg_nyc.util.Transferable;
  * The only public methods should be those listed in {@link PropertiesEditor}.
  * @author Devin Hastings
  */
-public class NodeEditor extends PropertiesEditor_Impl {
+public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 	
 	/*         *\
 	 * Members *
@@ -278,5 +280,19 @@ public class NodeEditor extends PropertiesEditor_Impl {
 			throw new EditorException("Layer ID is outside of edge settings bounds: "+lid);
 		}
 		return edges.get(lid);
+	}
+
+	/*
+	 * EditorTester methods
+	 */
+	
+	@Override
+	public void utest_setPrintMode(boolean print) {
+		if(print){
+			this.serializer = new JsonExperimentPrinter(jsonConfig());
+		}
+		else {
+			this.serializer = new JsonFileSerializer(jsonConfig());
+		}
 	}
 }

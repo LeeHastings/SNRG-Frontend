@@ -4,19 +4,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.snrg_nyc.model.EditorTester;
 import org.snrg_nyc.model.NodeEditor;
-import org.snrg_nyc.model.PropertiesEditor;
 
 //TODO update this test for pathogens, edges, and layers
 
 public class UnitTest {
-	static PropertiesEditor bl;
 	
-	public static void 
-	main(String[] args){
+	public static void main(String[] args){
+		test_validInput();
+	}
+	
+	static void 
+	test_validInput(){
 		
-		bl = new NodeEditor();
+		EditorTester bl = new NodeEditor();
 		System.out.println("Node Property types:");
+		
+		bl.utest_setPrintMode(true);
 		
 		List<String> types = bl.getPropertyTypes();
 		for(String type : types){
@@ -155,5 +160,10 @@ public class UnitTest {
 			e.printStackTrace();
 		}
 		return;
+	}
+	
+	static void 
+	test_invalidInput(){
+		EditorTester bl = new NodeEditor();
 	}
 }
