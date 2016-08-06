@@ -1,5 +1,7 @@
 package org.snrg_nyc.model.internal;
 
+import org.snrg_nyc.model.EditorException;
+
 public class AttachmentProperty extends BooleanRangeProperty {
 	private static final long serialVersionUID = 1L;
 	
@@ -9,7 +11,7 @@ public class AttachmentProperty extends BooleanRangeProperty {
 	public AttachmentProperty(){
 		super();
 	}
-	public AttachmentProperty(String name, String description){
+	public AttachmentProperty(String name, String description) throws EditorException{
 		super(name, description);
 	}
 	public boolean isSet(){

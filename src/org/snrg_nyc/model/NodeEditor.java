@@ -88,6 +88,12 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 	scratch_commit() throws EditorException{
 		if(scratchProperty instanceof AttachmentProperty){
 			AttachmentProperty ap = (AttachmentProperty) scratchProperty;
+			if(ap.getPathogenName() == null 
+			   || ap.getPathogenName().length() == 0)
+			{
+				throw new EditorException("Tried to add AttachmentProperty with"
+						+ " illegal name: " + ap.getPathogenName());
+			}
 			int pathID = pathogen_create(ap.getPathogenName());
 			ap.setPathogenID(pathID);
 		}

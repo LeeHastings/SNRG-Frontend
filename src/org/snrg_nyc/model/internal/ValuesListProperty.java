@@ -63,7 +63,10 @@ public abstract class ValuesListProperty<T extends ListValue> extends NodeProper
 	private List<Integer> condOrder;
 	private Distribution defaultDist;
 	
-	public ValuesListProperty(String name, String desc, SimpleFactory<T> factory) {
+	public 
+	ValuesListProperty(String name, String desc, SimpleFactory<T> factory)
+			throws EditorException 
+	{
 		super(name, desc);
 		init(factory);
 	}
@@ -94,36 +97,41 @@ public abstract class ValuesListProperty<T extends ListValue> extends NodeProper
 	}
 	/**
 	 * Check if the given Conditional Condition ID is valid, throw an exception if it isn't.
-	 * @param cid
-	 * @throws IllegalArgumentException
+	 * @param cid The conditional distribution ID
+	 * @throws EditorException Thrown if the CID does not exist
 	 */
-	protected void assert_validCID(int cid) throws IllegalArgumentException{
+	protected void assert_validCID(int cid) throws  EditorException{
 		if(!(cid >= 0 && cid <=conDistributions.size() && conDistributions.get(cid)!= null)){
-			throw new IllegalArgumentException(errorMessage+
+			throw new EditorException(errorMessage+
 					"Invalid Conditional Distribution ID: "+cid);
 		}
 	}
-	
+	/**
+	 * Method for sorting ranges by their ID
+	 * @param rid1 The first range
+	 * @param rid2 The second range
+	 * @return The same result one would obtain from compareTo(range1, range2)
+	 */
 	int compareRanges(int rid1, int rid2){
 		return 0; //Never change them (sort by the order they're given)
 	}
 	/**
 	 * Check if the given Range Item ID is valid, throw an exception if it isn't.
-	 * @param rid 
-	 * @throws IllegalArgumentException
+	 * @param rid The range ID
+	 * @throws EditorException Thrown if it doesn't exist
 	 */
-	protected void assert_validRID(int rid) throws IllegalArgumentException{
+	protected void assert_validRID(int rid) throws EditorException{
 		if (!validRID(rid)){
-			throw new IllegalArgumentException(errorMessage+
+			throw new EditorException(errorMessage+
 					"Invalid Range Item ID: "+rid);
 		}
 	}
 	
 	public int 
-	addRange(){
+	addRange() throws EditorException{
 		int rid = -1;
 		if(distributionsAreSet()){
-			throw new IllegalStateException(errorMessage+
+			throw new EditorException(errorMessage+
 					"Cannot edit range labels once distributions are set");
 		}
 		int len = values.size();
@@ -143,9 +151,9 @@ public abstract class ValuesListProperty<T extends ListValue> extends NodeProper
 		return rid;
 	}
 	public void 
-	removeRange(int rid){
+	removeRange(int rid) throws EditorException{
 		if(distributionsAreSet()){
-			throw new IllegalStateException(errorMessage+
+			throw new EditorException(errorMessage+
 					"Cannot edit range labels once distributions are set");
 		}
 		assert_validRID(rid);
@@ -160,17 +168,17 @@ public abstract class ValuesListProperty<T extends ListValue> extends NodeProper
 		}
 		return null;
 	}
-	public String getRangeLabel(int rid){
+	public String getRangeLabel(int rid) throws EditorException{
 		assert_validRID(rid);
 		return values.get(rid).getLabel();
 	}
-	public void setRangeLabel(int rid, String label){
+	public void setRangeLabel(int rid, String label) throws EditorException{
 		if(label == null || label.length() == 0){
-			throw new IllegalArgumentException(
+			throw new EditorException(
 					"Cannot set a range label to an empty string.");
 		}
 		if(distributionsAreSet()){
-			throw new IllegalStateException(errorMessage+
+			throw new EditorException(errorMessage+
 					"Cannot edit range labels once distributions are set");
 		}
 		assert_validRID(rid);
@@ -178,7 +186,7 @@ public abstract class ValuesListProperty<T extends ListValue> extends NodeProper
 			if(rid2 != rid && values.get(rid2).getLabel() != null
 			   && values.get(rid2).getLabel().equals(label))
 			{
-				throw new IllegalStateException("Duplicate range label: "
+				throw new EditorException("Duplicate range label: "
 						+label);
 			}
 		}
@@ -203,9 +211,9 @@ public abstract class ValuesListProperty<T extends ListValue> extends NodeProper
 		conDistributions = null;
 	}
 	
-	public List<Integer> getConditionalDistributionIDs(){
+	public List<Integer> getConditionalDistributionIDs() throws EditorException{
 		if(distType != DistType.UNIVARIAT){
-			throw new IllegalStateException(errorMessage+
+			throw new EditorException(errorMessage+
 					"No conditional distributions in a distribution"
 					+ "of type "+distType.toString());
 		}
@@ -224,11 +232,11 @@ public abstract class ValuesListProperty<T extends ListValue> extends NodeProper
 	 * Get the dependency conditions for a conditional distribution.
 	 * @param cid The conditional distribution ID.
 	 * @return The map of node property IDs to labels in the node property
-	 * @throws IllegalArgumentException Thrown if there is no conditional distribution with the given cid
+	 * @throws EditorException Thrown if there is no conditional distribution with the given cid
 	 */
-	public Map<Integer, Integer> getConDistributionConditions(int cid) throws IllegalArgumentException{
+	public Map<Integer, Integer> getConDistributionConditions(int cid) throws EditorException{
 		if(distType != DistType.UNIVARIAT){
-			throw new IllegalStateException(errorMessage+
+			throw new EditorException(errorMessage+
 					"There are no conditional distributions in a uniform distribution");
 		}
 		assert_validCID(cid);
@@ -238,11 +246,11 @@ public abstract class ValuesListProperty<T extends ListValue> extends NodeProper
 	 * Get the probabilities in a conditional distribution
 	 * @param cid The conditional distribution
 	 * @return A map of string labels (labels in this property) to floating point probabilities
-	 * @throws IllegalArgumentException Thrown if there is no conditional distribution with the given cid
+	 * @throws EditorException Thrown if there is no conditional distribution with the given cid
 	 */
-	public Map<Integer, Float> getConDistributionProbMap(int cid) throws IllegalArgumentException{
+	public Map<Integer, Float> getConDistributionProbMap(int cid) throws EditorException{
 		if(distType != DistType.UNIVARIAT){
-			throw new IllegalStateException(errorMessage+
+			throw new EditorException(errorMessage+
 					"There are no conditional distributions in a distribution"
 					+ " of type "+distType.toString());
 		}
@@ -257,7 +265,7 @@ public abstract class ValuesListProperty<T extends ListValue> extends NodeProper
 		return (defaultDist != null);
 	}
 
-	public boolean rangeIsSet(int rid){
+	public boolean rangeIsSet(int rid) throws EditorException{
 		assert_validRID(rid);
 		return (values.get(rid) != null);
 	}
@@ -272,17 +280,17 @@ public abstract class ValuesListProperty<T extends ListValue> extends NodeProper
 	/**
 	 * Get the probabilities in the default distribution
 	 * @return A map of this node property's range IDs to floating-point probabilities.
-	 * @throws IllegalStateException Thrown if the default distribution has not been set 
+	 * @throws EditorException Thrown if the default distribution has not been set 
 	 * (as opposed to a {@link NullPointerException})
 	 */
-	public Map<Integer, Float> getDefaultDistribution() throws IllegalStateException{
+	public Map<Integer, Float> getDefaultDistribution() throws EditorException{
 		if(distType != DistType.UNIVARIAT){
-			throw new IllegalStateException(errorMessage+
+			throw new EditorException(errorMessage+
 					"There is no default distribution on a distribution of type "
 					+distType.toString());
 		}
 		if(defaultDist == null){
-			throw new IllegalStateException(errorMessage+
+			throw new EditorException(errorMessage+
 					"Default distribution was never set.");
 		}
 		else {
@@ -303,13 +311,13 @@ public abstract class ValuesListProperty<T extends ListValue> extends NodeProper
 		return -1;
 	}
 	public int 
-	addConditionalDistribution(ConditionalDistribution cd){
+	addConditionalDistribution(ConditionalDistribution cd) throws EditorException{
 		int ID = -1;
 		if(conDistributions == null){
 			conDistributions = new ArrayList<>();
 		}
 		if(distType != DistType.UNIVARIAT){
-			throw new IllegalStateException(errorMessage+
+			throw new EditorException(errorMessage+
 					"Cannot add conditional distributions to "
 					+ "a distribution of type "+distType.toString());
 		}
@@ -327,27 +335,28 @@ public abstract class ValuesListProperty<T extends ListValue> extends NodeProper
 		condOrder.add(ID);
 		return ID;
 	}
-	public void removeConditionalDistribution(int cid){
+	public void 
+	removeConditionalDistribution(int cid) throws EditorException{
 		assert_validCID(cid);
 		conDistributions.set(cid, null);
 		condOrder.remove(condOrder.indexOf(cid));
 	}
-	public void setConditionalDistribution(int cid, ConditionalDistribution dist){
+	public void setConditionalDistribution(int cid, ConditionalDistribution dist) throws EditorException{
 		assert_validCID(cid);
 		conDistributions.set(cid, dist);
 	}
 	public List<ConditionalDistribution> getConditionalDistributions(){
 		return conDistributions;
 	}
-	public void setConditionsOrder(List<Integer> order){
+	public void setConditionsOrder(List<Integer> order) throws EditorException{
 		if(condOrder.size() != order.size()){
-			throw new IllegalArgumentException(errorMessage+
+			throw new EditorException(errorMessage+
 					"The new conditions order does not have "
 					+ "the right number of distributions!");
 		}
 		for(int cid : order){
 			if(!condOrder.contains(cid)){
-				throw new IllegalArgumentException(
+				throw new EditorException(
 					"Unknown conditional distribution ID given: "+cid);
 			}
 		}
@@ -355,9 +364,9 @@ public abstract class ValuesListProperty<T extends ListValue> extends NodeProper
 	}
 	
 	@Override
-	public void removeDependency(int pid){
+	public void removeDependency(int pid) throws EditorException{
 		if(distributionsAreSet()){
-			throw new IllegalStateException(errorMessage+
+			throw new EditorException(errorMessage+
 					"Cannot edit dependencies once distributions are set");
 		}
 		else {

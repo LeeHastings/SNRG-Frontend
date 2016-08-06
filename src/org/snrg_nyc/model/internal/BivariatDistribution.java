@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.snrg_nyc.model.EditorException;
+
 import com.google.gson.annotations.SerializedName;
 
 public class BivariatDistribution {
@@ -22,7 +24,12 @@ public class BivariatDistribution {
 	@SerializedName("MissingValueAssignmentHandler")
 	private int mvah = 0;
 	
-	public BivariatDistribution(Map<Integer, Map<Integer, Float>> map, EnumeratorProperty property){
+	public 
+	BivariatDistribution(
+			Map<Integer, Map<Integer, Float>> map, 
+			EnumeratorProperty property) 
+			throws EditorException
+	{
 		assert_validMap(map, property);
 		for(int i : map.keySet()){
 			try{
@@ -42,7 +49,11 @@ public class BivariatDistribution {
 			biValueMap.put(property.getRangeLabel(i), tempMap);
 		}
 	}
-	private void assert_validMap(Map<Integer, ?> map, EnumeratorProperty ep){
+	
+	private void 
+	assert_validMap(Map<Integer, ?> map, EnumeratorProperty ep) 
+			throws EditorException
+	{
 		List<Integer> pids = ep.getUnSortedRangeIDs();
 		if(map.size() != pids.size()){
 			throw new IllegalArgumentException("The given map was of the wrong size.  "

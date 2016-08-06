@@ -1,5 +1,7 @@
 package org.snrg_nyc.model.internal;
 
+import org.snrg_nyc.model.EditorException;
+
 public class IntegerRangeProperty extends ValuesListProperty<Range<Integer>> {
 	private static final long serialVersionUID = 1L;
 	
@@ -9,18 +11,18 @@ public class IntegerRangeProperty extends ValuesListProperty<Range<Integer>> {
 	}
 	
 	public 
-	IntegerRangeProperty(String name, String desc){
+	IntegerRangeProperty(String name, String desc) throws EditorException{
 		super(name, desc, ()->new Range<Integer>());
 	}
 	
 	public int 
-	getRangeMin(int rid){
+	getRangeMin(int rid) throws EditorException{
 		assert_validRID(rid);
 		return values.get(rid).getMin(); 
 	}
 	
 	public int 
-	getRangeMax(int rid){
+	getRangeMax(int rid) throws EditorException{
 		assert_validRID(rid);
 		return values.get(rid).getMax(); 
 	}
@@ -28,19 +30,19 @@ public class IntegerRangeProperty extends ValuesListProperty<Range<Integer>> {
 	//Setters
 	
 	public void 
-	setRangeMin(int rid, int min) throws IllegalArgumentException {
+	setRangeMin(int rid, int min) throws EditorException {
 		assert_validRID(rid);
 		values.get(rid).setMin(min);
 	}
 	public void 
-	setRangeMax(int rid, int max) throws IllegalArgumentException {
+	setRangeMax(int rid, int max) throws EditorException{
 		assert_validRID(rid);
 		values.get(rid).setMax(max);
 	}
 	//Other Methods
 	@Override
 	public boolean 
-	rangeIsSet(int rid) {
+	rangeIsSet(int rid) throws EditorException {
 		assert_validRID(rid);
 		return values.get(rid).isReady();
 	}

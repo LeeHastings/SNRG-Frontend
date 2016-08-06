@@ -8,6 +8,7 @@ import java.util.Map;
 import org.snrg_nyc.model.EditorException;
 import org.snrg_nyc.model.EditorTester;
 import org.snrg_nyc.model.NodeEditor;
+import org.snrg_nyc.model.PropertiesEditor;
 
 //TODO update this test for pathogens, edges, and layers
 
@@ -15,7 +16,7 @@ public class UnitTest {
 	
 	public static void main(String[] args){
 		//test_validInput();
-		test_invalidInput(100);
+		test_invalidInput(500);
 		return;
 	}
 	
@@ -132,7 +133,8 @@ public class UnitTest {
 			bl.scratch_commit();
 			
 			int drugLID = bl.layer_new("drug_co_use");
-			bl.scratch_newInLayer(drugLID, "averagedegree", "IntegerRangeProperty", 
+			bl.scratch_newInLayer(drugLID, "averagedegree", 
+					"IntegerRangeProperty", 
 					"The ideal degree in this network layer");
 			
 			bl.scratch_setDependencyLevel(0);
@@ -172,63 +174,85 @@ public class UnitTest {
 		}
 	}
 	
+	/**
+	 * Run a number of commands on a {@link PropertiesEditor}, 
+	 * selected at random from a subset of commands
+	 * @param runs Number of commands to run
+	 */
 	static void 
 	test_invalidInput( int runs){
 		EditorTester bl = new NodeEditor();
 		bl.utest_setPrintMode(true);
 
+		List<String> types = bl.getPropertyTypes();
+		System.out.printf("Types: %s\n\n",types.toString());
+
 		List<Action<EditorException>> functions = new ArrayList<>();
 		
-		List<String> types = bl.getPropertyTypes();
-		functions.add(()->{
+		functions.add((bl2)->{
 			String type;
 			if((int) (Math.random()*10) == 3){
 				type = "BadType";
 			}
 			else {
-				type = types.get((int) (Math.random()*(types.size()-1)) );
+				type = types.get(
+						(int) Math.round((Math.random()*(types.size()-1))) );
 			}
 			String name = "property" + randString();
 			
-			System.out.printf("Creating property: %s - %s\n", name, type);
-			bl.scratch_new(name, type, "Test Property");
+			if(Math.random() < 0.75){
+				System.out.printf("Creating property: %s - %s\n", name, type);
+				bl2.scratch_new(name, type, "Test Property");
+			}
+			else {
+				List<Integer> layers = bl2.layer_getLayerIDs();
+				//Get sometimes invalid layer ID
+				int lid = (int) (Math.random()*layers.size()); 
+				System.out.printf("Creating layer(%d/%d) property: %s - %s\n",
+						lid, layers.size()-1, name, type);
+				
+				bl2.scratch_newInLayer(lid, name, type, "Layer Property");
+			}
 		});
 		
-		functions.add(()->{
+		functions.add((bl2)->{
 			try{
-				System.out.printf("Adding %s %s\n", bl.scratch_getType(),bl.scratch_getName());
+				System.out.printf("Adding %s %s\n", bl2.scratch_getType(),bl2.scratch_getName());
 			}
 			catch(EditorException e){
 				System.out.println("Adding invalid scratch property");
 			}
-			bl.scratch_commit();
+			bl2.scratch_commit();
 		});
 		
-		functions.add(()->{
+		functions.add((bl2)->{
 			String label ="range"+ randString();
 			System.out.println("Adding range: "+label);
-			bl.scratch_addRange(label);
+			bl2.scratch_addRange(label);
 		});
 		
-		functions.add(()->{
+		functions.add((bl2)->{
 			float init = (float) Math.random()*10;
 			System.out.println("Setting Fraction value: "+init);
-			bl.scratch_setFractionInitValue(init);
+			bl2.scratch_setFractionInitValue(init);
 		});
-		functions.add(()->{
+		
+		functions.add((bl2)->{
 			boolean init = Math.random() >= 0.5;
 			System.out.println("Setting Boolean value: "+init);
-			bl.scratch_setBooleanInitValue(init);
+			bl2.scratch_setBooleanInitValue(init);
 		});
-		functions.add(()->{
+		
+		functions.add((bl2)->{
 			System.out.println("Using uniform distribution");
-			bl.scratch_useUniformDistribution();
+			bl2.scratch_useUniformDistribution();
 		});
-		functions.add(()->{
+		
+		functions.add((bl2)->{
 			System.out.println("Setting default distribution");
 			Map<Integer, Float> map = new HashMap<>();
 			try{
-				for(int i : bl.scratch_getRangeIDs()){
+				for(int i : bl2.scratch_getRangeIDs()){
 					if(Math.random() >= 0.1){
 						map.put(i, (float) (Math.random()*8-1));
 					}
@@ -241,19 +265,59 @@ public class UnitTest {
 			catch(EditorException e){
 				System.out.println("\t(Not a valid distribution)");
 			}
-			bl.scratch_setDefaultDistribution(map);
+			bl2.scratch_setDefaultDistribution(map);
 		});
+		
+		functions.add((bl2)->{
+			String pathogen = "pathogen" + randString();
+			System.out.println("Setting pathogen type: "+pathogen);
+			bl2.scratch_setPathogenType(pathogen);
+		});
+		
+		//Add a few layers
+		while(Math.random() > 0.5){
+			String name = "layer"+randString();
+			System.out.println("Adding layer: "+ name);
+			try {
+				bl.layer_new(name);
+			} catch (EditorException e) {
+				e.printStackTrace();
+			}
+		}
 		
 		int randMax = functions.size()-1;
 		for(int i = 0; i < runs; i++){
 			try {
 				System.err.flush();
 				int func = (int) Math.round(Math.random()*randMax) ;
+				List<Integer> layers = bl.layer_getLayerIDs();
+				List<Integer> pathogens = bl.pathogen_getPathogenIDs();
+				
+				if(Math.random() > 0.5){
+					System.out.printf("Executing function %d/%d - ", 
+							func, randMax);
+					functions.get(func).run(bl);
+				}
+				else if(Math.random() > 0.25 && layers.size() > 0) {
+					int lid = layers.get((int) (Math.random()*layers.size()) );
+
+					System.out.printf("Executing function %d/%d on edge "
+							+ "%d/%d - ", 
+							func, randMax, lid, layers.size());
+					functions.get(func).run(bl.layer_getEdgeEditor(lid));
+				}
+				else if (pathogens.size() > 0){
+					int pid = pathogens.get((int) (Math.random()*pathogens.size()) );
+
+					System.out.printf("Executing function %d/%d on pathogen "
+							+ "%d/%d - ", 
+							func, randMax, pid, pathogens.size());
+					functions.get(func).run(bl.layer_getEdgeEditor(pid));
+				}
 				System.out.flush();
-				System.out.printf("Executing function %d/%d - ", func, randMax);
-				functions.get(func).run();
 			} catch (EditorException e) {
-				e.printStackTrace();
+				//e.printStackTrace();
+				System.err.println("Editor Error: "+e.getMessage());
 			}
 		}
 		
@@ -281,6 +345,6 @@ public class UnitTest {
 	 * @param <T> The type of exception thrown by the function;
 	 */
 	static interface Action<T extends Exception> {
-		public void run() throws T;
+		public void run(PropertiesEditor bl) throws T;
 	}
 }

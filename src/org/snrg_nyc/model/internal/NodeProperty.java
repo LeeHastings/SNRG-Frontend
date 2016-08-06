@@ -3,6 +3,7 @@ package org.snrg_nyc.model.internal;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.snrg_nyc.model.EditorException;
 import org.snrg_nyc.util.Transferable;
 
 /**
@@ -33,7 +34,7 @@ public abstract class NodeProperty implements Transferable {
 		dependencies = new ArrayList<Integer>();
 		distType = DistType.NULL;
 	}
-	public NodeProperty(String name, String description){
+	public NodeProperty(String name, String description) throws EditorException{
 		this();
 		errorMessage = "Error in property '"+name+"': ";
 		setName(name);
@@ -43,26 +44,26 @@ public abstract class NodeProperty implements Transferable {
 	public String getObjectID(){
 		return this.name;
 	}
-	public void setName(String name){
+	public void setName(String name) throws EditorException{
 		if(name == null || name == ""){
-			throw new IllegalArgumentException(errorMessage+"The name of a property cannot be empty or null");
+			throw new EditorException(errorMessage+"The name of a property cannot be empty or null");
 		} 
 		else {
 			this.name = name;
 			errorMessage = "Error in property '"+name+"': ";
 		}
 	}
-	public void setDescription(String description){
+	public void setDescription(String description) throws EditorException{
 		if(description == null || description.equals("")){
-			throw new IllegalArgumentException(errorMessage+"The description cannot be null or empty.");
+			throw new EditorException(errorMessage+"The description cannot be null or empty.");
 		}
 		else {
 			this.description = description;
 		}
 	}
-	public void setDependencyLevel(int dlvl){
+	public void setDependencyLevel(int dlvl) throws EditorException{
 		if(dlvl < 0){
-			throw new IllegalArgumentException(errorMessage+"The dependency level cannot be negative: "+dlvl);
+			throw new EditorException(errorMessage+"The dependency level cannot be negative: "+dlvl);
 		}
 		else {
 			dependencyLevel = dlvl;
@@ -85,9 +86,9 @@ public abstract class NodeProperty implements Transferable {
 		return dependencies;
 	}
 	
-	public void addDependency(int pid){
+	public void addDependency(int pid) throws EditorException{
 		if(dependencies.contains(pid)){
-			throw new IllegalArgumentException(
+			throw new EditorException(
 					errorMessage+"Duplicate dependency ID '"+pid+"' in property '"+name+"'.");
 		}
 		else {
@@ -95,9 +96,9 @@ public abstract class NodeProperty implements Transferable {
 		}
 	}
 	
-	public void removeDependency(int pid){
+	public void removeDependency(int pid) throws EditorException{
 		if(!dependencies.contains(pid)){
-			throw new IllegalArgumentException(
+			throw new EditorException(
 					errorMessage+"Tried to delete nonexistant dependency ID'"+pid+"' from property '"+name+"'.");
 		}
 		else {

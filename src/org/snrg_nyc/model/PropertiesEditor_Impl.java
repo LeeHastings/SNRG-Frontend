@@ -1,6 +1,7 @@
 package org.snrg_nyc.model;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -809,16 +810,25 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 		for(Class<?> nodeclass: getPropertyClasses()){
 			if(type.equals(nodeclass.getSimpleName())){
 				validType = true;
-				try{ //Make the scratchProperty based on the type
-					Constructor<?> con = nodeclass.getConstructor(
+				Constructor<?> con;
+				try {
+					con = nodeclass.getConstructor(
 							String.class, String.class);
 					scratchProperty = 
 							(NodeProperty) con.newInstance(name, description);
-				}
-				catch(Exception e){
+				} catch (NoSuchMethodException 
+						| SecurityException 
+						| InstantiationException 
+						| IllegalAccessException 
+						| IllegalArgumentException 
+						| InvocationTargetException e) 
+				{
+					// This should not happen under normal conditions
 					e.printStackTrace();
-					throw new EditorException(e.toString());
+					throw new EditorException("Failed to create scratch "
+							+ "property - "+e.toString());
 				}
+			
 				break;
 			}
 		}
@@ -920,12 +930,8 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	scratch_setRangeMin(int rid, int min) throws EditorException {
 		assert_scratchExists();
 		assert_nodeType(scratchProperty, IntegerRangeProperty.class);
-		try{
-			((IntegerRangeProperty) scratchProperty).setRangeMin(rid, min);
-		}
-		catch(IllegalArgumentException e){
-			throw new EditorException(e.getMessage());
-		}
+		((IntegerRangeProperty) scratchProperty).setRangeMin(rid, min);
+		
 	}
 
 	@Override
@@ -933,12 +939,8 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	scratch_setRangeMax(int rid, int max) throws EditorException {
 		assert_scratchExists();
 		assert_nodeType(scratchProperty, IntegerRangeProperty.class);
-		try{
-			((IntegerRangeProperty) scratchProperty).setRangeMax(rid, max);
-		}
-		catch(IllegalArgumentException e){
-			throw new EditorException(e.getMessage());
-		}
+		((IntegerRangeProperty) scratchProperty).setRangeMax(rid, max);
+
 	}
 	
 	@Override
@@ -1129,17 +1131,11 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	
 	@Override
 	public void 
-	scratch_clearDistributions(){
-		try {
-			assert_scratchExists();
-			assert_nodeType(scratchProperty, ValuesListProperty.class);
-			((ValuesListProperty<?>) scratchProperty)
-			.getConditionalDistributions().clear();
-		} catch (EditorException e) {
-			//The only caught exception, 
-			//since this has no negative side effects if it fails
-			e.printStackTrace();
-		}
+	scratch_clearDistributions() throws EditorException{
+		assert_scratchExists();
+		assert_nodeType(scratchProperty, ValuesListProperty.class);
+		((ValuesListProperty<?>) scratchProperty)
+		.getConditionalDistributions().clear();
 	}
 
 	@Override

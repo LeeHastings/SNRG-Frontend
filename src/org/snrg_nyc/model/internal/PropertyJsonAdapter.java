@@ -2,6 +2,8 @@ package org.snrg_nyc.model.internal;
 
 import java.lang.reflect.Type;
 
+import org.snrg_nyc.model.EditorException;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -53,9 +55,14 @@ public class PropertyJsonAdapter implements JsonSerializer<NodeProperty>, JsonDe
 			for(int i : irp.getSortedRangeIDs()){
 				JsonObject rangeJs = new JsonObject();
 				
-				rangeJs.addProperty("RangeID", irp.getRangeLabel(i));
-				rangeJs.addProperty("Min", irp.getRangeMin(i));
-				rangeJs.addProperty("Max", irp.getRangeMax(i));
+				try {
+					rangeJs.addProperty("RangeID", irp.getRangeLabel(i));
+					rangeJs.addProperty("Min", irp.getRangeMin(i));
+					rangeJs.addProperty("Max", irp.getRangeMax(i));
+				} catch (EditorException e) {
+					e.printStackTrace();
+					throw new JsonParseException("Error while writing ranges");
+				}
 				
 				ranges.add(rangeJs);
 			}
@@ -72,7 +79,12 @@ public class PropertyJsonAdapter implements JsonSerializer<NodeProperty>, JsonDe
 			innerJs.add(enumValsLabel, values);
 			
 			for(int i : en.getSortedRangeIDs()){
-				values.add( new JsonPrimitive(en.getRangeLabel(i)) );
+				try {
+					values.add( new JsonPrimitive(en.getRangeLabel(i)) );
+				} catch (EditorException e) {
+					e.printStackTrace();
+					throw new JsonParseException("Failed to write range");
+				}
 			}
 		}
 		else if(nodeProp instanceof ValueProperty){
@@ -109,20 +121,33 @@ public class PropertyJsonAdapter implements JsonSerializer<NodeProperty>, JsonDe
 			throw new JsonParseException(
 					"The given property was not in the list of known property types: "+nodePropJs);
 		}
-		nodeProp.setName(innerJs.get(nameLabel).getAsString());
-		nodeProp.setDescription(innerJs.get(descLabel).getAsString());
-		nodeProp.setDependencyLevel(innerJs.get(depLabel).getAsInt());
+		try {
+			nodeProp.setName(innerJs.get(nameLabel).getAsString());
+			nodeProp.setDescription(innerJs.get(descLabel).getAsString());
+			nodeProp.setDependencyLevel(innerJs.get(depLabel).getAsInt());
+		} 
+		catch (EditorException e) {
+			e.printStackTrace();
+			throw new JsonParseException("Failed to set property attributes");
+		}
 		
 		if(nodeProp instanceof IntegerRangeProperty){
 			IntegerRangeProperty irp = (IntegerRangeProperty) nodeProp;
 			
 			for(JsonElement rangeJs : innerJs.get(intRangesLabel).getAsJsonArray()){
 				JsonObject range = rangeJs.getAsJsonObject();
-				int rid = irp.addRange();
-				
-				irp.setRangeLabel(rid, range.get("RangeID").getAsString());
-				irp.setRangeMin(rid, range.get("Min").getAsInt());
-				irp.setRangeMax(rid, range.get("Max").getAsInt());
+				int rid;
+				try {
+					rid = irp.addRange();
+					
+					irp.setRangeLabel(rid, range.get("RangeID").getAsString());
+					irp.setRangeMin(rid, range.get("Min").getAsInt());
+					irp.setRangeMax(rid, range.get("Max").getAsInt());
+				} 
+				catch (EditorException e) {
+					e.printStackTrace();
+					throw new JsonParseException("Error while reading ranges");
+				}
 			}
 		}
 		else if(nodeProp instanceof BooleanRangeProperty){
@@ -134,8 +159,14 @@ public class PropertyJsonAdapter implements JsonSerializer<NodeProperty>, JsonDe
 			EnumeratorProperty en = (EnumeratorProperty) nodeProp;
 			
 			for(JsonElement rangejs : innerJs.get(enumValsLabel).getAsJsonArray()){
-				int rid = en.addRange();
-				en.setRangeLabel(rid, rangejs.getAsString());
+				int rid;
+				try {
+					rid = en.addRange();
+					en.setRangeLabel(rid, rangejs.getAsString());
+				} catch (EditorException e) {
+					e.printStackTrace();
+					throw new JsonParseException("Error while reading ranges");
+				}
 			}
 		}
 		else if(nodeProp instanceof FractionProperty){

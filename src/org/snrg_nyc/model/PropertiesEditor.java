@@ -817,8 +817,9 @@ public interface PropertiesEditor {
 	 * <p>
 	 * This does not throw an exception, since clearing a property without conditional
 	 * distributions is not a serious issue.
+	 * @throws EditorException Thrown if the property does not exist, or is of the wrong type
 	 */
-	public void scratch_clearDistributions();
+	public void scratch_clearDistributions() throws EditorException;
 	
 	/**
 	 * Replace the attributes of a conditional distribution with new information.  
