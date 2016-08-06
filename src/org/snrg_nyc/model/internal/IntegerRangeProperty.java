@@ -42,7 +42,7 @@ public class IntegerRangeProperty extends ValuesListProperty<Range<Integer>> {
 	public boolean 
 	rangeIsSet(int rid) {
 		assert_validRID(rid);
-		return values.get(rid).isSet();
+		return values.get(rid).isReady();
 	}
 	
 	@Override

@@ -17,6 +17,7 @@ import org.snrg_nyc.model.internal.NodeProperty;
 import org.snrg_nyc.model.internal.NodeProperty.DistType;
 import org.snrg_nyc.model.internal.PropertyJsonAdapter;
 import org.snrg_nyc.model.internal.UnivariatDistribution;
+import org.snrg_nyc.model.internal.ValueProperty;
 import org.snrg_nyc.model.internal.ValuesListProperty;
 import org.snrg_nyc.model.internal.ValuesListProperty.ConditionalDistribution;
 import org.snrg_nyc.model.internal.ValuesListProperty.Distribution;
@@ -258,6 +259,11 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 		assert_scratchExists();
 		assert_nodeType(scratchProperty, ValuesListProperty.class);
 		
+		if(!((ValuesListProperty<?>)scratchProperty).rangesAreSet()){
+			throw new EditorException(
+					"Not all ranges are set in this property");
+		}
+		
 		if(dependencyConditions.isEmpty()){
 			throw new EditorException(
 					"The set of dependency conditions cannot be empty!");
@@ -302,6 +308,11 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	assert_probMap(Map<Integer, Float> probabilities) throws EditorException{
 		assert_scratchExists();
 		assert_nodeType(scratchProperty, ValuesListProperty.class);
+		
+		if(!((ValuesListProperty<?>)scratchProperty).rangesAreSet()){
+			throw new EditorException(
+					"Not all ranges are set in this property");
+		}
 		for(Entry<Integer, Float> entry : probabilities.entrySet()){
 			if(entry.getValue() == null || entry.getKey() == null){
 				throw new EditorException("Error while adding distribution:"
@@ -986,7 +997,7 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	@Override
 	public boolean scratch_getBooleanInitValue() throws EditorException {
 		assert_scratchExists();
-		assert_nodeType(scratchProperty, FractionProperty.class);
+		assert_nodeType(scratchProperty, BooleanProperty.class);
 		if( !((BooleanProperty) scratchProperty).hasInitValue() ){
 			throw new EditorException(
 					"Initial value for the scratch property has not been set");
@@ -1096,8 +1107,6 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 			) 
 			throws EditorException 
 	{
-		assert_scratchExists();
-		assert_nodeType(scratchProperty, ValuesListProperty.class);
 		assert_depConds(dependencyConditions);
 		assert_probMap(probabilities);
 		
@@ -1201,18 +1210,14 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 				throw new EditorException("Tried to add a scratch property "
 						+ "without a default distribution.");
 			}
-			
-			if(vlp instanceof IntegerRangeProperty){
-				for (int i :vlp.getUnSortedRangeIDs() ){
-					if( !vlp.rangeIsSet(i) ){
-						throw new EditorException("Range '"+vlp.getRangeLabel(i)
-						+"' in the scratch property was not properly set");
-					}
-				}
+			if(!vlp.rangesAreSet()){
+				throw new EditorException(
+						"Not all ranges are set in this property");
 			}
+			
 		}
-		else if(scratchProperty instanceof FractionProperty){
-			if ( !((FractionProperty) scratchProperty).hasInitValue() ){
+		else if(scratchProperty instanceof ValueProperty){
+			if ( !((ValueProperty<?>) scratchProperty).hasInitValue() ){
 				throw new EditorException("Tried to add a fraction property "
 						+ "without an initial value.");
 			}

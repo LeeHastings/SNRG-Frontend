@@ -28,5 +28,9 @@ class ListValue {
 	labelIs(String label){
 		return this.label != null && this.label.equals(label);
 	}
+	public boolean
+	isReady(){
+		return label != null && label.length() > 0;
+	}
 }
 

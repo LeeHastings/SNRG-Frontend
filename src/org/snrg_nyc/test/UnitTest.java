@@ -8,7 +8,6 @@ import java.util.Map;
 import org.snrg_nyc.model.EditorException;
 import org.snrg_nyc.model.EditorTester;
 import org.snrg_nyc.model.NodeEditor;
-import org.snrg_nyc.util.Action;
 
 //TODO update this test for pathogens, edges, and layers
 
@@ -16,7 +15,7 @@ public class UnitTest {
 	
 	public static void main(String[] args){
 		//test_validInput();
-		test_invalidInput(20);
+		test_invalidInput(100);
 		return;
 	}
 	
@@ -179,6 +178,7 @@ public class UnitTest {
 		bl.utest_setPrintMode(true);
 
 		List<Action<EditorException>> functions = new ArrayList<>();
+		
 		List<String> types = bl.getPropertyTypes();
 		functions.add(()->{
 			String type;
@@ -206,14 +206,51 @@ public class UnitTest {
 		
 		functions.add(()->{
 			String label ="range"+ randString();
+			System.out.println("Adding range: "+label);
 			bl.scratch_addRange(label);
 		});
 		
-		int randMax = functions.size();
+		functions.add(()->{
+			float init = (float) Math.random()*10;
+			System.out.println("Setting Fraction value: "+init);
+			bl.scratch_setFractionInitValue(init);
+		});
+		functions.add(()->{
+			boolean init = Math.random() >= 0.5;
+			System.out.println("Setting Boolean value: "+init);
+			bl.scratch_setBooleanInitValue(init);
+		});
+		functions.add(()->{
+			System.out.println("Using uniform distribution");
+			bl.scratch_useUniformDistribution();
+		});
+		functions.add(()->{
+			System.out.println("Setting default distribution");
+			Map<Integer, Float> map = new HashMap<>();
+			try{
+				for(int i : bl.scratch_getRangeIDs()){
+					if(Math.random() >= 0.1){
+						map.put(i, (float) (Math.random()*8-1));
+					}
+				}
+				if(Math.random() > 0.9){
+					map.put(
+						(int)(Math.random()*40), (float)(Math.random()*10));
+				}
+			} 
+			catch(EditorException e){
+				System.out.println("\t(Not a valid distribution)");
+			}
+			bl.scratch_setDefaultDistribution(map);
+		});
+		
+		int randMax = functions.size()-1;
 		for(int i = 0; i < runs; i++){
 			try {
-				int func = (int) (Math.random()*(randMax-1)) ;
-				System.out.println("Executing function "+func);
+				System.err.flush();
+				int func = (int) Math.round(Math.random()*randMax) ;
+				System.out.flush();
+				System.out.printf("Executing function %d/%d - ", func, randMax);
 				functions.get(func).run();
 			} catch (EditorException e) {
 				e.printStackTrace();
@@ -234,5 +271,16 @@ public class UnitTest {
 		else {
 			return num;
 		}
+	}
+	
+	/**
+	 * An interface similar to {@link Runnable}, but the function throws an
+	 * exception.
+	 * @author Devin Hastings
+	 *
+	 * @param <T> The type of exception thrown by the function;
+	 */
+	static interface Action<T extends Exception> {
+		public void run() throws T;
 	}
 }

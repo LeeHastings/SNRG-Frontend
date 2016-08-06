@@ -49,9 +49,11 @@ class Range<T extends Number> extends ListValue {
 			this.max = max;
 		}
 	}
+	@Override
 	public boolean 
-	isSet(){
-		return (getLabel() != null && min != null && max != null);
+	isReady(){
+		return (super.isReady() && min != null && max != null 
+				&& min.doubleValue() <= max.doubleValue());
 	}
 	
 	/**

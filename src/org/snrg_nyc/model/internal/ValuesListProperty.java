@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.snrg_nyc.model.EditorException;
 import org.snrg_nyc.util.SimpleFactory;
 
 
@@ -260,9 +261,9 @@ public abstract class ValuesListProperty<T extends ListValue> extends NodeProper
 		assert_validRID(rid);
 		return (values.get(rid) != null);
 	}
-	public void setDefaultDistribution(Distribution distribution){
+	public void setDefaultDistribution(Distribution distribution) throws EditorException{
 		if(distType != DistType.UNIVARIAT){
-			throw new IllegalStateException(errorMessage+
+			throw new EditorException(errorMessage+
 					"There is no default distribution on a distribution of type "
 					+distType.toString());
 		}
@@ -363,7 +364,19 @@ public abstract class ValuesListProperty<T extends ListValue> extends NodeProper
 			super.removeDependency(pid);
 		}
 	}
-	
+	public boolean rangesAreSet(){
+		if( ids.size() > 0){
+			for(int i : ids){
+				if(!values.get(i).isReady()){
+					return false;
+				}
+			}
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
 }
 	
 
