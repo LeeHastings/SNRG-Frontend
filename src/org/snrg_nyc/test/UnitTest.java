@@ -207,15 +207,15 @@ public class UnitTest {
 		System.out.printf("Types: %s\n\n",types.toString());
 
 		List<Action<EditorException>> functions = new ArrayList<>();
-		Random rand = new Random();
 		
+		Random rand = new Random();
 		functions.add((bl2)->{
 			String type;
 			if(Math.random() < 0.1){
 				type = "BadType";
 			}
 			else {
-				type = types.get(rand.nextInt(types.size()-1) );
+				type = types.get(rand.nextInt(types.size()) );
 			}
 			String name = "property" + randString();
 			
@@ -237,6 +237,85 @@ public class UnitTest {
 			}
 		});
 		
+		functions.addAll(scratchMethods());
+		
+		while(Math.random() > 0.2){
+			String name = "layer"+randString();
+			System.out.println("Adding layer: "+ name);
+			try {
+				bl.layer_new(name);
+			} catch (EditorException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		int randMax = functions.size()-1;
+		for(int i = 0; i < runs; i++){
+			try {
+				int func = (int) Math.round(Math.random()*randMax) ;
+				List<Integer> layers = bl.layer_getLayerIDs();
+				List<Integer> pathogens = bl.pathogen_getPathogenIDs();
+				
+				if(Math.random() > 0.5){
+					System.out.printf("Executing function %d/%d - ", 
+							func, randMax);
+					functions.get(func).run(bl);
+				}
+				else if(Math.random() > 0.25 && layers.size() > 0) {
+					int lid = layers.get((int) (Math.random()*layers.size()) );
+
+					System.out.printf("Executing function %d/%d on edge "
+							+ "%d/%d - ", 
+							func, randMax, lid, layers.size());
+					functions.get(func).run(bl.layer_getEdgeEditor(lid));
+				}
+				else if (pathogens.size() > 0){
+					int pid = pathogens.get((int) (Math.random()*pathogens.size()) );
+
+					System.out.printf("Executing function %d/%d on pathogen "
+							+ "%d/%d - ", 
+							func, randMax, pid, pathogens.size());
+					functions.get(func).run(bl.pathogen_getEditor(pid));
+				}
+			} catch (EditorException e) {
+				System.out.flush();
+				//e.printStackTrace();
+				System.err.println("Editor Error: "+e.getMessage());
+				System.err.flush();
+			}
+		}
+		
+		try {
+			bl.save("test_garbage");
+		} catch (EditorException e) {
+			e.printStackTrace();
+		}
+	}
+	static String randString(){
+		String num = Double.toString(Math.random()).substring(2);
+		if(num.length() > 5){
+			return num.substring(0, 5);
+		}
+		else {
+			return num;
+		}
+	}
+	
+	/**
+	 * An interface similar to {@link Runnable}, but the function throws an
+	 * exception.
+	 * @author Devin Hastings
+	 *
+	 * @param <T> The type of object thrown by the function;
+	 */
+	static interface Action<T extends Throwable> {
+		public void run(PropertiesEditor bl) throws T;
+	}
+	static List<Action<EditorException>> scratchMethods(){
+
+		Random rand = new Random();
+		List<Action<EditorException>> functions = new ArrayList<>();
+		
 		functions.add((bl2)->{
 			int dep = rand.nextInt(5);
 			System.out.println("Setting dependency level: "+dep);
@@ -245,7 +324,7 @@ public class UnitTest {
 		
 		functions.add((bl2)->{
 			System.out.println("Adding dependencies");
-			for(int i : bl.scratch_getPotentialDependencies()){
+			for(int i : bl2.scratch_getPotentialDependencies()){
 				if(Math.random() > 0.2){
 					bl2.scratch_addDependency(i);
 				}
@@ -354,77 +433,6 @@ public class UnitTest {
 			bl2.scratch_setPathogenType(pathogen);
 		});
 		
-		//Add a few layers
-		while(Math.random() > 0.3){
-			String name = "layer"+randString();
-			System.out.println("Adding layer: "+ name);
-			try {
-				bl.layer_new(name);
-			} catch (EditorException e) {
-				e.printStackTrace();
-			}
-		}
-		
-		int randMax = functions.size()-1;
-		for(int i = 0; i < runs; i++){
-			try {
-				System.err.flush();
-				int func = (int) Math.round(Math.random()*randMax) ;
-				List<Integer> layers = bl.layer_getLayerIDs();
-				List<Integer> pathogens = bl.pathogen_getPathogenIDs();
-				
-				if(Math.random() > 0.5){
-					System.out.printf("Executing function %d/%d - ", 
-							func, randMax);
-					functions.get(func).run(bl);
-				}
-				else if(Math.random() > 0.25 && layers.size() > 0) {
-					int lid = layers.get((int) (Math.random()*layers.size()) );
-
-					System.out.printf("Executing function %d/%d on edge "
-							+ "%d/%d - ", 
-							func, randMax, lid, layers.size());
-					functions.get(func).run(bl.layer_getEdgeEditor(lid));
-				}
-				else if (pathogens.size() > 0){
-					int pid = pathogens.get((int) (Math.random()*pathogens.size()) );
-
-					System.out.printf("Executing function %d/%d on pathogen "
-							+ "%d/%d - ", 
-							func, randMax, pid, pathogens.size());
-					functions.get(func).run(bl.pathogen_getEditor(pid));
-				}
-				System.out.flush();
-			} catch (EditorException e) {
-				//e.printStackTrace();
-				System.err.println("Editor Error: "+e.getMessage());
-			}
-		}
-		
-		try {
-			bl.save("test_garbage");
-		} catch (EditorException e) {
-			e.printStackTrace();
-		}
-	}
-	static String randString(){
-		String num = Double.toString(Math.random()).substring(2);
-		if(num.length() > 5){
-			return num.substring(0, 5);
-		}
-		else {
-			return num;
-		}
-	}
-	
-	/**
-	 * An interface similar to {@link Runnable}, but the function throws an
-	 * exception.
-	 * @author Devin Hastings
-	 *
-	 * @param <T> The type of object thrown by the function;
-	 */
-	static interface Action<T extends Throwable> {
-		public void run(PropertiesEditor bl) throws T;
+		return functions;
 	}
 }
