@@ -1182,6 +1182,10 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	public int 
 	scratch_commit() throws EditorException {
 		assert_scratchExists();
+		if(scratchProperty.getDependencyLevel() < 0){
+			throw new EditorException("Tried to add property without "
+					+ "setting its dependency level");
+		}
 		List<NodeProperty> propertyList;
 		//Add it to a layer if the scratchLayerID is not null
 		if(scratchLayerID != null){

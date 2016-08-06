@@ -1,14 +1,16 @@
 package org.snrg_nyc.model.internal;
 
+import org.snrg_nyc.model.EditorException;
+
 class Range<T extends Number> extends ListValue {
 	private T max;
 	private T min;
 	
 	public 
-	Range(String label, T min, T max){
+	Range(String label, T min, T max) throws EditorException{
 		super(label);
 		if(min.doubleValue() >= max.doubleValue()){
-			throw new IllegalArgumentException("Min ("+min+") must be strictly less than max ("+max+")");
+			throw new EditorException("Min ("+min+") must be strictly less than max ("+max+")");
 		} else{
 			this.min = min;
 			this.max = max;
@@ -30,9 +32,9 @@ class Range<T extends Number> extends ListValue {
 		return max;
 	}
 	public void 
-	setMin(T min){
+	setMin(T min) throws EditorException{
 		if(this.max != null && min.doubleValue() >= this.max.doubleValue()){
-			throw new IllegalArgumentException("The lower bound on range '"
+			throw new EditorException("The lower bound on range '"
 		+getLabel()+"' must be less than the upper bound.");
 		}
 		else {
@@ -40,9 +42,9 @@ class Range<T extends Number> extends ListValue {
 		}
 	}
 	public void 
-	setMax(T max){
+	setMax(T max) throws EditorException{
 		if(this.min != null && max.doubleValue() <= this.min.doubleValue()){
-			throw new IllegalArgumentException("The upper bound on range '"
+			throw new EditorException("The upper bound on range '"
 		+getLabel()+"' must be greater than the lower bound.");
 		}
 		else {
