@@ -13,5 +13,15 @@ public interface EditorTester extends PropertiesEditor {
 	 * will save normally or print to the console.
 	 * @param print True to print to the console, false to save as usual
 	 */
-	public void utest_setPrintMode(boolean print);
+	public void 
+	utest_setPrintMode(boolean print);
+	
+	/**
+	 * Load an experiment name, and print debug messages
+	 * @param name The experiment name to load from
+	 * @throws EditorException Thrown if {@link PropertiesEditor#load(String)}
+	 * throws an exception.
+	 */
+	public void 
+	utest_loadWithMessages(String name) throws EditorException;
 }

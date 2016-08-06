@@ -3,8 +3,6 @@ package org.snrg_nyc.model;
 import java.util.List;
 import java.util.Map;
 
-import org.snrg_nyc.model.internal.EditorException;
-
 /**
  * The public-facing business logic for use by the user interface of an SNRG frontend.
  * This interface and any implementations of it should be the only classes used outside 

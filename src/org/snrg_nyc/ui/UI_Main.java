@@ -3,8 +3,8 @@ package org.snrg_nyc.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.snrg_nyc.model.EditorException;
 import org.snrg_nyc.model.NodeEditor;
-import org.snrg_nyc.model.internal.EditorException;
 import org.snrg_nyc.ui.components.EditorWindow;
 import org.snrg_nyc.ui.components.EditorWindowBuilder;
 

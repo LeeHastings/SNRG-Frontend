@@ -10,7 +10,6 @@ import java.util.Map.Entry;
 import org.snrg_nyc.model.internal.AttachmentProperty;
 import org.snrg_nyc.model.internal.BooleanProperty;
 import org.snrg_nyc.model.internal.DistributionJsonAdapter;
-import org.snrg_nyc.model.internal.EditorException;
 import org.snrg_nyc.model.internal.FractionProperty;
 import org.snrg_nyc.model.internal.IntegerRangeProperty;
 import org.snrg_nyc.model.internal.NodeLayer;
@@ -1459,4 +1458,5 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	layer_getEdgeEditor(int lid) throws EditorException {
 		throw new EditorException(noPathogensMsg);
 	}
+
 }

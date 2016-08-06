@@ -2,7 +2,6 @@ package org.snrg_nyc.model;
 
 import java.util.Map;
 
-import org.snrg_nyc.model.internal.EditorException;
 import org.snrg_nyc.model.internal.NodeLayer;
 import org.snrg_nyc.util.Transferable;
 

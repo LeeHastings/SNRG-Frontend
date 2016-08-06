@@ -1,4 +1,4 @@
-package org.snrg_nyc.model.internal;
+package org.snrg_nyc.model;
 
 /**
  * An internal class for exceptions specific to the UI Interface

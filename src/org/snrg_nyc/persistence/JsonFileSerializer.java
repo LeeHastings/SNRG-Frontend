@@ -23,6 +23,7 @@ import com.google.gson.JsonParser;
 public class JsonFileSerializer extends JsonSerializer {
 	public static final Path savePath = Paths.get("save_data");
 	private Path saveDir;
+	
 	static {
 		if(!Files.exists(savePath)){
 			savePath.toFile().mkdir();
@@ -35,7 +36,8 @@ public class JsonFileSerializer extends JsonSerializer {
 	
 
 	@Override
-	public Map<String, Transferable> loadExperiment(String name) throws PersistenceException {
+	public Map<String, Transferable> 
+	loadExperiment(String name) throws PersistenceException {
 		saveDir = savePath.resolve(name);
 		if(!Files.exists(saveDir)){
 			throw new PersistenceException("No experiment with name: "+name);
@@ -62,7 +64,8 @@ public class JsonFileSerializer extends JsonSerializer {
 					}
 				}
 			});
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			throw new PersistenceException("Error while reading files: "+e.getLocalizedMessage());
 		}
 		
@@ -70,7 +73,8 @@ public class JsonFileSerializer extends JsonSerializer {
 	}
 
 	@Override
-	public List<String> savedExperiments() {
+	public List<String> 
+	savedExperiments() {
 		List<String> experimentNames = new ArrayList<>();
 		try {
 			Files.list(savePath).forEach( p ->{
@@ -85,7 +89,8 @@ public class JsonFileSerializer extends JsonSerializer {
 	}
 
 	@Override
-	protected void validateEnvironment(String name) throws PersistenceException {
+	protected void 
+	validateEnvironment(String name) throws PersistenceException {
 		saveDir = savePath.resolve(name);
 
 		System.out.println("Saving to "+saveDir.toString());
@@ -106,32 +111,38 @@ public class JsonFileSerializer extends JsonSerializer {
 			} 
 			catch (IOException e) {
 				e.printStackTrace();
-				throw new PersistenceException("Error while getting files: "+e.getLocalizedMessage());
+				throw new PersistenceException("Error while getting files: "
+						+e.getLocalizedMessage());
 			}
 		}
 	}
 
 	@Override
-	protected void storeFile(String name, String data) throws PersistenceException {
+	protected void 
+	storeFile(String name, String data) throws PersistenceException {
 		Writer w = null;
 		try {
 			File f = saveDir.resolve(name+".json").toFile();
 			w = new FileWriter(f);
 		} 
 		catch (IOException e) {
-			throw new PersistenceException("Error while creating new file: "+e.getLocalizedMessage());
+			throw new PersistenceException("Error while creating new file: "
+					+e.getLocalizedMessage());
 		}
 		
 		try {
 			w.write(data);
 		} catch (IOException e) {
-			throw new PersistenceException("Error while writing file: "+e.getLocalizedMessage());
+			throw new PersistenceException("Error while writing file: "
+					+e.getLocalizedMessage());
 		}
 		finally {
 			try {
 				w.close();
 			} catch (IOException e) {
 				e.printStackTrace();
+				throw new PersistenceException("Error while closing file: "
+						+e.getLocalizedMessage());
 			}
 		}
 		
@@ -139,7 +150,8 @@ public class JsonFileSerializer extends JsonSerializer {
 			try {
 				w.close();
 			} catch (IOException e) {
-				throw new PersistenceException("Error while closing file: "+e.getLocalizedMessage());
+				throw new PersistenceException("Error while closing file: "
+						+e.getLocalizedMessage());
 			}
 		}
 		

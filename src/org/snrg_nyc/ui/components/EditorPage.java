@@ -6,10 +6,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 
+import org.snrg_nyc.model.EditorException;
 import org.snrg_nyc.model.LayerPropertyReader;
 import org.snrg_nyc.model.PropertiesEditor;
 import org.snrg_nyc.model.PropertyReader;
-import org.snrg_nyc.model.internal.EditorException;
 import org.snrg_nyc.util.Executor;
 import org.snrg_nyc.util.PropertyID;
 

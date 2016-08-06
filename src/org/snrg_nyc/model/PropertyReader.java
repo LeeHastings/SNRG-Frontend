@@ -3,8 +3,6 @@ package org.snrg_nyc.model;
 import java.util.List;
 import java.util.Map;
 
-import org.snrg_nyc.model.internal.EditorException;
-
 /**
  * A simple interface for reading properties.
  * It should be a wrapper for a {@link PropertiesEditor}

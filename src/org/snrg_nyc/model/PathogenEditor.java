@@ -3,7 +3,6 @@ package org.snrg_nyc.model;
 import java.util.Map;
 
 import org.snrg_nyc.model.internal.BooleanProperty;
-import org.snrg_nyc.model.internal.EditorException;
 import org.snrg_nyc.model.internal.EnumeratorProperty;
 import org.snrg_nyc.model.internal.FractionProperty;
 import org.snrg_nyc.model.internal.IntegerRangeProperty;

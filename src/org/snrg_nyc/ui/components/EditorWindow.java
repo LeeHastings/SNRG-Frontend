@@ -2,8 +2,8 @@ package org.snrg_nyc.ui.components;
 
 import java.util.Optional;
 
+import org.snrg_nyc.model.EditorException;
 import org.snrg_nyc.model.PropertiesEditor;
-import org.snrg_nyc.model.internal.EditorException;
 import org.snrg_nyc.ui.UI_Main;
 import org.snrg_nyc.util.PropertyID;
 

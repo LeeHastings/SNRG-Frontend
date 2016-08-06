@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.snrg_nyc.model.internal.AttachmentProperty;
 import org.snrg_nyc.model.internal.BooleanProperty;
-import org.snrg_nyc.model.internal.EditorException;
 import org.snrg_nyc.model.internal.EnumeratorProperty;
 import org.snrg_nyc.model.internal.FractionProperty;
 import org.snrg_nyc.model.internal.IntegerRangeProperty;
@@ -124,15 +123,40 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 				p.clear();
 			}
 		}
+		for(EdgeEditor e : edges){
+			if(e != null){
+				e.clear();
+			}
+		}
 		pathogens.clear();
 	}
 	
 	@Override
 	public void 
 	load(String experimentName) throws EditorException {
+		load(experimentName, false);
+	}
+	
+	/**
+	 * Load, with an option to show debug messages
+	 * @param experimentName The name to load the experiment from
+	 * @param printMessages Whether or not to pring messages
+	 * @throws EditorException Thrown if the loading fails
+	 */
+	private void 
+	load(String experimentName, boolean debug) throws EditorException{
 		Map<String, Transferable> objects = deserializeExperiment(experimentName);
-		//System.out.println("Found map:\n"+objects.toString());
-		
+		if(debug){
+			System.out.printf(
+					"Cleared state:\n"
+					+ "\tProperties:\n\t\t%s\n\n"
+					+ "\tLayers: \n\t\t%s\n\n"
+					+ "\tPathogens:\n\t\t%s\n\n"
+					+ "\tEdges:\n\t\t%s\n\n",
+					properties, layers, pathogens, edges);
+			
+			System.out.println("Found objects: "+objects.toString());
+		}
 		if(!objects.containsKey("nodesettings")){
 			throw new EditorException("Tried to open an experiment without node settings!");
 		}
@@ -142,7 +166,14 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 		layers = nodeSettings.getLayerAttributesList();
 		properties = nodeSettings.getPropertyDefinitionList();
 		
-		loadDistributions(objects);
+
+		if(debug){
+			System.out.printf(
+					"Loaded state:\n"
+					+ "\tProperties:\n\t\t%s\n\n"
+					+ "\tLayers: \n\t\t%s\n\n",
+					properties, layers);
+		}
 		
 		Iterator<String> it = objects.keySet().iterator();
 		while(it.hasNext()){
@@ -177,9 +208,14 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 			}
 			
 		}
+		loadDistributions(objects);
+		//Make sure everything loaded properly
 		validateLoadedObjects();
 		for(PathogenEditor p : pathogens){
 			p.validateLoadedObjects();
+		}
+		for(EdgeEditor e : edges){
+			e.validateLoadedObjects();
 		}
 	}
 
@@ -294,5 +330,10 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 		else {
 			this.serializer = new JsonFileSerializer(jsonConfig());
 		}
+	}
+
+	@Override
+	public void utest_loadWithMessages(String name) throws EditorException {
+		load(name, true);
 	}
 }

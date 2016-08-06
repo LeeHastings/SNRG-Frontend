@@ -23,7 +23,8 @@ public class JsonExperimentPrinter extends JsonSerializer {
 	}
 
 	@Override
-	public Map<String, Transferable> loadExperiment(String name) throws PersistenceException {
+	public Map<String, Transferable> 
+	loadExperiment(String name) throws PersistenceException {
 		if(!experiments.containsKey(name)){
 			throw new PersistenceException("No experiment with name: "+name);
 		}
@@ -58,8 +59,9 @@ public class JsonExperimentPrinter extends JsonSerializer {
 	}
 
 	@Override
-	protected void storeFile(String name, String data) throws PersistenceException {
-		System.out.printf("\n%s\n================\n%s", name, data);
+	protected void 
+	storeFile(String name, String data) throws PersistenceException {
+		System.out.printf("\n%s\n================\n%s\n", name, data);
 	}
 
 

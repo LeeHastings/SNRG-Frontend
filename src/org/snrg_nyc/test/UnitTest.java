@@ -1,18 +1,23 @@
 package org.snrg_nyc.test;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.snrg_nyc.model.EditorException;
 import org.snrg_nyc.model.EditorTester;
 import org.snrg_nyc.model.NodeEditor;
+import org.snrg_nyc.util.Action;
 
 //TODO update this test for pathogens, edges, and layers
 
 public class UnitTest {
 	
 	public static void main(String[] args){
-		test_validInput();
+		//test_validInput();
+		test_invalidInput(20);
+		return;
 	}
 	
 	static void 
@@ -21,7 +26,7 @@ public class UnitTest {
 		EditorTester bl = new NodeEditor();
 		System.out.println("Node Property types:");
 		
-		bl.utest_setPrintMode(true);
+		//bl.utest_setPrintMode(true);
 		
 		List<String> types = bl.getPropertyTypes();
 		for(String type : types){
@@ -154,16 +159,80 @@ public class UnitTest {
 			bl.scratch_commit();
 			
 			bl.save("hcv_project");
-			bl.load("hcv_project");
+			try{
+				bl.utest_loadWithMessages("hcv_project");
+			}
+			catch(EditorException e){
+				e.printStackTrace();
+				bl = new NodeEditor();
+				bl.utest_loadWithMessages("hcv_project");
+			}
 			
-		} catch (Exception e) {
+		} catch (EditorException e) {
 			e.printStackTrace();
 		}
-		return;
 	}
 	
 	static void 
-	test_invalidInput(){
+	test_invalidInput( int runs){
 		EditorTester bl = new NodeEditor();
+		bl.utest_setPrintMode(true);
+
+		List<Action<EditorException>> functions = new ArrayList<>();
+		List<String> types = bl.getPropertyTypes();
+		functions.add(()->{
+			String type;
+			if((int) (Math.random()*10) == 3){
+				type = "BadType";
+			}
+			else {
+				type = types.get((int) (Math.random()*(types.size()-1)) );
+			}
+			String name = "property" + randString();
+			
+			System.out.printf("Creating property: %s - %s\n", name, type);
+			bl.scratch_new(name, type, "Test Property");
+		});
+		
+		functions.add(()->{
+			try{
+				System.out.printf("Adding %s %s\n", bl.scratch_getType(),bl.scratch_getName());
+			}
+			catch(EditorException e){
+				System.out.println("Adding invalid scratch property");
+			}
+			bl.scratch_commit();
+		});
+		
+		functions.add(()->{
+			String label ="range"+ randString();
+			bl.scratch_addRange(label);
+		});
+		
+		int randMax = functions.size();
+		for(int i = 0; i < runs; i++){
+			try {
+				int func = (int) (Math.random()*(randMax-1)) ;
+				System.out.println("Executing function "+func);
+				functions.get(func).run();
+			} catch (EditorException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		try {
+			bl.save("garbage");
+		} catch (EditorException e) {
+			e.printStackTrace();
+		}
+	}
+	static String randString(){
+		String num = Double.toString(Math.random()).substring(2);
+		if(num.length() > 5){
+			return num.substring(0, 5);
+		}
+		else {
+			return num;
+		}
 	}
 }
