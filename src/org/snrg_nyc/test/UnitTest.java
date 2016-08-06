@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.snrg_nyc.model.EditorException;
 import org.snrg_nyc.model.EditorTester;
@@ -15,8 +16,26 @@ import org.snrg_nyc.model.PropertiesEditor;
 public class UnitTest {
 	
 	public static void main(String[] args){
-		//test_validInput();
-		test_invalidInput(500);
+		String mode = "none";
+		if(args.length > 0){
+			mode = args[0];
+		}
+		switch(mode.toLowerCase()){
+		case "none":
+		case "normal":
+			test_validInput();
+			break;
+		case "random":
+			int count = 100;
+			if(args.length > 1){
+				count = Integer.parseInt(args[1]);
+			}
+			test_invalidInput(count);
+			break;
+		default:
+			System.err.println("Unknown command: "+mode);
+			break;
+		}
 		return;
 	}
 	
@@ -26,7 +45,7 @@ public class UnitTest {
 		EditorTester bl = new NodeEditor();
 		System.out.println("Node Property types:");
 		
-		//bl.utest_setPrintMode(true);
+		bl.utest_setPrintMode(true);
 		
 		List<String> types = bl.getPropertyTypes();
 		for(String type : types){
@@ -182,21 +201,21 @@ public class UnitTest {
 	static void 
 	test_invalidInput( int runs){
 		EditorTester bl = new NodeEditor();
-		bl.utest_setPrintMode(true);
+		//bl.utest_setPrintMode(true);
 
 		List<String> types = bl.getPropertyTypes();
 		System.out.printf("Types: %s\n\n",types.toString());
 
 		List<Action<EditorException>> functions = new ArrayList<>();
+		Random rand = new Random();
 		
 		functions.add((bl2)->{
 			String type;
-			if((int) (Math.random()*10) == 3){
+			if(Math.random() < 0.1){
 				type = "BadType";
 			}
 			else {
-				type = types.get(
-						(int) Math.round((Math.random()*(types.size()-1))) );
+				type = types.get(rand.nextInt(types.size()-1) );
 			}
 			String name = "property" + randString();
 			
@@ -206,8 +225,11 @@ public class UnitTest {
 			}
 			else {
 				List<Integer> layers = bl2.layer_getLayerIDs();
-				//Get sometimes invalid layer ID
-				int lid = (int) (Math.random()*layers.size()); 
+				//Get a sometimes invalid layer ID
+				int lid = 0;
+				if(layers.size() > 0){
+					lid = rand.nextInt(layers.size()); 
+				}
 				System.out.printf("Creating layer(%d/%d) property: %s - %s\n",
 						lid, layers.size()-1, name, type);
 				
@@ -216,11 +238,30 @@ public class UnitTest {
 		});
 		
 		functions.add((bl2)->{
+			int dep = rand.nextInt(5);
+			System.out.println("Setting dependency level: "+dep);
+			bl2.scratch_setDependencyLevel(dep);
+		});
+		
+		functions.add((bl2)->{
+			System.out.println("Adding dependencies");
+			for(int i : bl.scratch_getPotentialDependencies()){
+				if(Math.random() > 0.2){
+					bl2.scratch_addDependency(i);
+				}
+			}
+			if(Math.random() < 0.2){
+				bl2.scratch_addDependency((int) (Math.random()*4));
+			}
+		});
+		
+		functions.add((bl2)->{
 			try{
-				System.out.printf("Adding %s %s\n", bl2.scratch_getType(),bl2.scratch_getName());
+				System.out.printf("Commiting property %s %s\n", 
+						bl2.scratch_getType(), bl2.scratch_getName());
 			}
 			catch(EditorException e){
-				System.out.println("Adding invalid scratch property");
+				System.out.println("Commiting invalid scratch property");
 			}
 			bl2.scratch_commit();
 		});
@@ -229,6 +270,21 @@ public class UnitTest {
 			String label ="range"+ randString();
 			System.out.println("Adding range: "+label);
 			bl2.scratch_addRange(label);
+		});
+		
+		functions.add((bl2)->{
+			System.out.println("Setting int range values");
+			for(int rid : bl2.scratch_getRangeIDs()){
+				if(Math.random() > 0.1){
+					bl2.scratch_setRangeMin(rid, rand.nextInt(500)-80);
+					bl2.scratch_setRangeMax(rid, rand.nextInt(1000)+200);
+				}
+			}
+			if(Math.random() < 0.1){
+				int rid = rand.nextInt(20);
+				bl2.scratch_setRangeMin(rid, rand.nextInt(200));
+				bl2.scratch_setRangeMax(rid, rand.nextInt(300));
+			}
 		});
 		
 		functions.add((bl2)->{
@@ -254,12 +310,11 @@ public class UnitTest {
 			try{
 				for(int i : bl2.scratch_getRangeIDs()){
 					if(Math.random() >= 0.1){
-						map.put(i, (float) (Math.random()*8-1));
+						map.put(i, (float) (Math.random()*8)-1);
 					}
 				}
 				if(Math.random() > 0.9){
-					map.put(
-						(int)(Math.random()*40), (float)(Math.random()*10));
+					map.put(rand.nextInt(40), (float)(Math.random()*10));
 				}
 			} 
 			catch(EditorException e){
@@ -269,13 +324,38 @@ public class UnitTest {
 		});
 		
 		functions.add((bl2)->{
+			System.out.println("Adding a conditional distribution");
+			Map<Integer, Integer> condition = new HashMap<>();
+			Map<Integer, Float> distMap = new HashMap<>();
+			for(int pid : bl2.scratch_getDependencies()){
+				if(Math.random() > 0.1){
+					List<Integer> rids = bl2.nodeProp_getRangeItemIDs(pid);
+					int rid = rids.get(rand.nextInt(rids.size()) );
+					condition.put(pid, rid);
+				}
+			}
+			if(Math.random() < 0.1){
+				condition.put(rand.nextInt(5), rand.nextInt(5));
+			}
+			for(int rid : bl2.scratch_getRangeIDs()){
+				if(Math.random() > 0.1){
+					distMap.put(rid, (float) (Math.random()*10)-1);
+				}
+			}
+			if(Math.random() < 0.1){
+				distMap.put(rand.nextInt(8), (rand.nextFloat()*8)-1);
+			}
+			bl2.scratch_addConditionalDistribution(condition, distMap);
+		});
+		
+		functions.add((bl2)->{
 			String pathogen = "pathogen" + randString();
 			System.out.println("Setting pathogen type: "+pathogen);
 			bl2.scratch_setPathogenType(pathogen);
 		});
 		
 		//Add a few layers
-		while(Math.random() > 0.5){
+		while(Math.random() > 0.3){
 			String name = "layer"+randString();
 			System.out.println("Adding layer: "+ name);
 			try {
@@ -312,7 +392,7 @@ public class UnitTest {
 					System.out.printf("Executing function %d/%d on pathogen "
 							+ "%d/%d - ", 
 							func, randMax, pid, pathogens.size());
-					functions.get(func).run(bl.layer_getEdgeEditor(pid));
+					functions.get(func).run(bl.pathogen_getEditor(pid));
 				}
 				System.out.flush();
 			} catch (EditorException e) {
@@ -322,7 +402,7 @@ public class UnitTest {
 		}
 		
 		try {
-			bl.save("garbage");
+			bl.save("test_garbage");
 		} catch (EditorException e) {
 			e.printStackTrace();
 		}
@@ -342,9 +422,9 @@ public class UnitTest {
 	 * exception.
 	 * @author Devin Hastings
 	 *
-	 * @param <T> The type of exception thrown by the function;
+	 * @param <T> The type of object thrown by the function;
 	 */
-	static interface Action<T extends Exception> {
+	static interface Action<T extends Throwable> {
 		public void run(PropertiesEditor bl) throws T;
 	}
 }
