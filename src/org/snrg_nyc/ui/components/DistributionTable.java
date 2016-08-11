@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.snrg_nyc.model.EditorException;
+import org.snrg_nyc.ui.EditorPage;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -28,7 +29,7 @@ public class DistributionTable extends TableView<Integer> {
 		
 		setEditable(true);
 		probCol.setEditable(true);
-		for(int i : editor.getModel().scratch_getRangeIDs()){
+		for(int i : editor.model().scratch_getRangeIDs()){
 			probMap.put(i, null);
 			this.getItems().add(i);
 		}
@@ -37,7 +38,7 @@ public class DistributionTable extends TableView<Integer> {
 		nameCol.setCellValueFactory(col ->{
 			try {
 				return new SimpleStringProperty(
-						editor.getModel()
+						editor.model()
 						      .scratch_getRangeLabel(col.getValue()));
 			} catch (Exception e) {
 				editor.sendError(e);

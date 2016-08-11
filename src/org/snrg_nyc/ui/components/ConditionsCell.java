@@ -3,6 +3,7 @@ package org.snrg_nyc.ui.components;
 import java.util.Map.Entry;
 
 import org.snrg_nyc.model.PropertiesEditor;
+import org.snrg_nyc.ui.EditorPage;
 
 import javafx.collections.ObservableList;
 import javafx.scene.control.ListCell;
@@ -96,7 +97,7 @@ public class ConditionsCell extends ListCell<Integer> {
 		}
 		String name = "Distribution: ";
 		try{
-			PropertiesEditor model = editor.getModel();
+			PropertiesEditor model = editor.model();
 			for(Entry<Integer, Integer> pair :
 				model.scratch_getDistributionCondition(item).entrySet() 
 				){

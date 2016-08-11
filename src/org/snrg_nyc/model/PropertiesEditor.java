@@ -39,6 +39,12 @@ public interface PropertiesEditor {
 	 */
 	public List<String> getExperimentNames();
 	
+	/**
+	 * If the given instance of {@link PropertiesEditor} can use layers.
+	 * @return True if layers are allowed, otherwise false
+	 */
+	public boolean allowsLayers();
+	
 	/*                            *\
 	 * Node Property test methods * 
 	\*                            */

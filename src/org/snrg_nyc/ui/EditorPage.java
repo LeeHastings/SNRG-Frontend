@@ -1,4 +1,4 @@
-package org.snrg_nyc.ui.components;
+package org.snrg_nyc.ui;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +10,15 @@ import org.snrg_nyc.model.EditorException;
 import org.snrg_nyc.model.LayerPropertyReader;
 import org.snrg_nyc.model.PropertiesEditor;
 import org.snrg_nyc.model.PropertyReader;
+import org.snrg_nyc.ui.components.ConditionsCell;
+import org.snrg_nyc.ui.components.ConditionsMenu;
+import org.snrg_nyc.ui.components.DistributionTable;
+import org.snrg_nyc.ui.components.EditorListCell;
+import org.snrg_nyc.ui.components.EditorTableCell;
+import org.snrg_nyc.ui.components.LayerCell;
+import org.snrg_nyc.ui.components.PropertyNameFactory;
+import org.snrg_nyc.ui.components.PropertyTypeFactory;
+import org.snrg_nyc.ui.components.UI_Message;
 import org.snrg_nyc.util.Executor;
 import org.snrg_nyc.util.PropertyID;
 
@@ -113,7 +122,7 @@ public class EditorPage extends GridPane{
 		addedProperty.addListener( (o, oldVal, newVal)->{
 			if(newVal){
 				try {
-					ui.scratch_commit();
+					model.scratch_commit();
 				} catch (Exception e) {
 					sendError(e);
 				}
@@ -283,7 +292,7 @@ public class EditorPage extends GridPane{
 	@SuppressWarnings("unchecked")
 	private void 
 	propertyViewerPage(){
-		title.setText("Node Property Viewer");
+		title.setText("Property Viewer");
 		cancel.setText("Exit");
 		PropertyReader prop = new LayerPropertyReader(model,propViewerID);
 		
@@ -1666,8 +1675,13 @@ public class EditorPage extends GridPane{
 	 * @return
 	 */
 	public PropertiesEditor 
-	getModel() {
+	model() {
 		return model;
+	}
+
+	public void setModel(PropertiesEditor model){
+		this.model = model;
+		finished.set(true);
 	}
 	/**
 	 * If the editor page has finished editing a property 

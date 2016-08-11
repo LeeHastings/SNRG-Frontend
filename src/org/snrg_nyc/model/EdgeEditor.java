@@ -58,5 +58,9 @@ class EdgeEditor extends PropertiesEditor_Impl {
 	layer_new(String n) throws EditorException{
 		throw new EditorException(noLayersMsg);
 	}
+	@Override
+	public boolean allowsLayers() {
+		return false;
+	}
 
 }

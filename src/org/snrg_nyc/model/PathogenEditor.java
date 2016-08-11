@@ -85,6 +85,10 @@ class PathogenEditor extends PropertiesEditor_Impl{
 		}
 		return parent.test_nodePropNameIsUnique(name);
 	}
+	@Override
+	public boolean allowsLayers() {
+		return true;
+	}
 }
 	
 	

@@ -1,5 +1,6 @@
 package org.snrg_nyc.ui.components;
 
+import org.snrg_nyc.ui.EditorPage;
 import org.snrg_nyc.util.PropertyID;
 
 import javafx.beans.property.SimpleStringProperty;
@@ -29,10 +30,10 @@ public class PropertyTypeFactory implements
 		try{
 			String type;
 			if(!id.usesLayer()){
-				type = editor.getModel().nodeProp_getType(id.pid());
+				type = editor.model().nodeProp_getType(id.pid());
 			}
 			else {
-				type = editor.getModel().nodeProp_getType(id.lid(), id.pid());
+				type = editor.model().nodeProp_getType(id.lid(), id.pid());
 			}
 			
 			if(type.contains("Property")){

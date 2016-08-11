@@ -2,6 +2,8 @@ package org.snrg_nyc.ui.components;
 
 import java.util.Optional;
 
+import org.snrg_nyc.ui.EditorPage;
+
 import javafx.scene.control.ListCell;
 
 public class LayerCell extends ListCell<Optional<Integer>> {
@@ -19,7 +21,7 @@ public class LayerCell extends ListCell<Optional<Integer>> {
 			}
 			else {
 				try{
-					setText(editor.getModel().layer_getName(item.get()));
+					setText(editor.model().layer_getName(item.get()));
 				}
 				catch (Exception e){
 					editor.sendError(e);

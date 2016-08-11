@@ -124,17 +124,8 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 	public void 
 	clear(){
 		super.clear();
-		for(PathogenEditor p : pathogens){
-			if(p != null){
-				p.clear();
-			}
-		}
-		for(EdgeEditor e : edges){
-			if(e != null){
-				e.clear();
-			}
-		}
 		pathogens.clear();
+		edges.clear();
 	}
 	
 	@Override
@@ -146,7 +137,7 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 	/**
 	 * Load, with an option to show debug messages
 	 * @param experimentName The name to load the experiment from
-	 * @param printMessages Whether or not to pring messages
+	 * @param printMessages Whether or not to print messages
 	 * @throws EditorException Thrown if the loading fails
 	 */
 	private void 
@@ -341,5 +332,10 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 	@Override
 	public void utest_loadWithMessages(String name) throws EditorException {
 		load(name, true);
+	}
+
+	@Override
+	public boolean allowsLayers() {
+		return true;
 	}
 }
