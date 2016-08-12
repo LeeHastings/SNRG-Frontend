@@ -5,6 +5,13 @@ import javafx.scene.control.cell.TextFieldListCell;
 import javafx.scene.input.KeyCode;
 import javafx.util.StringConverter;
 
+/**
+ * A TextFieldListCell that commits edits when focus is lost, unless
+ * escape is pressed.
+ * @author Devin Hastings
+ *
+ * @param <T> The type of the objects in the list
+ */
 public class EditorListCell<T> extends TextFieldListCell<T> {
 	boolean escPressed = false;
 	private TextField text;
