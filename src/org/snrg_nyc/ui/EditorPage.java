@@ -1680,7 +1680,7 @@ public class EditorPage extends GridPane{
 	/**
 	 * Get the internal {@link PropertiesEditor} this 
 	 * page interfaces with.
-	 * @return
+	 * @return The {@link PropertiesEditor} currently used by the editor
 	 */
 	public PropertiesEditor 
 	model() {
