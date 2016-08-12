@@ -110,6 +110,7 @@ public class UI_Main extends Application{
 			}
 		});
 		
+		//Open a new property
 		Alert newAlert = new Alert(Alert.AlertType.CONFIRMATION);
 		newAlert.setTitle("New Project");
 		newAlert.setHeaderText("Do you want to open a new project?");
@@ -124,8 +125,8 @@ public class UI_Main extends Application{
 				experimentName = "";
 				try {
 					leftMenu.updateAll();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
+				} 
+				catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
@@ -298,8 +299,7 @@ public class UI_Main extends Application{
 	openPathogenWindow(int pathogenID){
 		try{
 			editor.setModel(model.pathogen_getEditor(pathogenID));
-			leftMenu = new EditorMenu(editor, "Pathogen Properties");
-			window.setLeft(leftMenu);
+			leftMenu.setTitle("Pathogen Properties");
 			stage.setTitle("Pathogen Editor: "
 					+model.pathogen_getName(pathogenID));
 		}
@@ -312,8 +312,7 @@ public class UI_Main extends Application{
 	openEdgeWindow(int layerID){
 		try {
 			editor.setModel(model.layer_getEdgeEditor(layerID));
-			leftMenu = new EditorMenu(editor,"Edge Properties");
-			window.setLeft(leftMenu);
+			leftMenu.setTitle("Edge Properties");
 			stage.setTitle("Edge Editor: "+model.layer_getName(layerID));
 		} 
 		catch (EditorException e) {
@@ -324,8 +323,7 @@ public class UI_Main extends Application{
 	public void
 	openNodeWindow(){
 		editor.setModel(model);
-		leftMenu = new EditorMenu(editor, "Node Properties");
-		window.setLeft(leftMenu);
+		leftMenu.setTitle("Node Properties");
 		stage.setTitle("Node Settings Editor");
 	}
 	

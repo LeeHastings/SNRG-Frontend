@@ -97,6 +97,8 @@ public class EditorPage extends GridPane{
 	private static final Font titleFont = Font.font(
 			"sans", FontWeight.LIGHT, FontPosture.REGULAR, 20);
 	
+	private Optional<Integer> newPropLayerID;
+	
 	/**
 	 * Create a new editor page that adds properties to the given
 	 * {@link PropertiesEditor}
@@ -167,17 +169,22 @@ public class EditorPage extends GridPane{
 	}
 	
 	public void 
-	createProperty(){
+	createProperty(Optional<Integer> layerID){
 		if(mode != Mode.IDLE && mode != Mode.VIEW_PROP){
 			sendWarning("Cannot create a property "
 					+ "while creating a layer/property!");
 		}
 		else {
+			newPropLayerID = layerID;
 			addedProperty.set(false);
 			pageNumber = 0;
 			mode = Mode.NEW_PROP;
 			advancePage.set(true);
 		}
+	}
+	public void 
+	createProperty(){
+		createProperty(Optional.empty());
 	}
 	
 	public void 
@@ -802,7 +809,8 @@ public class EditorPage extends GridPane{
 			for(int i: model.layer_getLayerIDs()){
 				layerSelect.getItems().add(Optional.of(i));
 			}
-			layerSelect.getSelectionModel().selectFirst();
+			layerSelect.getSelectionModel().select(newPropLayerID);
+			layerSelect.setDisable(!model.allowsLayers());
 			
 			add(new Label("Name"), 0, 2);
 			add(new Label("Layer"), 0, 3);

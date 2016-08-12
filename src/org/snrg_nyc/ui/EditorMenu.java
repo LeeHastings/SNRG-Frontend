@@ -3,7 +3,6 @@ package org.snrg_nyc.ui;
 import java.util.Optional;
 
 import org.snrg_nyc.model.EditorException;
-import org.snrg_nyc.model.PropertiesEditor;
 import org.snrg_nyc.ui.components.LayerCell;
 import org.snrg_nyc.ui.components.PropertyNameFactory;
 import org.snrg_nyc.ui.components.PropertyTypeFactory;
@@ -51,8 +50,13 @@ public class EditorMenu extends GridPane {
 	private int row = 0;
 	private String baseTitle;
 	
+	private Text titleText;
+	
 	static final Font titleFont = Font.font("sans", FontWeight.LIGHT, 
 			FontPosture.REGULAR, 20);
+	
+	private HBox layerBox;
+	private Button newLayer;
 	
 	@SuppressWarnings("unchecked")
 	public 
@@ -72,7 +76,7 @@ public class EditorMenu extends GridPane {
 		getColumnConstraints().add(menuCol);
 		
 		//Properties table
-		Text titleText = new Text(title);
+		titleText = new Text(title);
 		titleText.setFont(titleFont);
 		addItem(titleText);
 		
@@ -85,19 +89,17 @@ public class EditorMenu extends GridPane {
 		
 		nameCol.setCellValueFactory(new PropertyNameFactory(editor));
 		typeCol.setCellValueFactory(new PropertyTypeFactory(editor));
-
-		PropertiesEditor model = editor.model();
 		
 		depCol.setCellValueFactory(col->{
 			PropertyID id = col.getValue();
 			try{
 				if(id.usesLayer()){
 					return new SimpleStringProperty(""+
-							model.nodeProp_getDependencyLevel(
+							editor.model().nodeProp_getDependencyLevel(
 									id.lid(), id.pid()) );
 				}
 				return new SimpleStringProperty(""+
-						model.nodeProp_getDependencyLevel(id.pid()));
+						editor.model().nodeProp_getDependencyLevel(id.pid()));
 			} 
 			catch(Exception e){
 				editor.sendError(e);
@@ -129,70 +131,73 @@ public class EditorMenu extends GridPane {
 		
 		currentLayer = Optional.empty();
 		
-		if(editor.model().allowsLayers()){
-			ComboBox<Optional<Integer>> layerSelect = new ComboBox<>();
-			
-			layerSelect.setCellFactory(lv->new LayerCell(editor));
-			layerSelect.setButtonCell(new LayerCell(editor));
-			layerSelect.setItems(layers);
-			layers.add(Optional.empty());
-			
-			for(int i : model.layer_getLayerIDs()){
-				layers.add(Optional.of(i));
+		
+		ComboBox<Optional<Integer>> layerSelect = new ComboBox<>();
+		
+		layerSelect.setCellFactory(lv->new LayerCell(editor));
+		layerSelect.setButtonCell(new LayerCell(editor));
+		layerSelect.setItems(layers);
+		layers.add(Optional.empty());
+		
+		for(int i : editor.model().layer_getLayerIDs()){
+			layers.add(Optional.of(i));
+		}
+		layerSelect.getSelectionModel().selectFirst();
+		
+		layerSelect.valueProperty().addListener((o, oldVal, newVal)->{
+			if(newVal != null){
+				currentLayer = newVal;
 			}
-			layerSelect.getSelectionModel().selectFirst();
-			
-			layerSelect.valueProperty().addListener((o, oldVal, newVal)->{
-				if(newVal != null){
-					currentLayer = newVal;
+			if(newVal != null && newVal.isPresent()){
+				try {
+					//A lot of work just to capitalize the layer!
+					String name = editor.model().layer_getName(
+							newVal.get())+" Properties";
+					Character c = name.charAt(0);
+					titleText.setText(Character.toUpperCase(c)+
+							name.substring(1));
+					
+				} catch (Exception e1) {
+					editor.sendError(e1);
 				}
-				if(newVal != null && newVal.isPresent()){
-					try {
-						//A lot of work just to capitalize the layer!
-						String name = model.layer_getName(
-								newVal.get())+" Properties";
-						Character c = name.charAt(0);
-						titleText.setText(Character.toUpperCase(c)+
-								name.substring(1));
-						
-					} catch (Exception e1) {
-						editor.sendError(e1);
-					}
-				} else {
-					titleText.setText(baseTitle);
-				}
-				try{
+			} else {
+				titleText.setText(baseTitle);
+			}
+			try{
+				if(layers.contains(currentLayer)){
 					updateProperties(currentLayer);
 				}
-				catch(Exception e){
-					editor.sendError(e);
+				else {
+					updateProperties(Optional.empty());
 				}
-			});
-			
-			updated.addListener((o, oldval, newval)->{
-				if(newval){
-					if(currentLayer == null){
-						editor.sendError(new Exception("Invalid null layer"));
-					}
-					layerSelect.setValue(currentLayer);
-				}
-			});
-			
-			HBox lsBox = new HBox();
-			lsBox.setAlignment(Pos.CENTER);
-			HBox.setHgrow(lsBox, Priority.ALWAYS);
-			lsBox.getChildren().add(layerSelect);
-			
-			Label ll = new Label("View a Layer:");
-			HBox.setHgrow(ll, Priority.ALWAYS);
-			
-			HBox layerBox = new HBox();
-			layerBox.setAlignment(Pos.CENTER_LEFT);
-			layerBox.setPrefWidth(1000);
-			layerBox.getChildren().addAll(ll, lsBox);
-			addAllItems(layerBox);
-		}
+			}
+			catch(Exception e){
+				editor.sendError(e);
+			}
+		});
 		
+		updated.addListener((o, oldval, newval)->{
+			if(newval){
+				if(currentLayer == null){
+					editor.sendError(new Exception("Invalid null layer"));
+				}
+				layerSelect.setValue(currentLayer);
+			}
+		});
+		
+		HBox lsBox = new HBox();
+		lsBox.setAlignment(Pos.CENTER);
+		HBox.setHgrow(lsBox, Priority.ALWAYS);
+		lsBox.getChildren().add(layerSelect);
+		
+		Label ll = new Label("View a Layer:");
+		HBox.setHgrow(ll, Priority.ALWAYS);
+		
+		layerBox = new HBox();
+		layerBox.setAlignment(Pos.CENTER_LEFT);
+		layerBox.setPrefWidth(1000);
+		layerBox.getChildren().addAll(ll, lsBox);
+		addAllItems(layerBox);
 		
 		Button newProp = new Button("New Property");
 		HBox.setHgrow(newProp, Priority.ALWAYS);
@@ -200,26 +205,21 @@ public class EditorMenu extends GridPane {
 		HBox buttonBox = new HBox();
 		
 		newProp.setOnMouseClicked(event -> 
-			editor.createProperty()
+			editor.createProperty(currentLayer)
 		);
 		
-		if(editor.model().allowsLayers()){
-			Button newLayer = new Button("New Layer");
-			
-			HBox lbox = new HBox(); //Box for padding button
-			HBox.setHgrow(lbox, Priority.ALWAYS);
-			lbox.setAlignment(Pos.BOTTOM_LEFT);
-			lbox.getChildren().add(newLayer);
+		newLayer = new Button("New Layer");
+		
+		HBox lbox = new HBox(); //Box for padding button
+		HBox.setHgrow(lbox, Priority.ALWAYS);
+		lbox.setAlignment(Pos.BOTTOM_LEFT);
+		lbox.getChildren().add(newLayer);
 
-			buttonBox.setAlignment(Pos.BOTTOM_RIGHT);
-			newLayer.setOnMouseClicked(event->
-				editor.createLayer()
-			);
-			buttonBox.getChildren().addAll(lbox, newProp);
-		}
-		else {
-			buttonBox.getChildren().add(newProp);
-		}
+		buttonBox.setAlignment(Pos.BOTTOM_RIGHT);
+		newLayer.setOnMouseClicked(event->
+			editor.createLayer()
+		);
+		buttonBox.getChildren().addAll(lbox, newProp);
 
 		addAllItems(propertyTable, buttonBox);
 		
@@ -331,12 +331,28 @@ public class EditorMenu extends GridPane {
 	public void 
 	updateAll() throws EditorException{
 		updated.set(false);
+		//Disable layer selection options if the model does not support them
+		layerBox.setDisable(!editor.model().allowsLayers());
+		newLayer.setDisable(!editor.model().allowsLayers());
+		
 		layers.clear();
 		layers.add(Optional.empty());
 		for(int i : editor.model().layer_getLayerIDs()){
 			layers.add(Optional.of(i));
 		}
+		if(!layers.contains(currentLayer)){
+			currentLayer = Optional.empty();
+		}
 		updateProperties(currentLayer);
 		updated.set(true);
 	}
+	
+	public void
+	setTitle(String title){
+		baseTitle = title;
+		if(!currentLayer.isPresent()){
+			titleText.setText(baseTitle);
+		}
+	}
+
 }
