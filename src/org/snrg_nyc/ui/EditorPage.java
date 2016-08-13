@@ -26,7 +26,6 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
-import javafx.beans.property.ReadOnlyListProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -1714,7 +1713,7 @@ public class EditorPage extends GridPane{
 	 * The messages the editor has received
 	 * @return A read only copy of the editor messages
 	 */
-	public ReadOnlyListProperty<UI_Message> 
+	public ListProperty<UI_Message> 
 	messagesProperty(){
 		return messages;
 	}

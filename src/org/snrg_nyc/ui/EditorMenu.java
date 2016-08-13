@@ -238,8 +238,11 @@ public class EditorMenu extends GridPane {
 			messagePane.setVvalue((Double) newval);
 		});
 		
+		Button messageClear = new Button("Clear");
+		messageClear.setOnMouseClicked(event-> 
+				editor.messagesProperty().clear());
 
-		addAllItems(new Label("Messages:"), messagePane);
+		addAllItems(new Label("Messages:"), messagePane, messageClear);
 		
 		editor.finishedProperty().addListener((o, oldval, newval) -> {
 			try {
