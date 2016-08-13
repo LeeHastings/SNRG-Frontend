@@ -173,10 +173,6 @@ public abstract class ValuesListProperty<T extends ListValue> extends NodeProper
 		return values.get(rid).getLabel();
 	}
 	public void setRangeLabel(int rid, String label) throws EditorException{
-		if(label == null || label.length() == 0){
-			throw new EditorException(
-					"Cannot set a range label to an empty string.");
-		}
 		if(distributionsAreSet()){
 			throw new EditorException(errorMessage+
 					"Cannot edit range labels once distributions are set");

@@ -667,7 +667,7 @@ public interface PropertiesEditor {
 	 * @throws EditorException Thrown if the range ID is invalid, the scratch property
 	 * is not ranged, or the range item does not have a lower bound set
 	 */
-	public int scratch_getRangeMin(int rid) throws EditorException;
+	public Integer scratch_getRangeMin(int rid) throws EditorException;
 	/**
 	 * Get the upper bound on a range in the scratch property
 	 * @param rid The range item ID of the range to view
@@ -675,7 +675,7 @@ public interface PropertiesEditor {
 	 * @throws EditorException Thrown if the range ID is invalid, the scratch property is 
 	 * not ranged, or id the range item does not have an upper bound set.
 	 */
-	public int scratch_getRangeMax(int rid) throws EditorException;
+	public Integer scratch_getRangeMax(int rid) throws EditorException;
 	
 	/**
 	 * Check if a range item is set, meaning it has a property enumerate label and valid bounds 

@@ -17,8 +17,7 @@ class ListValue {
 	public void 
 	setLabel(String label){
 		if(label == null || label.length() == 0){
-			throw new IllegalArgumentException(
-					"The label for a property value cannot be empty");
+			this.label = null;
 		}
 		else {
 			this.label = label;

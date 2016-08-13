@@ -228,15 +228,18 @@ public class EditorMenu extends GridPane {
 		
 		ScrollPane messagePane = new ScrollPane();
 		messagePane.setContent(messageBox);
-		messagePane.setMaxHeight(200);
+		messagePane.setMaxHeight(100);
 		messagePane.setMinHeight(messageBox.getMinHeight()+10);
 		messagePane.setFitToWidth(true);
 		messagePane.setPadding(new Insets(5));
 		messagePane.setHbarPolicy(ScrollBarPolicy.NEVER);
 		
+		messageBox.heightProperty().addListener((prop, oldval, newval)->{
+			messagePane.setVvalue((Double) newval);
+		});
+		
 
-		add(new Label("Messages:"), 0, 7);
-		add(messagePane, 0, 8);
+		addAllItems(new Label("Messages:"), messagePane);
 		
 		editor.finishedProperty().addListener((o, oldval, newval) -> {
 			try {

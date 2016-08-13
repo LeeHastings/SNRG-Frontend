@@ -1,7 +1,5 @@
 package org.snrg_nyc.ui.components;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
@@ -56,32 +54,42 @@ public class EditorTableCell<T> extends TableCell<T, String> {
 	
 	private TextField textField;
 	private EditListener<T> editListener = null;
-	private BooleanProperty tabbedProperty = new SimpleBooleanProperty(false);
+	private boolean escPressed = false;
+	private boolean entPressed = false;
 
 	public EditorTableCell(){
 		super();
 		
 		textField = new TextField(getItem());
 		textField.setMinWidth(this.getWidth()-this.getGraphicTextGap()*2);
-		textField.focusedProperty().addListener((o2, oldval2, newval2)->{
-			if(!newval2){
-				commitEdit(textField.getText()); //Cancel if the text box has lost focus
+		textField.focusedProperty().addListener((o2, oldval2, focused)->{
+			if(!focused){
+				if(escPressed){
+					escPressed = false;
+				}
+				else if(entPressed){
+					entPressed = false;
+				}
+				else {
+					commitEdit(textField.getText());
+				}
 			}
 		});
 		
-		this.setOnKeyPressed(event->{
+		textField.setOnKeyPressed(event->{
 			if(event.getCode() == KeyCode.ESCAPE){
+				escPressed = true;
 				cancelEdit();
 			}
 			else if(event.getCode() == KeyCode.ENTER){
+				entPressed = true;
 				if(textField != null){
 					commitEdit(textField.getText());
 				}
 			}
-			else if(event.getCode() == KeyCode.TAB){
-				tabbedProperty.set(true);
+			else{
+				return;
 			}
-			tabbedProperty.set(false);//Resets immediately
 			event.consume();
 		});
 	}
@@ -104,15 +112,15 @@ public class EditorTableCell<T> extends TableCell<T, String> {
 			setGraphic(null);
 		}
 		else if(isEditing()) {
-            if (textField != null) {
-                textField.setText(getItem());
-            }
             setText(null);
             setGraphic(textField);
         } 
 		else {
-            setText(getItem());
             setGraphic(null);
+            setText(
+            		getTableColumn()
+            		.getCellObservableValue(getIndex())
+            		.getValue());
         }
 	}
 	public void 
@@ -126,6 +134,7 @@ public class EditorTableCell<T> extends TableCell<T, String> {
 		if(!isEmpty()){
 			super.startEdit();
 			setText(null);
+			textField.setText(null);
 			setGraphic(textField);
 			textField.requestFocus();
 		}
@@ -144,11 +153,15 @@ public class EditorTableCell<T> extends TableCell<T, String> {
 		event.newText = t;
 		event.cell = this;
 		
-		setText(t);
-		setGraphic(null);
 		if(editListener != null){
 			editListener.commitEdit(event);
 		}
 		cancelEdit();
+	}
+	@Override
+	public void
+	cancelEdit(){
+		super.cancelEdit();
+		update();
 	}
 }

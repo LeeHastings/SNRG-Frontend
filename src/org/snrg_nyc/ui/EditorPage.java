@@ -939,12 +939,15 @@ public class EditorPage extends GridPane{
 						@Override
 						public Integer fromString(String newVal) {
 							int r = cell.getItem();
-							if(newVal.equals("<empty>")){
+							if(newVal == null || newVal.length() == 0 
+									|| newVal.equals("<empty>"))
+							{
 								return r; //cancel edit if the cell is empty
 							}
 							try {
 								model.scratch_setRangeLabel(r, newVal);
-							} catch (Exception e) {
+							} 
+							catch (EditorException e) {
 								sendError(e);
 							}
 							return r;
@@ -1075,11 +1078,6 @@ public class EditorPage extends GridPane{
 				labelCol.setCellFactory(col -> {
 					EditorTableCell<Integer> cell = new EditorTableCell<>();
 					cell.setOnEditCommit((event)->{
-						if(event.newText() == null 
-						   || event.newText().length() == 0)
-						{
-							return;
-						}
 						try {
 							int rid = event.cell()
 								.getTableView()
@@ -1102,7 +1100,9 @@ public class EditorPage extends GridPane{
 				minCol.setCellFactory(col -> {
 					EditorTableCell<Integer> cell = new EditorTableCell<>();
 					cell.setOnEditCommit(event->{
-						if(event.newText() == null){
+						if(event.newText() == null 
+						   || event.newText().length() == 0)
+						{
 							return;
 						}
 						try{
@@ -1127,7 +1127,9 @@ public class EditorPage extends GridPane{
 				maxCol.setCellFactory(col -> {
 					EditorTableCell<Integer> cell = new EditorTableCell<>();
 					cell.setOnEditCommit(event->{
-						if(event.newText() == null){
+						if(event.newText() == null 
+						   || event.newText().length() == 0)
+						{
 							return;
 						}
 						try{
@@ -1162,40 +1164,40 @@ public class EditorPage extends GridPane{
 					}
 					catch (Exception e){
 						sendError(e);
-						return null;
+						return new SimpleStringProperty(">ERROR<");
 					}
 				});
 				
 				minCol.setCellValueFactory(data ->{
 					try {
-						if(model.scratch_rangeIsSet(data.getValue())){
-							Integer i = 
-									model.scratch_getRangeMin(data.getValue());
-							return new SimpleStringProperty(i.toString());
+						Integer i = 
+								model.scratch_getRangeMin(data.getValue());
+						if(i == null){
+							return new SimpleStringProperty(null);
 						}
 						else {
-							return null;
+							return new SimpleStringProperty(i.toString());
 						}
 					} catch (Exception e) {
 						sendError(e);
-						return null;
+						return new SimpleStringProperty(">ERROR<");
 					}
 				});
 				
 				maxCol.setCellValueFactory(data->{
 					try{
-						if(model.scratch_rangeIsSet(data.getValue())){
-							Integer i = 
-									model.scratch_getRangeMax(data.getValue());
-							return new SimpleStringProperty(i.toString());
+						Integer i = 
+								model.scratch_getRangeMax(data.getValue());
+						if(i == null){
+							return new SimpleStringProperty(null);
 						}
 						else {
-							return null;
+							return new SimpleStringProperty(i.toString());
 						}
 					}
 					catch (Exception e){
 						sendError(e);
-						return null;
+						return new SimpleStringProperty(">ERROR<");
 					}
 				});
 				

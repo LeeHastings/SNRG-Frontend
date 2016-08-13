@@ -15,13 +15,13 @@ public class IntegerRangeProperty extends ValuesListProperty<Range<Integer>> {
 		super(name, desc, ()->new Range<Integer>());
 	}
 	
-	public int 
+	public Integer 
 	getRangeMin(int rid) throws EditorException{
 		assert_validRID(rid);
 		return values.get(rid).getMin(); 
 	}
 	
-	public int 
+	public Integer 
 	getRangeMax(int rid) throws EditorException{
 		assert_validRID(rid);
 		return values.get(rid).getMax(); 

@@ -958,7 +958,7 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	}
 	
 	@Override
-	public int 
+	public Integer 
 	scratch_getRangeMin(int rid) throws EditorException {
 		assert_scratchExists();
 		assert_nodeType(scratchProperty, IntegerRangeProperty.class);
@@ -971,7 +971,7 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	}
 
 	@Override
-	public int 
+	public Integer 
 	scratch_getRangeMax(int rid) throws EditorException {
 		assert_scratchExists();
 		assert_nodeType(scratchProperty, IntegerRangeProperty.class);
