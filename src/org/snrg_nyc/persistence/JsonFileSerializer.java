@@ -18,6 +18,7 @@ import org.snrg_nyc.util.Transferable;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 
 public class JsonFileSerializer extends JsonSerializer {
@@ -57,16 +58,20 @@ public class JsonFileSerializer extends JsonSerializer {
 						Transferable obj = pde.getObject();
 						
 						loaded.put(fileName, obj);
-					} catch (Exception e) {
+					} 
+					catch (JsonParseException e) {
+						System.err.println("Error in "+fileName+": "+e.toString());
+					}
+					catch(Exception e){
 						e.printStackTrace();
-						throw new RuntimeException("In "
-								+fileName+": "+e.toString());
+						throw new RuntimeException(
+								"Failed with "+e.getClass().getSimpleName());
 					}
 				}
 			});
 		}
-		catch (Exception e) {
-			throw new PersistenceException("Error while reading files: "+e.getLocalizedMessage());
+		catch (RuntimeException | IOException e) {
+			throw new PersistenceException(e.getLocalizedMessage());
 		}
 		
 		return loaded;

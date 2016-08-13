@@ -146,7 +146,8 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 		try {
 			objects = deserializeExperiment(experimentName);
 		} catch (PersistenceException e1) {
-			throw new EditorException("Caught "+e1.toString());
+			e1.printStackTrace();
+			throw new EditorException("Loading Error: "+e1.getMessage());
 		}
 		if(debug){
 			System.out.printf(

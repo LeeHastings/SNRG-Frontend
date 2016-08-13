@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 class PathogenSettings extends NodeSettings {
 	private static final long serialVersionUID = 1L;
 	
-	@SerializedName("PathogenType")
+	@SerializedName(value="PathogenID", alternate={"PathogenType"})
 	private String pathogen;
 	
 	public PathogenSettings(String pathogen){

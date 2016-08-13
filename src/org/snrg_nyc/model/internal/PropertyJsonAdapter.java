@@ -23,7 +23,7 @@ public class PropertyJsonAdapter implements JsonSerializer<NodeProperty>, JsonDe
 	//Passing strings as parameters multiple times is too error-prone for me
 	final static String nameLabel = "PropertyName";
 	final static String descLabel = "Description";
-	final static String depLabel = "Dependency Level";
+	final static String depLabel = "DependencyLevel";
 	final static String intRangesLabel = "IntegerRangeList";
 	final static String enumValsLabel = "EnumValues";
 	final static String initValLabel = "DisableRandom_UseInitValue";
@@ -188,7 +188,9 @@ public class PropertyJsonAdapter implements JsonSerializer<NodeProperty>, JsonDe
 					getJson(innerJs,initValLabel).getAsBoolean());
 		}
 		//If the distribution was null, the distIDLabel is not included
-		if(innerJs.has(distIDLabel)){ 
+		if(innerJs.has(distIDLabel) 
+		   && !innerJs.get(distIDLabel).isJsonNull())
+		{ 
 			String s = innerJs.get(distIDLabel).getAsString();
 			if(s.equals("uniform")){
 				nodeProp.useUniformDistribution();
