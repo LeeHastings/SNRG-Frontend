@@ -142,7 +142,12 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 	 */
 	private void 
 	load(String experimentName, boolean debug) throws EditorException{
-		Map<String, Transferable> objects = deserializeExperiment(experimentName);
+		Map<String, Transferable> objects;
+		try {
+			objects = deserializeExperiment(experimentName);
+		} catch (PersistenceException e1) {
+			throw new EditorException("Caught "+e1.toString());
+		}
 		if(debug){
 			System.out.printf(
 					"Cleared state:\n"

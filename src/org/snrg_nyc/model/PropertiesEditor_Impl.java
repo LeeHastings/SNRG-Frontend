@@ -169,15 +169,10 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	}
 	
 	protected Map<String, Transferable> 
-	deserializeExperiment(String experimentName) throws EditorException{
+	deserializeExperiment(String experimentName) throws PersistenceException{
 		clear();
 		Map<String, Transferable> e = null;
-		try {
-			e = serializer.loadExperiment(experimentName);
-		} catch (PersistenceException e1) {
-			throw new EditorException("Error while loading "
-					+experimentName+": "+e1.getMessage());
-		}
+		e = serializer.loadExperiment(experimentName);
 		return e;
 	}
 	

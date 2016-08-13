@@ -87,18 +87,28 @@ public class PropertyJsonAdapter implements JsonSerializer<NodeProperty>, JsonDe
 				}
 			}
 		}
-		else if(nodeProp instanceof ValueProperty){
+		else if(nodeProp instanceof FractionProperty){
 			innerJs.addProperty(
 					initValLabel, 
-					((ValueProperty<?>) nodeProp).getInitValue().toString());
+					((FractionProperty) nodeProp).getInitValue());
 		}
-		innerJs.addProperty(distIDLabel, nodeProp.getDistributionID());
+		else if(nodeProp instanceof BooleanProperty) {
+			innerJs.addProperty(
+					initValLabel, 
+					((BooleanProperty) nodeProp).getInitValue());
+		}
+		if(nodeProp.getDistributionID().equals("null")){
+			innerJs.addProperty(distIDLabel, (String) null);
+		}
+		else {
+			innerJs.addProperty(distIDLabel, nodeProp.getDistributionID());
+		}
 		return propertyJs;
 	}
 
 	@Override
 	public NodeProperty deserialize(JsonElement js, Type type, JsonDeserializationContext context)
-			throws JsonParseException 
+			throws JsonParseException
 	{
 		JsonObject nodePropJs = js.getAsJsonObject();
 		NodeProperty nodeProp = null;
@@ -106,8 +116,7 @@ public class PropertyJsonAdapter implements JsonSerializer<NodeProperty>, JsonDe
 		
 		for(Class<?> propClass : propertyTypes){
 			if(nodePropJs.has(propClass.getSimpleName())){
-				innerJs = nodePropJs.get(propClass.getSimpleName())
-									.getAsJsonObject();
+				innerJs = getJson(nodePropJs,propClass.getSimpleName()).getAsJsonObject();
 				try {
 					nodeProp = (NodeProperty) propClass.newInstance();
 				} catch (Exception e) {
@@ -122,9 +131,9 @@ public class PropertyJsonAdapter implements JsonSerializer<NodeProperty>, JsonDe
 					"The given property was not in the list of known property types: "+nodePropJs);
 		}
 		try {
-			nodeProp.setName(innerJs.get(nameLabel).getAsString());
-			nodeProp.setDescription(innerJs.get(descLabel).getAsString());
-			nodeProp.setDependencyLevel(innerJs.get(depLabel).getAsInt());
+			nodeProp.setName(getJson(innerJs,nameLabel).getAsString());
+			nodeProp.setDescription(getJson(innerJs,descLabel).getAsString());
+			nodeProp.setDependencyLevel(getJson(innerJs,depLabel).getAsInt());
 		} 
 		catch (EditorException e) {
 			e.printStackTrace();
@@ -134,15 +143,15 @@ public class PropertyJsonAdapter implements JsonSerializer<NodeProperty>, JsonDe
 		if(nodeProp instanceof IntegerRangeProperty){
 			IntegerRangeProperty irp = (IntegerRangeProperty) nodeProp;
 			
-			for(JsonElement rangeJs : innerJs.get(intRangesLabel).getAsJsonArray()){
+			for(JsonElement rangeJs : getJson(innerJs,intRangesLabel).getAsJsonArray()){
 				JsonObject range = rangeJs.getAsJsonObject();
 				int rid;
 				try {
 					rid = irp.addRange();
 					
-					irp.setRangeLabel(rid, range.get("RangeID").getAsString());
-					irp.setRangeMin(rid, range.get("Min").getAsInt());
-					irp.setRangeMax(rid, range.get("Max").getAsInt());
+					irp.setRangeLabel(rid, getJson(range,"RangeID").getAsString());
+					irp.setRangeMin(rid, getJson(range,"Min").getAsInt());
+					irp.setRangeMax(rid, getJson(range, "Max").getAsInt());
 				} 
 				catch (EditorException e) {
 					e.printStackTrace();
@@ -152,13 +161,14 @@ public class PropertyJsonAdapter implements JsonSerializer<NodeProperty>, JsonDe
 		}
 		else if(nodeProp instanceof BooleanRangeProperty){
 			if(nodeProp instanceof AttachmentProperty){
-				((AttachmentProperty) nodeProp).setPathogenName(innerJs.get(pathogenLabel).getAsString());
+				((AttachmentProperty) nodeProp).setPathogenName(
+						getJson(innerJs, pathogenLabel).getAsString());
 			}
 		}
 		else if(nodeProp instanceof EnumeratorProperty){
 			EnumeratorProperty en = (EnumeratorProperty) nodeProp;
 			
-			for(JsonElement rangejs : innerJs.get(enumValsLabel).getAsJsonArray()){
+			for(JsonElement rangejs : getJson(innerJs,enumValsLabel).getAsJsonArray()){
 				int rid;
 				try {
 					rid = en.addRange();
@@ -171,25 +181,34 @@ public class PropertyJsonAdapter implements JsonSerializer<NodeProperty>, JsonDe
 		}
 		else if(nodeProp instanceof FractionProperty){
 			((FractionProperty) nodeProp).setInitValue(
-					innerJs.get(initValLabel).getAsFloat());
+					getJson(innerJs,initValLabel).getAsFloat());
 		}
 		else if(nodeProp instanceof BooleanProperty){
 			((BooleanProperty) nodeProp).setInitValue(
-					innerJs.get(initValLabel).getAsBoolean());
+					getJson(innerJs,initValLabel).getAsBoolean());
+		}
+		//If the distribution was null, the distIDLabel is not included
+		if(innerJs.has(distIDLabel)){ 
+			String s = innerJs.get(distIDLabel).getAsString();
+			if(s.equals("uniform")){
+				nodeProp.useUniformDistribution();
+			}
+		}
+		else if(!(nodeProp instanceof ValueProperty)){
+			throw new JsonParseException("The given property is missing a distribution: "+nodePropJs);
 		}
 		
-		switch(innerJs.get(distIDLabel).getAsString()){
-		case "null":
-			if(!(nodeProp instanceof ValueProperty)){
-				throw new IllegalStateException(
-						"A null distribution on an invalid node property: "+nodeProp.getName());
-			}
-			break;
-		case "uniform":
-			nodeProp.useUniformDistribution();
-			break;
-		}
 		return nodeProp;
+	}
+	
+	private JsonElement 
+	getJson(JsonObject json, String label) throws JsonParseException {
+		if(json.has(label)){
+			return json.get(label);
+		}
+		else {
+			throw new JsonParseException("No element with label '"+label+"', "+json);
+		}
 	}
 
 }
