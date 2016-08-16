@@ -242,25 +242,25 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 	
 	@Override
 	public String
-	experiment_getDescription() throws EditorException{
+	experiment_getDescription() {
 		return expInfo.getDescription();
 	}
 	
 	@Override
 	public void 
-	experiment_setDescription(String desc) throws EditorException{
+	experiment_setDescription(String desc){
 		expInfo.setDescription(desc);
 	}
 	
 	@Override
 	public String 
-	experiment_getUserName() throws EditorException{
+	experiment_getUserName() {
 		return expInfo.getUser();
 	}
 	
 	@Override
 	public void 
-	experiment_setUserName(String name) throws EditorException{
+	experiment_setUserName(String name){
 		expInfo.setUser(name);
 	}
 
