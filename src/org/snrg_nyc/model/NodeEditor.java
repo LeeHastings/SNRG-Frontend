@@ -130,6 +130,7 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 	public void 
 	clear(){
 		super.clear();
+		expInfo.defaults();
 		pathogens.clear();
 		edges.clear();
 	}

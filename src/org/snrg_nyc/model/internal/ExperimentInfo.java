@@ -44,5 +44,11 @@ public class ExperimentInfo implements Transferable {
 	getObjectID() {
 		return ExperimentInfo.class.getSimpleName();
 	}
+
+	public void defaults() {
+		name = "default";
+		user = "default";
+		description = "";
+	}
 	
 }
