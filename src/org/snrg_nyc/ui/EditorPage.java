@@ -15,6 +15,7 @@ import org.snrg_nyc.ui.components.ConditionsMenu;
 import org.snrg_nyc.ui.components.DistributionTable;
 import org.snrg_nyc.ui.components.EditorListCell;
 import org.snrg_nyc.ui.components.EditorTableCell;
+import org.snrg_nyc.ui.components.Fonts;
 import org.snrg_nyc.ui.components.LayerCell;
 import org.snrg_nyc.ui.components.PropertyNameFactory;
 import org.snrg_nyc.ui.components.PropertyTypeFactory;
@@ -53,9 +54,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.shape.Line;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontPosture;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.util.StringConverter;
 
@@ -92,9 +90,6 @@ public class EditorPage extends GridPane{
 
 	final ObservableList<Optional<Integer>> layers =
 			FXCollections.observableArrayList();
-	
-	private static final Font titleFont = Font.font(
-			"sans", FontWeight.LIGHT, FontPosture.REGULAR, 20);
 	
 	private Optional<Integer> newPropLayerID;
 	
@@ -224,7 +219,7 @@ public class EditorPage extends GridPane{
 		finished.set(false);
 		getChildren().clear();
 		title = new Text();
-		title.setFont(titleFont);
+		title.setFont(Fonts.titleFont);
 		add(title, 0,0,5,1);
 		
 		hbar = new Line();

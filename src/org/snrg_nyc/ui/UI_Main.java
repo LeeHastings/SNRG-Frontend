@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.snrg_nyc.model.EditorException;
 import org.snrg_nyc.model.NodeEditor;
 import org.snrg_nyc.model.PropertiesEditor;
+import org.snrg_nyc.ui.components.Fonts;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -24,9 +25,6 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontPosture;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -52,9 +50,6 @@ public class UI_Main extends Application{
 	private int rightMenuRow = 0; //For automatic positioning in grid
 	
 	private EditorPage editor;
-	
-	static final Font headFont = Font.font("sans", FontWeight.NORMAL, 
-			FontPosture.REGULAR, 15);
 	
 	private BorderPane window;
 
@@ -226,7 +221,7 @@ public class UI_Main extends Application{
 			};
 		});
 		Text pathText = new Text("Pathogens");
-		pathText.setFont(headFont);
+		pathText.setFont(Fonts.headFont);
 		addAllToRightMenu(pathText, pathogensView);
 		
 		edgesView = new ListView<>();
@@ -251,7 +246,7 @@ public class UI_Main extends Application{
 			};
 		});
 		Text edgeText = new Text("Edge Settings");
-		edgeText.setFont(headFont);
+		edgeText.setFont(Fonts.headFont);
 		addAllToRightMenu(edgeText, edgesView);
 		
 		Button returnToNodeProp = new Button("View Node Settings");
