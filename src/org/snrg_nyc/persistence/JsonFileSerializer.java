@@ -18,7 +18,6 @@ import org.snrg_nyc.util.Transferable;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 
 public class JsonFileSerializer extends JsonSerializer {
@@ -60,7 +59,7 @@ public class JsonFileSerializer extends JsonSerializer {
 						loaded.put(fileName, obj);
 					} 
 					catch (JsonNoClassException e) {
-						System.err.println("Error in "+fileName+": "+e.toString());
+						System.err.println("Unrecognized type in "+fileName+": "+e.getMessage());
 					}
 					catch(Exception e){
 						e.printStackTrace();
