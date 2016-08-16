@@ -170,6 +170,7 @@ public class UI_Main extends Application{
 					model.experiment_setName(expName.get());
 					editor.sendInfo("The experiment was loaded as "
 							+expName.get());
+					editorPane.setContent(editor);
 					update();
 					leftMenu.updateAll();
 				}

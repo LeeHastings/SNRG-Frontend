@@ -35,6 +35,8 @@ public class ExperimentInfoWindow extends GridPane {
 		Text statusText = new Text();
 		statusText.setWrappingWidth(300);
 		
+		TextField nameText= new TextField(model.experiment_getName());
+		
 		TextArea descText = new TextArea(model.experiment_getDescription());
 		descText.setPrefColumnCount(15);
 		descText.setPrefRowCount(3);
@@ -50,8 +52,11 @@ public class ExperimentInfoWindow extends GridPane {
 			try {
 				model.experiment_setDescription(descText.getText());
 				model.experiment_setUserName(userText.getText());
+				model.experiment_setName(nameText.getText());
 				statusText.setText(String.format(
-						"Update successful.  \nUsername: %s \nDescription: %s",
+						"Update successful.  "
+						+ "\nName: %s \nUsername: %s \nDescription: %s",
+						model.experiment_getName(),
 						model.experiment_getUserName(), 
 						model.experiment_getDescription()
 						));
@@ -63,13 +68,19 @@ public class ExperimentInfoWindow extends GridPane {
 		});
 		
 		add(title, 0, 0, 3, 1);
-		add(new Label("Description"), 0,2);
-		add(descText, 2, 2, 1, 2);
-		add(new Label("User Name"),0,4);
-		add(userText, 2, 4);
-		add(statusText, 0, 5, 3, 1);
-		add(close, 0, 6);
-		add(apply, 2, 6);
+		
+		add(new Label("Name"), 0, 2);
+		add(nameText, 2, 2);
+		
+		add(new Label("Description"), 0,3);
+		add(descText, 2, 3, 1, 2);
+		
+		add(new Label("User Name"),0,5);
+		add(userText, 2, 5);
+		
+		add(statusText, 0, 6, 3, 1);
+		add(close, 0, 7);
+		add(apply, 2, 7);
 	}
 	public ReadOnlyBooleanProperty
 	closeProperty(){
