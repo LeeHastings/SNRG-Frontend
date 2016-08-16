@@ -59,7 +59,7 @@ public class JsonFileSerializer extends JsonSerializer {
 						
 						loaded.put(fileName, obj);
 					} 
-					catch (JsonParseException e) {
+					catch (JsonNoClassException e) {
 						System.err.println("Error in "+fileName+": "+e.toString());
 					}
 					catch(Exception e){

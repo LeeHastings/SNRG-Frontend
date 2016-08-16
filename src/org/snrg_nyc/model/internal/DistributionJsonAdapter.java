@@ -2,8 +2,8 @@ package org.snrg_nyc.model.internal;
 
 import java.lang.reflect.Type;
 
-import org.snrg_nyc.model.internal.UnivariatDistribution.ConditionalDistList;
-import org.snrg_nyc.model.internal.UnivariatDistribution.DistributionList;
+import org.snrg_nyc.model.internal.UnivariatDistributionSettings.ConditionalDistList;
+import org.snrg_nyc.model.internal.UnivariatDistributionSettings.DistributionList;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonDeserializationContext;

@@ -17,7 +17,7 @@ import org.snrg_nyc.model.internal.NodeLayer;
 import org.snrg_nyc.model.internal.NodeProperty;
 import org.snrg_nyc.model.internal.NodeProperty.DistType;
 import org.snrg_nyc.model.internal.PropertyJsonAdapter;
-import org.snrg_nyc.model.internal.UnivariatDistribution;
+import org.snrg_nyc.model.internal.UnivariatDistributionSettings;
 import org.snrg_nyc.model.internal.ValueProperty;
 import org.snrg_nyc.model.internal.ValuesListProperty;
 import org.snrg_nyc.model.internal.ValuesListProperty.ConditionalDistribution;
@@ -74,7 +74,7 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
                 .setPrettyPrinting()
                 .disableHtmlEscaping()
                 .registerTypeAdapter(
-                		UnivariatDistribution.DistributionList.class,
+                		UnivariatDistributionSettings.DistributionList.class,
                 		new DistributionJsonAdapter()
         		)
                 .registerTypeAdapter(
@@ -99,8 +99,8 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 				   && ((ValuesListProperty<?>) np).getDistributionType() 
 				      == NodeProperty.DistType.UNIVARIAT
 				){
-					UnivariatDistribution u = 
-							new UnivariatDistribution(this,np);
+					UnivariatDistributionSettings u = 
+							new UnivariatDistributionSettings(this,np);
 					e.put(np.getDistributionID(), u);
 				}
 			}
@@ -110,7 +110,7 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 			   && ((ValuesListProperty<?>) np).getDistributionType() 
 			      == NodeProperty.DistType.UNIVARIAT
 			){
-				UnivariatDistribution u = new UnivariatDistribution(this,np);
+				UnivariatDistributionSettings u = new UnivariatDistributionSettings(this,np);
 				e.put(np.getDistributionID(), u);
 			}
 		}
@@ -123,9 +123,9 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	{
 		for(String key : objects.keySet()){
 			
-			if(objects.get(key) instanceof UnivariatDistribution){
-				UnivariatDistribution uniD = 
-						(UnivariatDistribution) objects.get(key);
+			if(objects.get(key) instanceof UnivariatDistributionSettings){
+				UnivariatDistributionSettings uniD = 
+						(UnivariatDistributionSettings) objects.get(key);
 				
 				Integer pid = search_nodePropWithName(uniD.getPropName());
 				Integer lid = null;

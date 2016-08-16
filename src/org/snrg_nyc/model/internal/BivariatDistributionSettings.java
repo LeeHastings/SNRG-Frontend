@@ -8,7 +8,7 @@ import org.snrg_nyc.model.EditorException;
 
 import com.google.gson.annotations.SerializedName;
 
-public class BivariatDistribution {
+public class BivariatDistributionSettings {
 	@SerializedName("BivariatDistributionID")
 	private String distID;
 	
@@ -25,7 +25,7 @@ public class BivariatDistribution {
 	private int mvah = 0;
 	
 	public 
-	BivariatDistribution(
+	BivariatDistributionSettings(
 			Map<Integer, Map<Integer, Float>> map, 
 			EnumeratorProperty property) 
 			throws EditorException

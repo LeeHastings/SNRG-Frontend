@@ -5,7 +5,7 @@ import java.lang.reflect.Type;
 
 import org.snrg_nyc.model.PropertiesEditor;
 import org.snrg_nyc.model.internal.NodeProperty;
-import org.snrg_nyc.model.internal.UnivariatDistribution;
+import org.snrg_nyc.model.internal.UnivariatDistributionSettings;
 import org.snrg_nyc.util.Transferable;
 
 import com.google.gson.JsonDeserializationContext;
@@ -54,11 +54,11 @@ class PersistentDataEntry implements Serializable {
 				}
 			}
 			//Special case compatibility settings
-			if(className.equals("UnivariatDistributionSettings")){
-				innerClass = UnivariatDistribution.class;
+			if(className.equals("UnivariatDistribution")){
+				innerClass = UnivariatDistributionSettings.class;
 			}
 			if(innerClass == null){
-				throw new JsonParseException("Unknown object type: "+className);
+				throw new JsonNoClassException(className);
 			}
 			return new PersistentDataEntry(name, context.deserialize(objectjs, innerClass));
 		}
