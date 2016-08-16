@@ -34,7 +34,7 @@ public class ExperimentInfoWindow extends GridPane {
 		
 		TextArea descText = new TextArea(model.experiment_getDescription());
 		descText.setPrefColumnCount(15);
-		descText.setPrefRowCount(4);
+		descText.setPrefRowCount(3);
 		descText.setWrapText(true);
 		
 		TextField userText = new TextField(model.experiment_getUserName());
