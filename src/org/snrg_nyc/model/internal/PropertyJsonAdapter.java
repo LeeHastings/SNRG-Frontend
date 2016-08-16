@@ -24,6 +24,7 @@ public class PropertyJsonAdapter implements JsonSerializer<NodeProperty>, JsonDe
 	final static String nameLabel = "PropertyName";
 	final static String descLabel = "Description";
 	final static String depLabel = "DependencyLevel";
+	final static String depLabel2 = "Dependency Level";
 	final static String intRangesLabel = "IntegerRangeList";
 	final static String enumValsLabel = "EnumValues";
 	final static String initValLabel = "DisableRandom_UseInitValue";
@@ -133,7 +134,12 @@ public class PropertyJsonAdapter implements JsonSerializer<NodeProperty>, JsonDe
 		try {
 			nodeProp.setName(getJson(innerJs,nameLabel).getAsString());
 			nodeProp.setDescription(getJson(innerJs,descLabel).getAsString());
-			nodeProp.setDependencyLevel(getJson(innerJs,depLabel).getAsInt());
+			if(innerJs.has(depLabel)){
+				nodeProp.setDependencyLevel(innerJs.get(depLabel).getAsInt());
+			}
+			else {
+				nodeProp.setDependencyLevel(getJson(innerJs,depLabel2).getAsInt());
+			}
 		} 
 		catch (EditorException e) {
 			e.printStackTrace();

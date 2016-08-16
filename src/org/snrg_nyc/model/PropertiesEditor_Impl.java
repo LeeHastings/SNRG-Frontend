@@ -168,14 +168,6 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 		}
 	}
 	
-	protected Map<String, Transferable> 
-	deserializeExperiment(String experimentName) throws PersistenceException{
-		clear();
-		Map<String, Transferable> e = null;
-		e = serializer.loadExperiment(experimentName);
-		return e;
-	}
-	
 	/**
 	 * Assert that the given node property ID points to a non-null node 
 	 * property.
