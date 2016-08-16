@@ -40,7 +40,6 @@ public class UI_Main extends Application{
 	private Scene scene;
 
 	private Alert quitAlert;
-	private String experimentName = null;
 
 	private ListView<Integer> pathogensView = null;
 	private ListView<Integer> edgesView = null;
@@ -121,7 +120,6 @@ public class UI_Main extends Application{
 				openNodeWindow();
 				model.clear();
 				update();
-				experimentName = "";
 				try {
 					leftMenu.updateAll();
 				} 
@@ -138,11 +136,14 @@ public class UI_Main extends Application{
 		
 		save.setOnAction(event->{
 			//Default to previously used name
-			saveDialog.getEditor().setText(experimentName); 
+			try {
+				saveDialog.getEditor().setText(model.experiment_getName());
+			} catch (Exception e1) {
+				editor.sendError(e1);
+			} 
 			Optional<String> expName = saveDialog.showAndWait();
 			if(expName.isPresent()){
 				try{
-					experimentName = expName.get();
 					model.save(expName.get());
 					editor.sendInfo("The experiment was saved as "
 							+expName.get());
@@ -164,9 +165,9 @@ public class UI_Main extends Application{
 			Optional<String> expName = loadDialog.showAndWait();
 			try{
 				if(expName.isPresent() ){
-					experimentName = expName.get();
 					openNodeWindow();
 					model.load(expName.get());
+					model.experiment_setName(expName.get());
 					editor.sendInfo("The experiment was loaded as "
 							+expName.get());
 					update();
