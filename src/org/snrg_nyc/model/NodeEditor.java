@@ -8,6 +8,7 @@ import java.util.Map;
 import org.snrg_nyc.model.internal.AttachmentProperty;
 import org.snrg_nyc.model.internal.BooleanProperty;
 import org.snrg_nyc.model.internal.EnumeratorProperty;
+import org.snrg_nyc.model.internal.ExperimentInfo;
 import org.snrg_nyc.model.internal.FractionProperty;
 import org.snrg_nyc.model.internal.IntegerRangeProperty;
 import org.snrg_nyc.persistence.JsonExperimentPrinter;
@@ -39,6 +40,8 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 	private NodeSettings nodeSettings = new NodeSettings();
 	private List<PathogenEditor> pathogens;
 	private List<EdgeEditor> edges;
+	
+	private ExperimentInfo expInfo = new ExperimentInfo();
  	
 	/*         *\
 	 * Methods *
@@ -74,6 +77,7 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 	@Override
 	public void 
 	save(String experimentName) throws EditorException {
+		expInfo.setName(experimentName);
 		Map<String, Transferable> e = getSavedObjects();
 		
 		try {
@@ -111,6 +115,8 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 	getSavedObjects() throws EditorException{
 		Map<String, Transferable> map = super.getSavedObjects();
 		map.put("nodesettings", nodeSettings);
+		map.put("expinfo", expInfo);
+		
 		for(PathogenEditor p : pathogens){
 			map.putAll(p.getSavedObjects());
 		}
@@ -209,6 +215,9 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 				}
 				edges.set(idx, new EdgeEditor(this, settings, objects));
 			}
+			else if(object instanceof ExperimentInfo){
+				this.expInfo = (ExperimentInfo) object;
+			}
 			
 		}
 		loadDistributions(objects);
@@ -224,25 +233,25 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 	@Override
 	public String
 	experiment_getDescription() throws EditorException{
-		throw new EditorException("This is not the main editor");
+		return expInfo.getDescription();
 	}
 	
 	@Override
 	public void 
 	experiment_setDescription(String desc) throws EditorException{
-		throw new EditorException("This is not the main editor");
+		expInfo.setDescription(desc);
 	}
 	
 	@Override
 	public String 
 	experiment_getUserName() throws EditorException{
-		throw new EditorException("This is not the main editor");
+		return expInfo.getUser();
 	}
 	
 	@Override
 	public void 
 	experiment_serUserName(String name) throws EditorException{
-		throw new EditorException("This is not the main editor");
+		expInfo.setUser(name);
 	}
 
 	@Override

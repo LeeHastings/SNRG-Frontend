@@ -71,7 +71,8 @@ public class BivariatDistributionSettings implements Transferable {
 	}
 
 	@Override
-	public String getObjectID() {
+	public String 
+	getObjectID() {
 		return distID;
 	}
 }
