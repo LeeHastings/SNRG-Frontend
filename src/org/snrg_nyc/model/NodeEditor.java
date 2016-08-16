@@ -259,7 +259,7 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 	
 	@Override
 	public void 
-	experiment_serUserName(String name) throws EditorException{
+	experiment_setUserName(String name) throws EditorException{
 		expInfo.setUser(name);
 	}
 

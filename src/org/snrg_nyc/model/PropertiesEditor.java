@@ -81,7 +81,7 @@ public interface PropertiesEditor {
 	 * @param name The new username for this experiment
 	 * @throws EditorException thrown if this is not the main editor
 	 */
-	public void experiment_serUserName(String name) throws EditorException;
+	public void experiment_setUserName(String name) throws EditorException;
 	
 	/*                            *\
 	 * Node Property test methods * 

@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.snrg_nyc.model.EditorException;
 import org.snrg_nyc.model.NodeEditor;
 import org.snrg_nyc.model.PropertiesEditor;
+import org.snrg_nyc.ui.components.ExperimentInfoWindow;
 import org.snrg_nyc.ui.components.Fonts;
 
 import javafx.application.Application;
@@ -84,14 +85,17 @@ public class UI_Main extends Application{
 		window.setTop(topMenu);
 		
 		Menu fileM = new Menu("File");
-		topMenu.getMenus().add(fileM);
+		Menu editM = new Menu("Edit");
+		topMenu.getMenus().addAll(fileM, editM);
 		
-
 		MenuItem newProject = new MenuItem("New");
 		MenuItem save = new MenuItem("Save");
 		MenuItem load = new MenuItem("Load");
 		MenuItem quit = new MenuItem("Quit");
 		fileM.getItems().addAll(newProject, save, load, quit);
+		
+		MenuItem expInfo = new MenuItem("Experiment Info");
+		editM.getItems().addAll(expInfo);
 		
 		//The Quit menu
 		quitAlert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -170,6 +174,22 @@ public class UI_Main extends Application{
 				}
 			}
 			catch (Exception e){
+				editor.sendError(e);
+			}
+		});
+		
+		//Edit experiment info
+		expInfo.setOnAction(event->{
+			ExperimentInfoWindow exp;
+			try {
+				exp = new ExperimentInfoWindow(model);
+				exp.closeProperty().addListener((val, oldval, close)->{
+					if(close){
+						editorPane.setContent(editor);
+					}
+				});
+				editorPane.setContent(exp);
+			} catch (Exception e) {
 				editor.sendError(e);
 			}
 		});

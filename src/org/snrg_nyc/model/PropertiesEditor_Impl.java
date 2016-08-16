@@ -454,7 +454,7 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	
 	@Override
 	public void 
-	experiment_serUserName(String name) throws EditorException{
+	experiment_setUserName(String name) throws EditorException{
 		throw new EditorException("This is not the main editor");
 	}
 	
