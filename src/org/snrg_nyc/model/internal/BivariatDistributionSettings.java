@@ -5,10 +5,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.snrg_nyc.model.EditorException;
+import org.snrg_nyc.util.Transferable;
 
 import com.google.gson.annotations.SerializedName;
 
-public class BivariatDistributionSettings {
+public class BivariatDistributionSettings implements Transferable {
+	private static final long serialVersionUID = 1L;
+
 	@SerializedName("BivariatDistributionID")
 	private String distID;
 	
@@ -65,5 +68,10 @@ public class BivariatDistributionSettings {
 						+ep.getRangeLabel(i));
 			}
 		}
+	}
+
+	@Override
+	public String getObjectID() {
+		return distID;
 	}
 }
