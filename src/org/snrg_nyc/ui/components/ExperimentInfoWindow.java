@@ -32,6 +32,9 @@ public class ExperimentInfoWindow extends GridPane {
 		Text title = new Text("Experiment Info");
 		title.setFont(Fonts.titleFont);
 		
+		Text statusText = new Text();
+		statusText.setWrappingWidth(300);
+		
 		TextArea descText = new TextArea(model.experiment_getDescription());
 		descText.setPrefColumnCount(15);
 		descText.setPrefRowCount(3);
@@ -47,9 +50,14 @@ public class ExperimentInfoWindow extends GridPane {
 			try {
 				model.experiment_setDescription(descText.getText());
 				model.experiment_setUserName(userText.getText());
+				statusText.setText(String.format(
+						"Update successful.  \nUsername: %s \nDescription: %s",
+						model.experiment_getUserName(), 
+						model.experiment_getDescription()
+						));
 			} 
 			catch (EditorException e) {
-				add(new Text("An error occured: "+e.getMessage()), 1, 0, 1, 3);
+				statusText.setText("An error occured: "+e.getMessage());
 				e.printStackTrace();
 			}
 		});
@@ -59,6 +67,7 @@ public class ExperimentInfoWindow extends GridPane {
 		add(descText, 2, 2, 1, 2);
 		add(new Label("User Name"),0,4);
 		add(userText, 2, 4);
+		add(statusText, 0, 5, 3, 1);
 		add(close, 0, 6);
 		add(apply, 2, 6);
 	}
