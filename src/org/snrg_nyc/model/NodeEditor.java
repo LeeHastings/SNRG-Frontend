@@ -232,6 +232,13 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 			e.validateLoadedObjects();
 		}
 	}
+	
+	@Override
+	public boolean
+	hasExperimentInfo(){
+		return true;
+	}
+	
 	@Override
 	public String
 	experiment_getDescription() throws EditorException{

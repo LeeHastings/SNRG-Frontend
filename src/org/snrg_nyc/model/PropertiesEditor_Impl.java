@@ -429,6 +429,12 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	}
 	
 	@Override
+	public boolean
+	hasExperimentInfo(){
+		return false;
+	}
+	
+	@Override
 	public String 
 	experiment_getDescription() throws EditorException{
 		throw new EditorException("This is not the main editor");

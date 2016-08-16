@@ -45,6 +45,13 @@ public interface PropertiesEditor {
 	 */
 	public boolean allowsLayers();
 	
+	/**
+	 * A flag showing this editor contains the experiment information,
+	 * which is accessed by methods beginning with "experiment_"
+	 * @return True if experiment methods can be called, otherwise false.
+	 */
+	public boolean hasExperimentInfo();
+	
 	/*
 	 * Experiment methods
 	 */
