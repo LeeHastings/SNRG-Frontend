@@ -76,7 +76,16 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 	
 	@Override
 	public void 
+	save() throws EditorException{
+		save(expInfo.getName());
+	}
+	@Override
+	public void 
 	save(String experimentName) throws EditorException {
+		if(experimentName == null || experimentName.length() == 0){
+			throw new EditorException("Invalid name for experiment: "
+					+experimentName);
+		}
 		expInfo.setName(experimentName);
 		Map<String, Transferable> e = getSavedObjects();
 		
@@ -262,6 +271,18 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 	public void 
 	experiment_setUserName(String name){
 		expInfo.setUser(name);
+	}
+	
+	@Override
+	public String
+	experiment_getName(){
+		return expInfo.getName();
+	}
+	
+	@Override
+	public void 
+	experiment_setName(String name) throws EditorException{
+		expInfo.setName(name);
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package org.snrg_nyc.model.internal;
 
+import org.snrg_nyc.model.EditorException;
 import org.snrg_nyc.util.Transferable;
 
 import com.google.gson.annotations.SerializedName;
@@ -21,7 +22,10 @@ public class ExperimentInfo implements Transferable {
 	public String getName() {
 		return name;
 	}
-	public void setName(String name) {
+	public void setName(String name) throws EditorException {
+		if(name == null || name.length() == 0){
+			throw new EditorException("An experiment's name cannot be empty!");
+		}
 		this.name = name;
 	}
 

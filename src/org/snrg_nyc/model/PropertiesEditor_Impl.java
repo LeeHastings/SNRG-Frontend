@@ -459,6 +459,18 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	}
 	
 	@Override
+	public String 
+	experiment_getName() throws EditorException{
+		throw new EditorException("This is not the main editor");
+	}
+	
+	@Override
+	public void 
+	experiment_setName(String name) throws EditorException{
+		throw new EditorException("This is not the main editor");
+	}
+	
+	@Override
 	public List<Integer> 
 	nodeProp_getPropertyIDs() {
 		ArrayList<Integer> ls = new ArrayList<>();
@@ -1424,6 +1436,12 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	@Override
 	public void 
 	save(String experimentName) throws EditorException{
+		throw new EditorException(
+				"This should not be called directly by this editor!");
+	}
+	@Override
+	public void 
+	save() throws EditorException{
 		throw new EditorException(
 				"This should not be called directly by this editor!");
 	}

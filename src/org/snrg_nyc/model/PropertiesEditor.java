@@ -13,12 +13,21 @@ import java.util.Map;
 public interface PropertiesEditor {
 
 	/**
-	 * Save the properties to a persistent structure.  This does not validate the data,
-	 * only preserving the project in its current state.
-	 * @param experimentName The name of the experiment under which to save the data.
-	 * @throws EditorException Thrown if there was some error while saving (the message will likely have details)
+	 * Save the properties to a persistent structure.  This does not 
+	 * validate the data, only preserving the project in its current state.
+	 * @param experimentName The name of the experiment under which to
+	 *  save the data.
+	 * @throws EditorException Thrown if there was some error while saving 
+	 * (the message will likely have details)
 	 */
 	public void save(String experimentName) throws EditorException;
+	
+	/**
+	 * Save the properties to the name currently in the experiment,
+	 * @throws EditorException Thrown if there was a problem while saving
+	 * @see {@link PropertiesEditor#save(String)}
+	 */
+	public void save() throws EditorException;
 	
 	/**
 	 * Load an experiment with the given name from the persistent structure.
@@ -82,6 +91,21 @@ public interface PropertiesEditor {
 	 * @throws EditorException thrown if this is not the main editor
 	 */
 	public void experiment_setUserName(String name) throws EditorException;
+	
+	/**
+	 * Get the name of the experiment 
+	 * @return The experiment's name
+	 * @throws EditorException thrown if this is not the main editor
+	 */
+	public String experiment_getName() throws EditorException;
+	
+	/**
+	 * Set the name of the experiment.  This is used when 
+	 * {@link PropertiesEditor#save()} is called
+	 * @param name The new name for the experiment
+	 * @throws EditorException thrown if this is not the main editor
+	 */
+	public void experiment_setName(String name) throws EditorException;
 	
 	/*                            *\
 	 * Node Property test methods * 
