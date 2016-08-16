@@ -45,6 +45,37 @@ public interface PropertiesEditor {
 	 */
 	public boolean allowsLayers();
 	
+	/*
+	 * Experiment methods
+	 */
+	/**
+	 * Get a description of the experiment
+	 * @return The description of the experiment
+	 * @throws EditorException thrown if this is not the main editor
+	 */
+	public String experiment_getDescription() throws EditorException;
+	
+	/**
+	 * Set the description for the experiment
+	 * @param desc The description
+	 * @throws EditorException thrown if this is not the main editor
+	 */
+	public void experiment_setDescription(String desc) throws EditorException;
+	
+	/**
+	 * Get the username attached to the experiment
+	 * @return The username for this experiment
+	 * @throws EditorException thrown if this is not the main editor
+	 */
+	public String experiment_getUserName() throws EditorException;
+	
+	/**
+	 * Set the username for this experiment
+	 * @param name The new username for this experiment
+	 * @throws EditorException thrown if this is not the main editor
+	 */
+	public void experiment_serUserName(String name) throws EditorException;
+	
 	/*                            *\
 	 * Node Property test methods * 
 	\*                            */

@@ -221,6 +221,29 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 			e.validateLoadedObjects();
 		}
 	}
+	@Override
+	public String
+	experiment_getDescription() throws EditorException{
+		throw new EditorException("This is not the main editor");
+	}
+	
+	@Override
+	public void 
+	experiment_setDescription(String desc) throws EditorException{
+		throw new EditorException("This is not the main editor");
+	}
+	
+	@Override
+	public String 
+	experiment_getUserName() throws EditorException{
+		throw new EditorException("This is not the main editor");
+	}
+	
+	@Override
+	public void 
+	experiment_serUserName(String name) throws EditorException{
+		throw new EditorException("This is not the main editor");
+	}
 
 	@Override
 	public boolean 
