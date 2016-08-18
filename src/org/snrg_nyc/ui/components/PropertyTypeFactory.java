@@ -1,7 +1,7 @@
 package org.snrg_nyc.ui.components;
 
+import org.snrg_nyc.model.PropertyID;
 import org.snrg_nyc.ui.EditorPage;
-import org.snrg_nyc.util.PropertyID;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;

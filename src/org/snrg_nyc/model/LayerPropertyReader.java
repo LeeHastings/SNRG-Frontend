@@ -3,8 +3,6 @@ package org.snrg_nyc.model;
 import java.util.List;
 import java.util.Map;
 
-import org.snrg_nyc.util.PropertyID;
-
 public class LayerPropertyReader implements PropertyReader {
 	PropertyID id;
 	PropertiesEditor model;

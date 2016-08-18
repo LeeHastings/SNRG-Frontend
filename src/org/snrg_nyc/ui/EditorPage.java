@@ -9,6 +9,7 @@ import java.util.Optional;
 import org.snrg_nyc.model.EditorException;
 import org.snrg_nyc.model.LayerPropertyReader;
 import org.snrg_nyc.model.PropertiesEditor;
+import org.snrg_nyc.model.PropertyID;
 import org.snrg_nyc.model.PropertyReader;
 import org.snrg_nyc.ui.components.ConditionsCell;
 import org.snrg_nyc.ui.components.ConditionsMenu;
@@ -21,7 +22,6 @@ import org.snrg_nyc.ui.components.PropertyNameFactory;
 import org.snrg_nyc.ui.components.PropertyTypeFactory;
 import org.snrg_nyc.ui.components.UI_Message;
 import org.snrg_nyc.util.Executor;
-import org.snrg_nyc.util.PropertyID;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
