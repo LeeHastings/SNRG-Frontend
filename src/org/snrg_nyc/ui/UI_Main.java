@@ -1,6 +1,5 @@
 package org.snrg_nyc.ui;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.snrg_nyc.model.EditorException;
@@ -11,8 +10,6 @@ import org.snrg_nyc.ui.components.Fonts;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ListChangeListener.Change;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
