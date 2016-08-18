@@ -3,7 +3,7 @@ package org.snrg_nyc.model;
 import java.util.Map;
 
 import org.snrg_nyc.model.internal.NodeLayer;
-import org.snrg_nyc.util.Transferable;
+import org.snrg_nyc.persistence.Transferable;
 
 class EdgeEditor extends PropertiesEditor_Impl {
 	private static String noLayersMsg = "There are no layers in this editor";

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.snrg_nyc.model.EditorException;
-import org.snrg_nyc.util.Transferable;
+import org.snrg_nyc.persistence.Transferable;
 
 /**
  * The base class for all node properties

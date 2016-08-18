@@ -6,7 +6,7 @@ import org.snrg_nyc.model.internal.BooleanProperty;
 import org.snrg_nyc.model.internal.EnumeratorProperty;
 import org.snrg_nyc.model.internal.FractionProperty;
 import org.snrg_nyc.model.internal.IntegerRangeProperty;
-import org.snrg_nyc.util.Transferable;
+import org.snrg_nyc.persistence.Transferable;
 
 /**
  * A class for editing the properties in a pathogen.

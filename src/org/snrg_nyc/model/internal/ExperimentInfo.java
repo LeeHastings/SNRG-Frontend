@@ -1,7 +1,7 @@
 package org.snrg_nyc.model.internal;
 
 import org.snrg_nyc.model.EditorException;
-import org.snrg_nyc.util.Transferable;
+import org.snrg_nyc.persistence.Transferable;
 
 import com.google.gson.annotations.SerializedName;
 

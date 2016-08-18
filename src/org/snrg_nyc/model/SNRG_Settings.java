@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.snrg_nyc.model.internal.NodeProperty;
-import org.snrg_nyc.util.Transferable;
+import org.snrg_nyc.persistence.Transferable;
 
 import com.google.gson.annotations.SerializedName;
 

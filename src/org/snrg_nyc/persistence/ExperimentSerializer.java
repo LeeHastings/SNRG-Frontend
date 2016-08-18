@@ -3,8 +3,6 @@ package org.snrg_nyc.persistence;
 import java.util.List;
 import java.util.Map;
 
-import org.snrg_nyc.util.Transferable;
-
 
 /**
  * An interface for storing {@link Transferable} objects to some 

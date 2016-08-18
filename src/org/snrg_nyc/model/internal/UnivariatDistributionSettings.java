@@ -9,7 +9,7 @@ import org.snrg_nyc.model.EditorException;
 import org.snrg_nyc.model.PropertiesEditor;
 import org.snrg_nyc.model.internal.ValuesListProperty.ConditionalDistribution;
 import org.snrg_nyc.model.internal.ValuesListProperty.Distribution;
-import org.snrg_nyc.util.Transferable;
+import org.snrg_nyc.persistence.Transferable;
 
 import com.google.gson.annotations.SerializedName;
 

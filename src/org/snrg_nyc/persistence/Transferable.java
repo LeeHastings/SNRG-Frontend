@@ -1,4 +1,4 @@
-package org.snrg_nyc.util;
+package org.snrg_nyc.persistence;
 
 import java.io.Serializable;
 

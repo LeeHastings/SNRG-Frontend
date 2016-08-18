@@ -2,8 +2,6 @@ package org.snrg_nyc.persistence;
 
 import java.util.Map;
 
-import org.snrg_nyc.util.Transferable;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
