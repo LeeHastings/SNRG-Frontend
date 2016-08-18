@@ -63,8 +63,16 @@ public class UnivariatDistributionSettings implements Transferable {
 	@SerializedName("DependencyDistributionList")
 	List<DistributionList> distributions;
 	
+	/**
+	 * Create an object using data from a node property
+	 * @param model The instance of {@link PropertiesEditor} to read data from.
+	 * This should be the same editor that the NodeProperty is from
+	 * @param np The {@link NodeProperty} to read the distribution from
+	 * @throws EditorException Thrown if there was a problem reading
+	 * data from the model.
+	 */
 	public 
-	UnivariatDistributionSettings(PropertiesEditor ui, NodeProperty np) 
+	UnivariatDistributionSettings(PropertiesEditor model, NodeProperty np) 
 			throws EditorException
 	{
 	
@@ -89,8 +97,8 @@ public class UnivariatDistributionSettings implements Transferable {
 				vlp.getConDistributionConditions(i).entrySet()
 			){
 				conds.add(new Condition(
-					ui.nodeProp_getName(idPair.getKey()),
-					ui.nodeProp_getRangeLabel(
+					model.nodeProp_getName(idPair.getKey()),
+					model.nodeProp_getRangeLabel(
 							idPair.getKey(), idPair.getValue())) 
 					);
 			}
@@ -116,9 +124,18 @@ public class UnivariatDistributionSettings implements Transferable {
 		}
 		distributions.add(new DistributionList(pairs));
 	}
-
+	
+	/**
+	 * Reattach this object with a {@link NodeProperty}, making its values
+	 * consistent with those in the new {@link PropertiesEditor}
+	 * @param model The {@link PropertiesEditor} to read data from
+	 * @param np The {@link NodeProperty} to attach to and read from
+	 * @throws EditorException Thrown if any of the data provided in this
+	 * object is not consistent with the information in the node property
+	 * or the model.
+	 */
 	public void 
-	addToProperty(PropertiesEditor ui, NodeProperty np) throws EditorException{
+	addToProperty(PropertiesEditor model, NodeProperty np) throws EditorException{
 		if(!np.getName().equals(propName)){
 			throw new IllegalArgumentException(
 					"This distribution is for property '"+propName
@@ -155,7 +172,7 @@ public class UnivariatDistributionSettings implements Transferable {
 			if(dist instanceof ConditionalDistList){
 				ConditionalDistList cDist = (ConditionalDistList) dist;
 				for(Condition c : cDist.conditions){
-					Integer pid = ui.search_nodePropWithName(c.Name);
+					Integer pid = model.search_nodePropWithName(c.Name);
 					if(!vlp.dependsOn(pid)){
 						vlp.addDependency(pid);
 					}
@@ -164,7 +181,7 @@ public class UnivariatDistributionSettings implements Transferable {
 								"There is no property with the given name: "
 								+c.Name);
 					}
-					Integer rid = ui.search_rangeWithLabel(pid, c.Value);
+					Integer rid = model.search_rangeWithLabel(pid, c.Value);
 					if(rid == null){
 						throw new IllegalArgumentException(
 								"There is no range named '"
@@ -187,12 +204,6 @@ public class UnivariatDistributionSettings implements Transferable {
 			}
 		}
 	}
-	
-	public static long 
-	getSerialversionuid() {
-		return serialVersionUID;
-	}
-	
 	public String 
 	getName() {
 		return name;

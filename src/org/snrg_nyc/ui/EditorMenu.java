@@ -35,6 +35,12 @@ import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 
+/**
+ * A menu that interacts with an {@link EditorPage} and sends it
+ * commands.
+ * @author Devin Hastings
+ *
+ */
 public class EditorMenu extends GridPane {
 	private ObservableList<Optional<Integer>> layers = 
 			FXCollections.observableArrayList();
@@ -307,7 +313,7 @@ public class EditorMenu extends GridPane {
 	 * Update the properties list to show the properties of a given layer, 
 	 * or the properties in the main object.
 	 * @param lid The {@link Optional} integer of the layer ID,
-	 * empty to justs update to node properties
+	 * empty to just update to node properties
 	 * @throws EditorException Thrown if the layer ID is invalid.
 	 */
 	private void 

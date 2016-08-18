@@ -29,4 +29,9 @@ public class BooleanRangeProperty extends EnumeratorProperty {
 	public void removeRange(int rid) throws EditorException{
 		throw new EditorException("Cannot remove labels from a boolean property.");
 	}
+	@Override
+	public boolean
+	rangesAreSet(){
+		return true;
+	}
 }

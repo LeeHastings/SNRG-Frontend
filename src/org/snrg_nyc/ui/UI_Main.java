@@ -11,6 +11,8 @@ import org.snrg_nyc.ui.components.Fonts;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ListChangeListener.Change;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -275,9 +277,6 @@ public class UI_Main extends Application{
 		returnToNodeProp.setOnMouseClicked(event-> openNodeWindow());
 		addToRightMenu(returnToNodeProp);
 
-		editor.finishedProperty().addListener( (o, oldval, newval)->{
-			update();
-		});
 		stage.setScene(scene);
 		try {
 			leftMenu.updateAll();
@@ -305,11 +304,23 @@ public class UI_Main extends Application{
 				}
 			});
 		
+		editor.addedLayerProperty().addListener((o, oldval, newval)->{
+			if(newval){
+				updateEdges();
+			}
+		});
+		editor.addedPathogenProperty().addListener((o, oldval, newval)->{
+			if(newval){
+				updatePathogens();
+			}
+		});
+		
 		stage.show();
 	}
 	
 	/**
-	 * Open a new window for a pathogen editor
+	 * Change the editor to display the {@link PropertiesEditor}
+	 * for a pathogen
 	 * @param pathogenID The ID of the pathogen to edit
 	 */
 	void 
@@ -325,6 +336,11 @@ public class UI_Main extends Application{
 		}
 	}
 	
+	/**
+	 * Change the editor to display the {@link PropertiesEditor}
+	 * for an edge
+	 * @param layerID The ID of the edge settings to edit (bound to a layer)
+	 */
 	public void 
 	openEdgeWindow(int layerID){
 		try {
@@ -337,6 +353,10 @@ public class UI_Main extends Application{
 		}
 	}
 	
+	/**
+	 * Change the editor to display the {@link PropertiesEditor}
+	 * for the node settings
+	 */
 	public void
 	openNodeWindow(){
 		editor.setModel(model);
@@ -355,18 +375,31 @@ public class UI_Main extends Application{
 			addToRightMenu(n);
 		}
 	}
-
+	/**
+	 * Update the right-hand menu
+	 */
 	private void
 	update(){
+		updatePathogens();
+		updateEdges();
+	}
+	/**
+	 * Refresh the list of pathogens from the model
+	 */
+	private void updatePathogens(){
 		try {
-			pathogensView.getItems().setAll(
-					model.pathogen_getPathogenIDs());
-			List<Integer> lids = model.layer_getLayerIDs();
-			edgesView.getItems().setAll(lids);
-		} catch (Exception e) {
+			pathogensView.getItems().setAll(model.pathogen_getPathogenIDs());
+		} catch (EditorException e) {
 			editor.sendError(e);
 		}
 	}
+	/**
+	 * Refresh the list of edges from the model
+	 */
+	private void updateEdges(){
+		edgesView.getItems().setAll(model.layer_getLayerIDs());
+	}
+	
 	/**
 	 * Open a menu that asks if the user wants to quit.
 	 * Return true if they accept, otherwise false.

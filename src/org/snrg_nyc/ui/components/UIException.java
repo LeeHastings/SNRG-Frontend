@@ -2,7 +2,8 @@ package org.snrg_nyc.ui.components;
 
 /**
  * A checked exception specifically for UI errors, 
- * particularly for failing while being constructed
+ * particularly for failing while a UI element is
+ * being constructed
  * 
  * @author Devin Hastings
  *

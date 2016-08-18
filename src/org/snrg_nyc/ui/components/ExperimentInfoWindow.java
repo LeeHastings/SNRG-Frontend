@@ -14,6 +14,12 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 
+/**
+ * A window for editing the experiment properties in an instance of
+ * {@link PropertiesEditor}
+ * @author Devin Hastings
+ *
+ */
 public class ExperimentInfoWindow extends GridPane {
 	private BooleanProperty closeProperty = new SimpleBooleanProperty(false);
 	
@@ -44,9 +50,6 @@ public class ExperimentInfoWindow extends GridPane {
 		
 		TextField userText = new TextField(model.experiment_getUserName());
 		
-		Button close = new Button("Close");
-		close.setOnMouseClicked(event-> closeProperty.set(true));
-		
 		Button apply = new Button("Apply");
 		apply.setOnMouseClicked(event->{
 			try {
@@ -66,6 +69,9 @@ public class ExperimentInfoWindow extends GridPane {
 				e.printStackTrace();
 			}
 		});
+
+		Button close = new Button("Close");
+		close.setOnMouseClicked(event-> closeProperty.set(true));
 		
 		add(title, 0, 0, 3, 1);
 		
@@ -79,9 +85,14 @@ public class ExperimentInfoWindow extends GridPane {
 		add(userText, 2, 5);
 		
 		add(statusText, 0, 6, 3, 1);
-		add(close, 0, 7);
-		add(apply, 2, 7);
+		add(apply, 0, 7);
+		add(close, 2, 7);
 	}
+	/**
+	 * A property for if the window has been asked to close.  How to
+	 * close this window is determined by external programs
+	 * @return A property that shows if the window has been asked to close/exit
+	 */
 	public ReadOnlyBooleanProperty
 	closeProperty(){
 		return closeProperty;

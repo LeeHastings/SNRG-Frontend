@@ -27,6 +27,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.ReadOnlyListProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -85,6 +86,7 @@ public class EditorPage extends GridPane{
 	private final BooleanProperty finished = new SimpleBooleanProperty();
 	private final BooleanProperty addedProperty = new SimpleBooleanProperty();
 	private final BooleanProperty addedLayer = new SimpleBooleanProperty();
+	private final BooleanProperty addedPathogen = new SimpleBooleanProperty();
 	private final ListProperty<UI_Message> messages = 
 			new SimpleListProperty<UI_Message>();
 
@@ -118,11 +120,17 @@ public class EditorPage extends GridPane{
 		addedProperty.addListener( (o, oldVal, newVal)->{
 			if(newVal){
 				try {
+					boolean attachment = 
+							model.scratch_getType().equals("AttachmentProperty");
 					model.scratch_commit();
+					addedPathogen.set(attachment);
 				} catch (Exception e) {
 					sendError(e);
 				}
 				finished.set(true);
+			}
+			else {
+				addedPathogen.set(false);
 			}
 		});
 		addedLayer.addListener((o, oldval, newval)->{
@@ -1708,9 +1716,21 @@ public class EditorPage extends GridPane{
 	 * The messages the editor has received
 	 * @return A read only copy of the editor messages
 	 */
-	public ListProperty<UI_Message> 
+	public ReadOnlyListProperty<UI_Message> 
 	messagesProperty(){
 		return messages;
+	}
+	/**
+	 * A property for if a layer was added
+	 * @return The property denoting if a layer was added
+	 */
+	public ReadOnlyBooleanProperty
+	addedLayerProperty(){
+		return addedLayer;
+	}
+	public ReadOnlyBooleanProperty
+	addedPathogenProperty(){
+		return addedPathogen;
 	}
 	public void 
 	requireWidth(double w){

@@ -19,12 +19,15 @@ import com.google.gson.JsonSerializer;
  * @author Devin Hastings
  *
  */
-public class PropertyJsonAdapter implements JsonSerializer<NodeProperty>, JsonDeserializer<NodeProperty> {
+public class PropertyJsonAdapter
+		implements JsonSerializer<NodeProperty>, JsonDeserializer<NodeProperty>
+{
 	//Passing strings as parameters multiple times is too error-prone for me
 	final static String nameLabel = "PropertyName";
 	final static String descLabel = "Description";
+	//Two labels for backwards compatibility
 	final static String depLabel = "DependencyLevel";
-	final static String depLabel2 = "Dependency Level";
+	final static String depLabel2 = "Dependency Level"; 
 	final static String intRangesLabel = "IntegerRangeList";
 	final static String enumValsLabel = "EnumValues";
 	final static String initValLabel = "DisableRandom_UseInitValue";
@@ -33,12 +36,21 @@ public class PropertyJsonAdapter implements JsonSerializer<NodeProperty>, JsonDe
 	
 	private Class<?>[] propertyTypes;
 	
+	/**
+	 * Create a {@link PropertyJsonAdapter} with the available property classes
+	 * @param propTypes An array of classes that the property could be
+	 * (they must all be subclasses of {@link NodeProperty}
+	 */
 	public PropertyJsonAdapter(Class<?>[] propTypes){
 		propertyTypes = propTypes;
 	}
 	
 	@Override
-	public JsonElement serialize(NodeProperty nodeProp, Type type, JsonSerializationContext context) {
+	public JsonElement 
+	serialize(NodeProperty nodeProp, 
+	          Type type, 
+	          JsonSerializationContext context) 
+	{
 		JsonObject propertyJs = new JsonObject();
 		JsonObject innerJs = new JsonObject();
 		propertyJs.add(nodeProp.getClass().getSimpleName(), innerJs);
@@ -70,7 +82,8 @@ public class PropertyJsonAdapter implements JsonSerializer<NodeProperty>, JsonDe
 		}
 		else if(nodeProp instanceof BooleanRangeProperty){
 			if(nodeProp instanceof AttachmentProperty){
-				innerJs.addProperty(pathogenLabel, ((AttachmentProperty)nodeProp).getPathogenName() );
+				innerJs.addProperty(pathogenLabel, 
+						((AttachmentProperty)nodeProp).getPathogenName() );
 			}
 		}
 		else if(nodeProp instanceof EnumeratorProperty){
@@ -108,7 +121,8 @@ public class PropertyJsonAdapter implements JsonSerializer<NodeProperty>, JsonDe
 	}
 
 	@Override
-	public NodeProperty deserialize(JsonElement js, Type type, JsonDeserializationContext context)
+	public NodeProperty 
+	deserialize(JsonElement js, Type type, JsonDeserializationContext context)
 			throws JsonParseException
 	{
 		JsonObject nodePropJs = js.getAsJsonObject();
@@ -117,19 +131,24 @@ public class PropertyJsonAdapter implements JsonSerializer<NodeProperty>, JsonDe
 		
 		for(Class<?> propClass : propertyTypes){
 			if(nodePropJs.has(propClass.getSimpleName())){
-				innerJs = getJson(nodePropJs,propClass.getSimpleName()).getAsJsonObject();
+				innerJs = getJson(
+						nodePropJs,propClass.getSimpleName())
+						.getAsJsonObject();
 				try {
 					nodeProp = (NodeProperty) propClass.newInstance();
-				} catch (Exception e) {
+				} 
+				catch (IllegalAccessException | InstantiationException e) {
 					e.printStackTrace();
-					throw new JsonParseException("Error while making class: "+e.toString());
+					throw new JsonParseException("Error while making class: "
+							+e.toString());
 				}
 				break;
 			}
 		}
 		if(nodeProp == null || innerJs == null){
 			throw new JsonParseException(
-					"The given property was not in the list of known property types: "+nodePropJs);
+					"The given property was not in the list of known"
+					+ " property types: "+nodePropJs);
 		}
 		try {
 			nodeProp.setName(getJson(innerJs,nameLabel).getAsString());
@@ -138,7 +157,8 @@ public class PropertyJsonAdapter implements JsonSerializer<NodeProperty>, JsonDe
 				nodeProp.setDependencyLevel(innerJs.get(depLabel).getAsInt());
 			}
 			else {
-				nodeProp.setDependencyLevel(getJson(innerJs,depLabel2).getAsInt());
+				nodeProp.setDependencyLevel(
+						getJson(innerJs,depLabel2).getAsInt());
 			}
 		} 
 		catch (EditorException e) {
@@ -149,13 +169,16 @@ public class PropertyJsonAdapter implements JsonSerializer<NodeProperty>, JsonDe
 		if(nodeProp instanceof IntegerRangeProperty){
 			IntegerRangeProperty irp = (IntegerRangeProperty) nodeProp;
 			
-			for(JsonElement rangeJs : getJson(innerJs,intRangesLabel).getAsJsonArray()){
+			for(JsonElement rangeJs : 
+				getJson(innerJs,intRangesLabel).getAsJsonArray())
+			{
 				JsonObject range = rangeJs.getAsJsonObject();
 				int rid;
 				try {
 					rid = irp.addRange();
 					
-					irp.setRangeLabel(rid, getJson(range,"RangeID").getAsString());
+					irp.setRangeLabel(rid, 
+							getJson(range,"RangeID").getAsString());
 					irp.setRangeMin(rid, getJson(range,"Min").getAsInt());
 					irp.setRangeMax(rid, getJson(range, "Max").getAsInt());
 				} 
@@ -174,12 +197,15 @@ public class PropertyJsonAdapter implements JsonSerializer<NodeProperty>, JsonDe
 		else if(nodeProp instanceof EnumeratorProperty){
 			EnumeratorProperty en = (EnumeratorProperty) nodeProp;
 			
-			for(JsonElement rangejs : getJson(innerJs,enumValsLabel).getAsJsonArray()){
+			for(JsonElement rangejs : 
+				getJson(innerJs,enumValsLabel).getAsJsonArray())
+			{
 				int rid;
 				try {
 					rid = en.addRange();
 					en.setRangeLabel(rid, rangejs.getAsString());
-				} catch (EditorException e) {
+				} 
+				catch (EditorException e) {
 					e.printStackTrace();
 					throw new JsonParseException("Error while reading ranges");
 				}
@@ -203,19 +229,29 @@ public class PropertyJsonAdapter implements JsonSerializer<NodeProperty>, JsonDe
 			}
 		}
 		else if(!(nodeProp instanceof ValueProperty)){
-			throw new JsonParseException("The given property is missing a distribution: "+nodePropJs);
+			throw new JsonParseException(
+					"The given property is missing a distribution: "
+					+nodePropJs);
 		}
-		
 		return nodeProp;
 	}
 	
+	/**
+	 * The same as {@link JsonObject#get(String)}, but it throws an exception
+	 * if the tag is missing instead of returning null
+	 * @param json The JsonObject to get data from
+	 * @param label The key for the data in the JsonObject
+	 * @return The data, if it exists
+	 * @throws JsonParseException Thrown if the key does not exist.
+	 */
 	private JsonElement 
 	getJson(JsonObject json, String label) throws JsonParseException {
 		if(json.has(label)){
 			return json.get(label);
 		}
 		else {
-			throw new JsonParseException("No element with label '"+label+"', "+json);
+			throw new JsonParseException("No element with label '"
+					+label+"': "+json);
 		}
 	}
 
