@@ -4,7 +4,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
 /**
- * A small class for delivering and displaying messages from the {@link org.snrg_nyc.ui.EditorPage}
+ * A small class for delivering and displaying messages from the 
+ * {@link org.snrg_nyc.ui.EditorPage}
  * @author Devin Hastings
  *
  */
@@ -34,12 +35,14 @@ public class UI_Message {
 			break;
 		}
 	}
-	public Text getMessageUI(){
+	public Text 
+	getMessageUI(){
 		Text tx = new Text(msg);
 		tx.setFill(color);
 		return tx;
 	}
-	public String getText(){
+	public String 
+	getText(){
 		return msgType.name()+": "+msg;
 	}
 }
