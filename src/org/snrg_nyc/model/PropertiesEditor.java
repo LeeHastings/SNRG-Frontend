@@ -25,7 +25,7 @@ public interface PropertiesEditor {
 	/**
 	 * Save the properties to the name currently in the experiment,
 	 * @throws EditorException Thrown if there was a problem while saving
-	 * @see {@link PropertiesEditor#save(String)}
+	 * @see  PropertiesEditor#save(String)
 	 */
 	public void save() throws EditorException;
 	
