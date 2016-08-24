@@ -331,6 +331,7 @@ public class UI_Main extends Application{
 		catch(EditorException e){
 			editor.sendError(e);
 		}
+		pathogensView.getSelectionModel().clearSelection();
 	}
 	
 	/**
@@ -348,6 +349,7 @@ public class UI_Main extends Application{
 		catch (EditorException e) {
 			editor.sendError(e);
 		}
+		edgesView.getSelectionModel().clearSelection();
 	}
 	
 	/**
