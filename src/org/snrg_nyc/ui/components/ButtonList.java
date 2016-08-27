@@ -20,9 +20,9 @@ public class ButtonList<T> extends GridPane {
 	public static interface ClickListener<T>{
 		public void onClick(T item);
 	}
-	public class ButtonItem extends HBox{
+	private class ButtonItem extends HBox{
 		Button b;
-		private T item;
+		T item;
 		ButtonItem(T item){
 			b = new Button(labelFactory.toString(item));
 			HBox.setHgrow(b, Priority.ALWAYS);
@@ -45,7 +45,8 @@ public class ButtonList<T> extends GridPane {
 	
 	private int row = 0;
 	
-	{ //Default Initialization
+	public ButtonList(){
+		super();
 		setVgap(10);
 		setHgap(10);
 		ColumnConstraints col = new ColumnConstraints();
@@ -75,12 +76,8 @@ public class ButtonList<T> extends GridPane {
 			}
 		});
 	}
-	
-	public ButtonList(){
-		super();
-	}
 	public ButtonList(Collection<T> items){
-		super();
+		this();
 		itemsProperty.setAll(items);
 	}
 	public void 
