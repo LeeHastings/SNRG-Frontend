@@ -32,7 +32,8 @@ public class ButtonList<T> extends GridPane {
 			b.setOnMouseClicked(event-> onClick(item));
 			GridPane.setFillWidth(this, true);
 		}
-		void changeLabel(LabelFactory<T> factory){
+		void 
+		changeLabel(LabelFactory<T> factory){
 			b.setText(factory.toString(item));
 		}
 	}
@@ -99,7 +100,8 @@ public class ButtonList<T> extends GridPane {
 			b.changeLabel(factory);
 		}
 	}
-	private void onClick(T item){
+	private void 
+	onClick(T item){
 		for(ClickListener<T> l : listeners){
 			l.onClick(item);
 		}
