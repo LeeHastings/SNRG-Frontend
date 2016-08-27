@@ -25,6 +25,8 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -43,10 +45,10 @@ public class UI_Main extends Application{
 	private ListView<Integer> pathogensView = null;
 	private ListView<Integer> edgesView = null;
 
-	private EditorMenu leftMenu;
-	private GridPane rightMenu;
+	private EditorMenu propertiesMenu;
+	private GridPane editorsMenu;
 	
-	private int rightMenuRow = 0; //For automatic positioning in grid
+	private int editorsMenuRow = 0; //For automatic positioning in grid
 	
 	private EditorPage editor;
 	
@@ -60,7 +62,7 @@ public class UI_Main extends Application{
 		stage = initStage;
 		stage.setTitle("Node Settings Editor");
 		editor = new EditorPage(this.model);		
-		scene = new Scene(window, 900, 600);
+		scene = new Scene(window, 1100, 600);
 
 		//Style
 		scene.getStylesheets().add(
@@ -72,15 +74,14 @@ public class UI_Main extends Application{
 		editorPane.setFitToHeight(true);
 		editorPane.setFitToWidth(true);
 		editorPane.setContent(editor);
-		window.setCenter(editorPane);
+		editorPane.setPrefSize(editor.getPrefWidth(), editor.getPrefHeight());
 		
-		leftMenu = new EditorMenu(editor, "Node Properties");
-		window.setLeft(leftMenu);
+		propertiesMenu = new EditorMenu(editor, "Node Properties");
 		
 		
 		//Add a toolbar to the window
 		MenuBar topMenu = new MenuBar();
-		window.setTop(topMenu);
+		topMenu.setMinWidth(stage.getWidth());
 		
 		Menu fileM = new Menu("File");
 		Menu editM = new Menu("Edit");
@@ -120,7 +121,7 @@ public class UI_Main extends Application{
 				model.clear();
 				update();
 				try {
-					leftMenu.updateAll();
+					propertiesMenu.updateAll();
 				} 
 				catch (Exception e) {
 					e.printStackTrace();
@@ -171,7 +172,7 @@ public class UI_Main extends Application{
 							+expName.get());
 					editorPane.setContent(editor);
 					update();
-					leftMenu.updateAll();
+					propertiesMenu.updateAll();
 				}
 			}
 			catch (Exception e){
@@ -204,22 +205,18 @@ public class UI_Main extends Application{
 			}
 		} );
 		
-		rightMenu = null;
-		rightMenu = new GridPane();
+		editorsMenu = null;
+		editorsMenu = new GridPane();
 		//Same appearance as leftMenu
-		rightMenu.getStyleClass().addAll(leftMenu.getStyleClass());
-		rightMenu.getColumnConstraints().addAll(
-				leftMenu.getColumnConstraints());
+		editorsMenu.getStyleClass().addAll(propertiesMenu.getStyleClass());
+		editorsMenu.getColumnConstraints().addAll(
+				propertiesMenu.getColumnConstraints());
 		
-		rightMenu.setPrefWidth(leftMenu.getPrefWidth());
-		rightMenu.setMaxWidth(leftMenu.getMaxWidth()); 
-		rightMenu.setHgap(leftMenu.getHgap());
-		rightMenu.setVgap(leftMenu.getVgap());
-		rightMenu.setPadding(leftMenu.getPadding());
-		
-		stage.setWidth(window.getWidth()+rightMenu.getPrefWidth());
-		
-		window.setRight(rightMenu);
+		editorsMenu.setPrefWidth(propertiesMenu.getPrefWidth());
+		editorsMenu.setMaxWidth(propertiesMenu.getMaxWidth()); 
+		editorsMenu.setHgap(propertiesMenu.getHgap());
+		editorsMenu.setVgap(propertiesMenu.getVgap());
+		editorsMenu.setPadding(propertiesMenu.getPadding());
 		
 		pathogensView = new ListView<>();
 		pathogensView.setPrefHeight(150);
@@ -243,7 +240,7 @@ public class UI_Main extends Application{
 		});
 		Text pathText = new Text("Pathogens");
 		pathText.setFont(Fonts.headFont);
-		addAllToRightMenu(pathText, pathogensView);
+		addAllToEditorsMenu(pathText, pathogensView);
 		
 		edgesView = new ListView<>();
 		edgesView.setPrefHeight(150);
@@ -268,15 +265,15 @@ public class UI_Main extends Application{
 		});
 		Text edgeText = new Text("Edge Settings");
 		edgeText.setFont(Fonts.headFont);
-		addAllToRightMenu(edgeText, edgesView);
+		addAllToEditorsMenu(edgeText, edgesView);
 		
 		Button returnToNodeProp = new Button("View Node Settings");
 		returnToNodeProp.setOnMouseClicked(event-> openNodeWindow());
-		addToRightMenu(returnToNodeProp);
+		addToEditorsMenu(returnToNodeProp);
 
 		stage.setScene(scene);
 		try {
-			leftMenu.updateAll();
+			propertiesMenu.updateAll();
 		} catch (EditorException e1) {
 			editor.sendError(e1);
 		}
@@ -311,6 +308,14 @@ public class UI_Main extends Application{
 				updatePathogens();
 			}
 		});
+
+
+		window.setTop(topMenu);
+		HBox box = new HBox();
+		HBox.setHgrow(editorPane, Priority.ALWAYS);
+		box.getChildren().addAll(editorsMenu, propertiesMenu, editorPane);
+		window.setCenter(box);
+		window.setBottom(new MessageBox(editor));
 		
 		stage.show();
 	}
@@ -324,7 +329,7 @@ public class UI_Main extends Application{
 	openPathogenWindow(int pathogenID){
 		try{
 			editor.setModel(model.pathogen_getEditor(pathogenID));
-			leftMenu.setTitle("Pathogen Properties");
+			propertiesMenu.setTitle("Pathogen Properties");
 			stage.setTitle("Pathogen Editor: "
 					+model.pathogen_getName(pathogenID));
 		}
@@ -343,7 +348,7 @@ public class UI_Main extends Application{
 	openEdgeWindow(int layerID){
 		try {
 			editor.setModel(model.layer_getEdgeEditor(layerID));
-			leftMenu.setTitle("Edge Properties");
+			propertiesMenu.setTitle("Edge Properties");
 			stage.setTitle("Edge Editor: "+model.layer_getName(layerID));
 		} 
 		catch (EditorException e) {
@@ -359,23 +364,23 @@ public class UI_Main extends Application{
 	public void
 	openNodeWindow(){
 		editor.setModel(model);
-		leftMenu.setTitle("Node Properties");
+		propertiesMenu.setTitle("Node Properties");
 		stage.setTitle("Node Settings Editor");
 	}
 	
 	private void 
-	addToRightMenu(Node n) {
-		rightMenu.add(n, 0, rightMenuRow++);
+	addToEditorsMenu(Node n) {
+		editorsMenu.add(n, 0, editorsMenuRow++);
 	}
 
 	private void 
-	addAllToRightMenu(Node... nodes){
+	addAllToEditorsMenu(Node... nodes){
 		for(Node n : nodes){
-			addToRightMenu(n);
+			addToEditorsMenu(n);
 		}
 	}
 	/**
-	 * Update the right-hand menu
+	 * Update the editors menu
 	 */
 	private void
 	update(){

@@ -7,13 +7,11 @@ import org.snrg_nyc.model.PropertyID;
 import org.snrg_nyc.ui.components.LayerCell;
 import org.snrg_nyc.ui.components.PropertyNameFactory;
 import org.snrg_nyc.ui.components.PropertyTypeFactory;
-import org.snrg_nyc.ui.components.UI_Message;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -21,15 +19,12 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
@@ -74,7 +69,7 @@ public class EditorMenu extends GridPane {
 		setVgap(10);
 		setPadding(new Insets(10));
 		setMaxWidth(300);
-		setPrefWidth(300);
+		setPrefWidth(255);
 		
 		//One full-width column
 		ColumnConstraints menuCol = new ColumnConstraints();
@@ -229,27 +224,6 @@ public class EditorMenu extends GridPane {
 
 		addAllItems(propertyTable, buttonBox);
 		
-		VBox messageBox = new VBox();
-		messageBox.setMinHeight(80);
-		
-		ScrollPane messagePane = new ScrollPane();
-		messagePane.setContent(messageBox);
-		messagePane.setMaxHeight(100);
-		messagePane.setMinHeight(messageBox.getMinHeight()+10);
-		messagePane.setFitToWidth(true);
-		messagePane.setPadding(new Insets(5));
-		messagePane.setHbarPolicy(ScrollBarPolicy.NEVER);
-		
-		messageBox.heightProperty().addListener((prop, oldval, newval)->{
-			messagePane.setVvalue((Double) newval);
-		});
-		
-		Button messageClear = new Button("Clear Messages");
-		messageClear.setOnMouseClicked(event-> 
-				editor.messagesProperty().clear());
-
-		addAllItems(new Label("Messages:"), messagePane, messageClear);
-		
 		editor.finishedProperty().addListener((o, oldval, newval) -> {
 			try {
 				updateAll();
@@ -257,41 +231,7 @@ public class EditorMenu extends GridPane {
 				editor.sendError(e);
 			}
 		});
-		
-		/*
-		 * Get the messages in the editor, convert them to UI Text, and then
-		 * insert them into the messages box.  If messages were removed,
-		 * it simply deletes all the text elements and gets them again
-		 */
-		editor.messagesProperty().addListener(
-			new ListChangeListener<UI_Message>(){
-			@Override
-			public void onChanged(Change<? extends UI_Message> c) {
-				Text t;
-				double w = messagePane.getWidth()-20;
-				c.next();
-				if(c.getRemovedSize() > 0){
-					messageBox.getChildren().clear();
-					for(UI_Message m : editor.messagesProperty()){
-						t = m.getMessageUI();
-						t.setWrappingWidth(w);
-						messageBox.getChildren().add(t);
-						System.out.println(m.getText());
-					}
-				} 
-				else {
-					for(UI_Message m : c.getAddedSubList()){
-						t = m.getMessageUI();
-						t.setWrappingWidth(w);
-						messageBox.getChildren().add(t);
-						System.out.println(m.getText());
-					}
-				}
-			}
-		});
 		this.getStyleClass().add("menu");
-		messagePane.getStyleClass().add("messages");
-		messageBox.getStyleClass().add("message-text");
 		
 		try {
 			updateAll();

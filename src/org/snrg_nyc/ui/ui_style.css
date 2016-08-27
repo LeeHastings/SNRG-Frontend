@@ -1,6 +1,5 @@
 .main{
-	-fx-background-color:
-		linear-gradient(to top left, #DDD, white);
+	-fx-background-color:#EEE;
 }
 
 .menu{
@@ -10,7 +9,6 @@
 }
 
 .messages{
-	-fx-background-color:white ;
 	-fx-border-color:lightgrey;
 }
 
