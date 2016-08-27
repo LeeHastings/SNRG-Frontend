@@ -74,7 +74,6 @@ public class UI_Main extends Application{
 		editorPane.setFitToHeight(true);
 		editorPane.setFitToWidth(true);
 		editorPane.setContent(editor);
-		editorPane.setPrefSize(editor.getPrefWidth(), editor.getPrefHeight());
 		
 		propertiesMenu = new EditorMenu(editor, "Node Properties");
 		
