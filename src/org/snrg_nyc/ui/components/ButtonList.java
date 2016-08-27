@@ -10,6 +10,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.Button;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 
 public class ButtonList<T> extends GridPane {
@@ -19,15 +20,20 @@ public class ButtonList<T> extends GridPane {
 	public static interface ClickListener<T>{
 		public void onClick(T item);
 	}
-	public class ButtonItem extends Button{
+	public class ButtonItem extends HBox{
+		Button b;
 		private T item;
 		ButtonItem(T item){
-			super(labelFactory.toString(item));
+			b = new Button(labelFactory.toString(item));
+			HBox.setHgrow(b, Priority.ALWAYS);
+			b.setMaxWidth(Double.MAX_VALUE);
 			this.item = item;
-			setOnMouseClicked(event-> onClick(item));
+			getChildren().add(b);
+			b.setOnMouseClicked(event-> onClick(item));
+			GridPane.setFillWidth(this, true);
 		}
 		void changeLabel(LabelFactory<T> factory){
-			this.setText(factory.toString(item));
+			b.setText(factory.toString(item));
 		}
 	}
 	
@@ -103,7 +109,7 @@ public class ButtonList<T> extends GridPane {
 	}
 	
 	public ObservableList<T> 
-	itemsProperty(){
+	getItems(){
 		return itemsProperty;
 	}
 }

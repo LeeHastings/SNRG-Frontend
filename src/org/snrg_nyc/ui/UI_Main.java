@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.snrg_nyc.model.EditorException;
 import org.snrg_nyc.model.NodeEditor;
 import org.snrg_nyc.model.PropertiesEditor;
+import org.snrg_nyc.ui.components.ButtonList;
 import org.snrg_nyc.ui.components.ExperimentInfoWindow;
 import org.snrg_nyc.ui.components.Fonts;
 
@@ -16,8 +17,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceDialog;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -42,8 +41,8 @@ public class UI_Main extends Application{
 
 	private Alert quitAlert;
 
-	private ListView<Integer> pathogensView = null;
-	private ListView<Integer> edgesView = null;
+	private ButtonList<Integer> pathogens = new ButtonList<>();
+	private ButtonList<Integer> edges = new ButtonList<>();
 
 	private EditorMenu propertiesMenu;
 	private GridPane editorsMenu;
@@ -204,7 +203,6 @@ public class UI_Main extends Application{
 			}
 		} );
 		
-		editorsMenu = null;
 		editorsMenu = new GridPane();
 		//Same appearance as leftMenu
 		editorsMenu.getStyleClass().addAll(propertiesMenu.getStyleClass());
@@ -212,63 +210,49 @@ public class UI_Main extends Application{
 				propertiesMenu.getColumnConstraints());
 		
 		editorsMenu.setPrefWidth(propertiesMenu.getPrefWidth());
-		editorsMenu.setMaxWidth(propertiesMenu.getMaxWidth()); 
+		editorsMenu.setMaxWidth(180); 
 		editorsMenu.setHgap(propertiesMenu.getHgap());
 		editorsMenu.setVgap(propertiesMenu.getVgap());
 		editorsMenu.setPadding(propertiesMenu.getPadding());
 		
-		pathogensView = new ListView<>();
-		pathogensView.setPrefHeight(150);
-		pathogensView.setCellFactory(col ->{
-			return new ListCell<Integer>(){
-				@Override
-				public void updateItem(Integer item, boolean empty){
-					super.updateItem(item, empty);
-					if(item == null || empty){
-						setText(null);
-						return;
-					}
-					try {
-						setText(model.pathogen_getName(item));
-					} catch (EditorException e) {
-						editor.sendError(e);
-						setText(">ERROR<");
-					}
-				}
-			};
+
+		Button returnToNodeProp = new Button("View Node Settings");
+		returnToNodeProp.setOnMouseClicked(event-> openNodeWindow());
+		
+		HBox bBox = new HBox();
+		returnToNodeProp.setMaxWidth(Double.MAX_VALUE);
+		HBox.setHgrow(returnToNodeProp, Priority.ALWAYS);
+		bBox.getChildren().add(returnToNodeProp);
+		
+		addToEditorsMenu(bBox);
+		
+		pathogens.setPrefHeight(150);
+		pathogens.setLabelFactory(pathID ->{
+			try{
+				return model.pathogen_getName(pathID);
+			}
+			catch(EditorException e){
+				editor.sendError(e);
+				return ">ERROR<";
+			}
 		});
 		Text pathText = new Text("Pathogens");
 		pathText.setFont(Fonts.headFont);
-		addAllToEditorsMenu(pathText, pathogensView);
+		addAllToEditorsMenu(pathText, pathogens);
 		
-		edgesView = new ListView<>();
-		edgesView.setPrefHeight(150);
-		edgesView.setCellFactory(lv ->{
-			return new ListCell<Integer>(){
-				@Override
-				public void updateItem(Integer item, boolean empty){
-					super.updateItem(item, empty);
-					if(empty || item == null){
-						setText(null);
-					}
-					else {
-						try {
-							setText(model.layer_getName(item));
-						} catch (EditorException e) {
-							setText(">ERROR<");
-							editor.sendError(e);
-						}
-					}
-				}
-			};
+		edges.setPrefHeight(150);
+		edges.setLabelFactory(lid->{
+			try{
+				return model.layer_getName(lid);
+			}
+			catch(EditorException e){
+				editor.sendError(e);
+				return ">ERROR<";
+			}
 		});
 		Text edgeText = new Text("Edge Settings");
 		edgeText.setFont(Fonts.headFont);
-		addAllToEditorsMenu(edgeText, edgesView);
-		
-		Button returnToNodeProp = new Button("View Node Settings");
-		returnToNodeProp.setOnMouseClicked(event-> openNodeWindow());
-		addToEditorsMenu(returnToNodeProp);
+		addAllToEditorsMenu(edgeText, edges);
 
 		stage.setScene(scene);
 		try {
@@ -278,24 +262,14 @@ public class UI_Main extends Application{
 		}
 		
 		//Enable opening windows for pathogens
-		pathogensView.getSelectionModel()
-			.selectedItemProperty()
-			.addListener((o, oldval, newval)-> 
-			{
-				if(newval != null){
-					openPathogenWindow(newval);
-				}
-			});
+		pathogens.addClickListener(pathID->{
+			openPathogenWindow(pathID);
+		});
 		
 		//Enable the same behavior for edge settings
-		edgesView.getSelectionModel()
-			.selectedItemProperty()
-			.addListener((o, oldval, newval)->
-			{
-				if(newval != null){
-					openEdgeWindow(newval);
-				}
-			});
+		edges.addClickListener(lid->{
+			openEdgeWindow(lid);
+		});
 		
 		editor.addedLayerProperty().addListener((o, oldval, newval)->{
 			if(newval){
@@ -335,7 +309,6 @@ public class UI_Main extends Application{
 		catch(EditorException e){
 			editor.sendError(e);
 		}
-		pathogensView.getSelectionModel().clearSelection();
 	}
 	
 	/**
@@ -353,7 +326,6 @@ public class UI_Main extends Application{
 		catch (EditorException e) {
 			editor.sendError(e);
 		}
-		edgesView.getSelectionModel().clearSelection();
 	}
 	
 	/**
@@ -391,7 +363,7 @@ public class UI_Main extends Application{
 	 */
 	private void updatePathogens(){
 		try {
-			pathogensView.getItems().setAll(model.pathogen_getPathogenIDs());
+			pathogens.getItems().setAll(model.pathogen_getPathogenIDs());
 		} catch (EditorException e) {
 			editor.sendError(e);
 		}
@@ -400,7 +372,7 @@ public class UI_Main extends Application{
 	 * Refresh the list of edges from the model
 	 */
 	private void updateEdges(){
-		edgesView.getItems().setAll(model.layer_getLayerIDs());
+		edges.getItems().setAll(model.layer_getLayerIDs());
 	}
 	
 	/**
