@@ -570,6 +570,8 @@ public class EditorPage extends GridPane{
 				distGPane.setVgap(10);
 				
 				distBPane.setCenter(distGPane);
+				distBPane.setMaxWidth(500);
+				distBPane.setMinHeight(150);
 				
 				//Conditional Distribution navigation
 				final IntegerProperty indexProperty = 
@@ -741,7 +743,7 @@ public class EditorPage extends GridPane{
 			TableColumn<Entry<Integer, Float>, Number> probCol = 
 					new TableColumn<>("Probability");
 			
-			distribution.setPrefSize(250, 140);
+			distribution.setMinSize(250, 140);
 			distribution.setColumnResizePolicy(
 					TableView.CONSTRAINED_RESIZE_POLICY);
 			
@@ -772,7 +774,7 @@ public class EditorPage extends GridPane{
 				sendError(e);
 			}
 			add(new Label("Default Distribution"), 0, row++);
-			add(centering, 0, row++, 5, 1);
+			add(centering, 0, row+=2, 5, 2);
 			
 			break;
 		default:

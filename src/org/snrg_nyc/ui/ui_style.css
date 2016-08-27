@@ -1,17 +1,6 @@
-.main{
-	-fx-background-color:#EEE;
+.menu {
+	-fx-border-color:lightgrey ;
 }
-
-.menu{
-	-fx-background-color:
-		linear-gradient(to top, #DDD, #EEE);
-	-fx-border-color:transparent grey transparent grey;
-}
-
-.messages{
-	-fx-border-color:lightgrey;
-}
-
 .message-text{
 	-fx-background-color:white;
 }
