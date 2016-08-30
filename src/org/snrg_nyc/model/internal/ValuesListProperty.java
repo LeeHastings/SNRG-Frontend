@@ -382,6 +382,9 @@ public abstract class ValuesListProperty<T extends ListValue> extends NodeProper
 			return false;
 		}
 	}
+	public String getBiDistID(){
+		return "bi_dist_"+name.replace(' ', '_');
+	}
 }
 	
 

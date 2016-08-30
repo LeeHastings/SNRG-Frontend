@@ -2,6 +2,7 @@ package org.snrg_nyc.model;
 
 import java.util.List;
 import org.snrg_nyc.model.internal.NodeLayer;
+
 import com.google.gson.annotations.SerializedName;
 
 class NodeSettings extends SNRG_Settings  {

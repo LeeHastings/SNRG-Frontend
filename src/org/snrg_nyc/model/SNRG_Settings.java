@@ -18,12 +18,13 @@ abstract class SNRG_Settings implements Transferable{
 		properties = new ArrayList<>();
 	}
 
-	public List<NodeProperty> getPropertyDefinitionList(){
+	public List<NodeProperty> 
+	getPropertyDefinitionList(){
 		return properties;
 	}
 
-	public void setPropertyDefinitionList(List<NodeProperty> props){
+	public void 
+	setPropertyDefinitionList(List<NodeProperty> props){
 		properties = props;
 	}
-
 }

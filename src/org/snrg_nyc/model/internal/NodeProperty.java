@@ -134,9 +134,5 @@ public abstract class NodeProperty implements Transferable {
 		default:
 			return "unidist_"+name.replace(' ', '_').toLowerCase();
 		}
-		
-	}
-	String getBiDistID(){
-		return "bidist_"+name.toLowerCase().replaceAll(" ", "_");
 	}
 }

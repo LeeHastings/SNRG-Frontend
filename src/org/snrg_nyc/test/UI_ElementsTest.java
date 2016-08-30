@@ -3,6 +3,9 @@ package org.snrg_nyc.test;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.snrg_nyc.model.EditorException;
+import org.snrg_nyc.model.NodeEditor;
+import org.snrg_nyc.model.PropertiesEditor;
 import org.snrg_nyc.ui.components.ButtonList;
 
 import javafx.application.Application;
@@ -10,13 +13,27 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class UI_ElementsTest extends Application{
+	
 	public static void 
 	main(String[] args){
 		UI_ElementsTest.launch(args);
 	}
 
 	@Override
-	public void start(Stage stage1) throws Exception {
+	public void 
+	start(Stage stage1){
+		testButtonList(stage1);
+	}
+	
+	public void 
+	testBiDistMaker() throws EditorException{
+		PropertiesEditor model = new NodeEditor();
+		model.load("pwid_demo");
+		
+	}
+	
+	public void 
+	testButtonList(Stage stage1) {
 		Map<Integer, String> items = new HashMap<>();
 		items.put(0, "banana");
 		items.put(1, "apple");

@@ -13,13 +13,17 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
-public class DistributionJsonAdapter implements JsonDeserializer<DistributionList>, JsonSerializer<DistributionList>{
+public class DistributionJsonAdapter implements 
+		JsonDeserializer<DistributionList>, JsonSerializer<DistributionList>
+{
 
 	@Override
-	public DistributionList deserialize(JsonElement js, Type type, JsonDeserializationContext context)
+	public DistributionList 
+	deserialize(JsonElement js, Type type, JsonDeserializationContext context)
 			throws JsonParseException {
 		if(js.getAsJsonObject().has("PropertyDependencyList")){
-			return (ConditionalDistList) context.deserialize(js, ConditionalDistList.class);
+			return (ConditionalDistList) 
+					context.deserialize(js, ConditionalDistList.class);
 		}
 		else {
 			Gson g = new Gson();
@@ -28,7 +32,12 @@ public class DistributionJsonAdapter implements JsonDeserializer<DistributionLis
 	}
 
 	@Override
-	public JsonElement serialize(DistributionList input, Type type, JsonSerializationContext context) {
+	public JsonElement 
+	serialize(
+			DistributionList input,
+			Type type, 
+			JsonSerializationContext context) 
+	{
 		Gson g = new Gson();
 		if(input instanceof ConditionalDistList){
 			return g.toJsonTree(input, ConditionalDistList.class);

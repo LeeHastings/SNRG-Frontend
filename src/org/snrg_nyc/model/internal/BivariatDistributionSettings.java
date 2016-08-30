@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.snrg_nyc.model.EditorException;
+import org.snrg_nyc.model.PropertiesEditor;
 import org.snrg_nyc.persistence.Transferable;
 
 import com.google.gson.annotations.SerializedName;
@@ -28,11 +29,11 @@ public class BivariatDistributionSettings implements Transferable {
 	private int mvah = 0;
 	
 	public 
-	BivariatDistributionSettings(
-			Map<Integer, Map<Integer, Float>> map, 
-			EnumeratorProperty property) 
+	BivariatDistributionSettings(BivariateDistribution bd) 
 			throws EditorException
 	{
+		Map<Integer, Map<Integer, Float>> map = bd.distribution;
+		ValuesListProperty<?> property = bd.property;
 		assert_validMap(map, property);
 		for(int i : map.keySet()){
 			try{
@@ -54,10 +55,10 @@ public class BivariatDistributionSettings implements Transferable {
 	}
 	
 	private void 
-	assert_validMap(Map<Integer, ?> map, EnumeratorProperty ep) 
+	assert_validMap(Map<Integer, ?> map, ValuesListProperty<?> property) 
 			throws EditorException
 	{
-		List<Integer> pids = ep.getUnSortedRangeIDs();
+		List<Integer> pids = property.getUnSortedRangeIDs();
 		if(map.size() != pids.size()){
 			throw new IllegalArgumentException("The given map was of the wrong size.  "
 					+"expected "+pids.size()+", found "+map.size());
@@ -65,9 +66,42 @@ public class BivariatDistributionSettings implements Transferable {
 		for(int i : pids){
 			if(!map.containsKey(i)){
 				throw new IllegalArgumentException("Missing label in distribution: "
-						+ep.getRangeLabel(i));
+						+property.getRangeLabel(i));
 			}
 		}
+	}
+	
+	public BivariateDistribution 
+	toInternalMap(ValuesListProperty<?> p, PropertiesEditor model) 
+			throws EditorException
+	{
+		if(!p.getName().equals(propName)){
+			throw new EditorException("Tried to bind property '"+p.getName()+
+					"'" + "to distribution '"+distID+
+					"', which is bound to '"+propName+"'");
+		}
+		
+		BivariateDistribution bd = new BivariateDistribution(p);
+		Map<String, Integer> labelMap = new HashMap<>();
+		
+		for(String s : biValueMap.keySet()){
+			for(int rid : p.getUnSortedRangeIDs()){
+				if(p.getRangeLabel(rid).equals(s)){
+					labelMap.put(s, rid);
+					continue;
+				}
+				throw new EditorException("Unknown value in '"+distID+"': "+s);
+			}
+		}
+		for(String r1 : biValueMap.keySet()){
+			for( String r2 : biValueMap.get(r1).keySet() ){
+				bd.setValue(
+						labelMap.get(r1),
+						labelMap.get(r2),
+						biValueMap.get(r1).get(r2));
+			}
+		}
+		return bd;
 	}
 
 	@Override

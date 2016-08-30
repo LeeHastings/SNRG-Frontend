@@ -35,7 +35,7 @@ import com.google.gson.GsonBuilder;
  * @author Devin Hastings
  *
  */
-abstract class PropertiesEditor_Impl implements PropertiesEditor {
+public abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	
 	/*         *\
 	 * Members *
@@ -1498,5 +1498,5 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	layer_getEdgeEditor(int lid) throws EditorException {
 		throw new EditorException(noPathogensMsg);
 	}
-
+	
 }
