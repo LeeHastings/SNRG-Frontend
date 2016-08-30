@@ -18,17 +18,24 @@ class AggregatorSettings implements Transferable {
 		MULTIPLY
 	}
 	private Op operation;
-	private EdgeSettings parent;
+	private String layerName;
 	
-	private Map<Integer, BivariateDistribution> nodeMap;
+	Map<Integer, BivariateDistribution> nodeMap, layerMap;
 	
-	private Map<Integer, Map<Integer, BivariateDistribution>> 
-		pathogenMap, layersMap;
+	Map<Integer, Map<Integer, BivariateDistribution>> 
+		pathogenMap;
 	
 	{
 		nodeMap = new HashMap<>();
 		pathogenMap = new HashMap<>();
-		layersMap = new HashMap<>();
+		layerMap = new HashMap<>();
+	}
+	
+	public AggregatorSettings(String layer){
+		layerName = layer;
+	}
+	public void setOperation(Op operation){
+		this.operation = operation;
 	}
 	
 	public Collection<BivariatDistributionSettings> 
@@ -48,10 +55,26 @@ class AggregatorSettings implements Transferable {
 			
 		nodeMap.forEach(consumer);
 		pathogenMap.values().forEach(map->map.forEach(consumer));
-		layersMap.values().forEach(map->map.forEach(consumer));
+		layerMap.forEach(consumer);
 		
 		return bdSettings;
 		
+	}
+	
+	public void
+	setNodePropertyDist(int pid, BivariateDistribution bd){
+		nodeMap.put(pid, bd);
+	}
+	public void
+	setPathogenDist(int pathID, int pid, BivariateDistribution bd){
+		if(!pathogenMap.containsKey(pathID)) {
+			pathogenMap.put(pathID, new HashMap<>());
+		}
+		pathogenMap.get(pathID).put(pid, bd);
+	}
+	public void
+	setLayerDist(int pid, BivariateDistribution bd){
+		layerMap.put(pid, bd);
 	}
 	
 	public BivariateDistribution 
@@ -63,14 +86,14 @@ class AggregatorSettings implements Transferable {
 		return pathogenMap.get(pathID).get(pid);
 	}
 	public BivariateDistribution
-	getLayerDistribution(int lid, int pid){
-		return layersMap.get(lid).get(pid);
+	getLayerDistribution( int pid){
+		return layerMap.get(pid);
 	}
 	
 	@Override
 	public String 
 	getObjectID() {
-		return parent.getLayerName();
+		return layerName;
 	}
 	
 }

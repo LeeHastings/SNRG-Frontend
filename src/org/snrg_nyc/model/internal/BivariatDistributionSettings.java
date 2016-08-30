@@ -101,6 +101,8 @@ public class BivariatDistributionSettings implements Transferable {
 						biValueMap.get(r1).get(r2));
 			}
 		}
+		//Just in case the way IDs are generated changed between loadings
+		bd.setID(distID);
 		return bd;
 	}
 

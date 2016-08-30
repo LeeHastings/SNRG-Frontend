@@ -7,6 +7,7 @@ import org.snrg_nyc.model.EditorException;
 
 public class BivariateDistribution {
 	protected ValuesListProperty<?> property;
+	private String id;
 	protected Map<Integer, Map<Integer, Float>> distribution = new HashMap<>();
 	
 	public BivariateDistribution(ValuesListProperty<?> property){
@@ -53,7 +54,16 @@ public class BivariateDistribution {
 		return distribution.get(rid1).get(rid2);
 	}
 	
-	public ValuesListProperty<?> property(){
+	public ValuesListProperty<?> 
+	property(){
 		return property;
+	}
+	public String
+	getId(){
+		return id;
+	}
+	protected void
+	setID(String id){
+		this.id = id;
 	}
 }
