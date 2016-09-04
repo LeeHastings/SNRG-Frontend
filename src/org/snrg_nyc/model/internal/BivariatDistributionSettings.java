@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.snrg_nyc.model.EditorException;
-import org.snrg_nyc.model.PropertiesEditor;
 import org.snrg_nyc.persistence.Transferable;
 
 import com.google.gson.annotations.SerializedName;
@@ -72,7 +71,7 @@ public class BivariatDistributionSettings implements Transferable {
 	}
 	
 	public BivariateDistribution 
-	toInternalMap(ValuesListProperty<?> p, PropertiesEditor model) 
+	toInternalMap(ValuesListProperty<?> p) 
 			throws EditorException
 	{
 		if(!p.getName().equals(propName)){

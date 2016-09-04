@@ -196,10 +196,9 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 					properties, layers);
 		}
 		
-		Iterator<String> it = objects.keySet().iterator();
+		Iterator<Transferable> it = objects.values().iterator();
 		while(it.hasNext()){
-			String key = it.next();
-			Transferable object = objects.get(key);
+			Transferable object = it.next();
 			if(object instanceof PathogenSettings){
 				PathogenSettings settings = (PathogenSettings) object;
 				it.remove();
@@ -232,6 +231,8 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 			}
 			
 		}
+		//TODO need to properly load aggregator settings
+		
 		loadDistributions(objects);
 		//Make sure everything loaded properly
 		validateLoadedObjects();

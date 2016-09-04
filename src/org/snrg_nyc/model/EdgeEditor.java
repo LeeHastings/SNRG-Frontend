@@ -8,7 +8,6 @@ import org.snrg_nyc.persistence.Transferable;
 class EdgeEditor extends PropertiesEditor_Impl {
 	private static String noLayersMsg = "There are no layers in this editor";
 	private EdgeSettings settings;
-	private AggregatorSettings aggSettings;
 	private NodeEditor parent;
 	
 	public 
@@ -17,7 +16,6 @@ class EdgeEditor extends PropertiesEditor_Impl {
 		this.parent = parent;
 		settings = new EdgeSettings(layer.getName());
 		settings.setPropertyDefinitionList(properties);
-		aggSettings = new AggregatorSettings(settings.getLayerName());
 	}
 	public
 	EdgeEditor(NodeEditor parent, EdgeSettings settings, 
@@ -28,9 +26,8 @@ class EdgeEditor extends PropertiesEditor_Impl {
 		this.settings = settings;
 		properties = settings.getPropertyDefinitionList();
 		loadDistributions(objects);
-		aggSettings = new AggregatorSettings(settings.getLayerName());
 	}
-	
+
 	@Override
 	public boolean 
 	test_nodePropNameIsUnique(String name) {
