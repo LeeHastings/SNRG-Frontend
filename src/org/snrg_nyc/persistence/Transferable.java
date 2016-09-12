@@ -3,8 +3,9 @@ package org.snrg_nyc.persistence;
 import java.io.Serializable;
 
 import org.snrg_nyc.model.PropertiesEditor;
-import org.snrg_nyc.model.internal.NodeProperty;
+import org.snrg_nyc.model.internal.ExperimentInfo;
 import org.snrg_nyc.model.internal.UnivariatDistributionSettings;
+import org.snrg_nyc.model.properties.NodeProperty;
 
 /**
  * An interface that describes all objects that can be serialized and loaded
@@ -35,6 +36,7 @@ public abstract class Transferable implements Serializable {
 	static String[] searchPackages = {
 		NodeProperty.class.getPackage().getName(),
 		PropertiesEditor.class.getPackage().getName(),
+		ExperimentInfo.class.getPackage().getName(),
 		ExperimentSerializer.class.getPackage().getName()
 	};
 	

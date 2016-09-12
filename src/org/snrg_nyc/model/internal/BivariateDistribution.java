@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.snrg_nyc.model.EditorException;
+import org.snrg_nyc.model.properties.ValuesListProperty;
 
 public class BivariateDistribution {
 	protected ValuesListProperty<?> property;

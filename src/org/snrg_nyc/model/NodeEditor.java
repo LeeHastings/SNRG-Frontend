@@ -5,12 +5,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.snrg_nyc.model.internal.AttachmentProperty;
-import org.snrg_nyc.model.internal.BooleanProperty;
-import org.snrg_nyc.model.internal.EnumeratorProperty;
 import org.snrg_nyc.model.internal.ExperimentInfo;
-import org.snrg_nyc.model.internal.FractionProperty;
-import org.snrg_nyc.model.internal.IntegerRangeProperty;
+import org.snrg_nyc.model.properties.AttachmentProperty;
+import org.snrg_nyc.model.properties.BooleanProperty;
+import org.snrg_nyc.model.properties.EnumeratorProperty;
+import org.snrg_nyc.model.properties.FractionProperty;
+import org.snrg_nyc.model.properties.IntegerRangeProperty;
 import org.snrg_nyc.persistence.JsonExperimentPrinter;
 import org.snrg_nyc.persistence.JsonFileSerializer;
 import org.snrg_nyc.persistence.PersistenceException;

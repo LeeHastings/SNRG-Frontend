@@ -3,6 +3,8 @@ package org.snrg_nyc.model.internal;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.snrg_nyc.model.properties.NodeProperty;
+
 import com.google.gson.annotations.SerializedName;
 
 public class NodeLayer {

@@ -1,4 +1,4 @@
-package org.snrg_nyc.model.internal;
+package org.snrg_nyc.model.properties;
 
 import java.lang.reflect.Type;
 

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.snrg_nyc.model.EditorException;
+import org.snrg_nyc.model.properties.ValuesListProperty;
 import org.snrg_nyc.persistence.Transferable;
 
 import com.google.gson.annotations.SerializedName;
