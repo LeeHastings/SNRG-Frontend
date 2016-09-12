@@ -3,6 +3,7 @@ package org.snrg_nyc.ui.components;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.TextFieldListCell;
 import javafx.scene.input.KeyCode;
+import javafx.util.Callback;
 import javafx.util.StringConverter;
 
 /**
@@ -12,12 +13,15 @@ import javafx.util.StringConverter;
  *
  * @param <T> The type of the objects in the list
  */
-public class EditorListCell<T> extends TextFieldListCell<T> {
+public class EditorListCell<T> extends TextFieldListCell<T> implements Editable<T> {
 	boolean escPressed = false;
 	private TextField text;
+	private Callback<T, String> textFactory;
 	
 	public EditorListCell(StringConverter<T> converter){
 		super(converter);
+		textFactory = item->getString();
+		
 		this.setOnKeyPressed(keypress->{
 			if(keypress.getCode() == KeyCode.ESCAPE){
 				escPressed = true;
@@ -64,7 +68,7 @@ public class EditorListCell<T> extends TextFieldListCell<T> {
 	public void
 	startEdit(){
 		super.startEdit();
-		text.setText(null);
+		text.setText(textFactory.call(getItem()));
 	}
 	@Override
 	public void updateItem(T item, boolean empty){
@@ -83,5 +87,9 @@ public class EditorListCell<T> extends TextFieldListCell<T> {
 		else{
 			return getConverter().toString(getItem());
 		}
+	}
+	@Override
+	public void setTextFieldFactory(Callback<T, String> factory) {
+		this.textFactory = factory;
 	}
 }

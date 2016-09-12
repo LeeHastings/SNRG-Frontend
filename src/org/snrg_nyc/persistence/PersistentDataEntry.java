@@ -3,10 +3,6 @@ package org.snrg_nyc.persistence;
 import java.io.Serializable;
 import java.lang.reflect.Type;
 
-import org.snrg_nyc.model.PropertiesEditor;
-import org.snrg_nyc.model.internal.NodeProperty;
-import org.snrg_nyc.model.internal.UnivariatDistributionSettings;
-
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
@@ -21,14 +17,6 @@ import com.google.gson.annotations.SerializedName;
  * @author Devin Hastings
  */
 class PersistentDataEntry implements Serializable {
-	/**
-	 * A list of package names to search in for the simpleName of a class
-	 */
-	static String[] searchPackages = {
-		NodeProperty.class.getPackage().getName(),
-		PropertiesEditor.class.getPackage().getName(),
-		ExperimentSerializer.class.getPackage().getName()
-	};
 	
 	static final long serialVersionUID = 1L;
 	
@@ -47,25 +35,14 @@ class PersistentDataEntry implements Serializable {
 			String className = jsWrapper.get("Type").getAsString();
 			JsonObject objectjs = jsWrapper.get("Object").getAsJsonObject();
 			
-			//Try to infer the class name, use a generic Object otherwise
-			Class<?> innerClass = null;
-			for(String pkgName : searchPackages){
-				try {
-					innerClass = Class.forName(pkgName+"."+className);
-				} catch (ClassNotFoundException e) {
-					//That wasn't the package, ignore
-					continue;
-				}
+			try {
+				Class<?> innerClass = Transferable.searchClasses(className);
+				return new PersistentDataEntry(
+						name, context.deserialize(objectjs, innerClass));
+			} 
+			catch (PersistenceException e) {
+				throw new JsonNoClassException(e.getMessage());
 			}
-			//Extra cases for changed class names
-			if(className.equals("UnivariatDistribution")) {
-				innerClass = UnivariatDistributionSettings.class;
-			}
-			if(innerClass == null){
-				throw new JsonNoClassException(className);
-			}
-			return new PersistentDataEntry(
-					name, context.deserialize(objectjs, innerClass));
 		}
 		
 	}
@@ -91,7 +68,7 @@ class PersistentDataEntry implements Serializable {
 		//Check if the object can be deserialized
 		String packageName = object.getClass().getPackage().getName();
 		boolean match = false;
-		for(String s : searchPackages){
+		for(String s : Transferable.searchPackages){
 			if(s.equals(packageName)){
 				match = true;
 			}

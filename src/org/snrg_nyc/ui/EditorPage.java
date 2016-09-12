@@ -16,6 +16,7 @@ import org.snrg_nyc.ui.components.ConditionsMenu;
 import org.snrg_nyc.ui.components.DistributionTable;
 import org.snrg_nyc.ui.components.EditorListCell;
 import org.snrg_nyc.ui.components.EditorTableCell;
+import org.snrg_nyc.ui.components.EditorTableCell.EditListener;
 import org.snrg_nyc.ui.components.Fonts;
 import org.snrg_nyc.ui.components.LayerCell;
 import org.snrg_nyc.ui.components.PropertyNameFactory;
@@ -56,6 +57,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
+import javafx.util.Callback;
 import javafx.util.StringConverter;
 
 /**
@@ -936,7 +938,15 @@ public class EditorPage extends GridPane{
 				
 				values.getSelectionModel().setSelectionMode(
 						SelectionMode.SINGLE);
-				
+				final Callback<Integer, String> valuesFactory = 
+					rid ->{
+						try {
+							return model.scratch_getRangeLabel(rid);
+						} catch (EditorException e) {
+							sendError(e);
+							return ">ERROR<";
+						}
+					};
 				values.setCellFactory(lv ->{
 					EditorListCell<Integer> cell = new EditorListCell<>(null);
 					cell.setConverter(new StringConverter<Integer>(){
@@ -958,20 +968,16 @@ public class EditorPage extends GridPane{
 						}
 						@Override
 						public String toString(Integer rid) {
-							try {
-								String s = model.scratch_getRangeLabel(rid);
-								if(s == null || s.length() == 0){
-									return "<empty>";
-								}
-								else {
-									return s;
-								}
-							} catch (EditorException e) {
-								sendError(e);
-								return null;
+							String s = valuesFactory.call(rid);
+							if(s == null || s.length() == 0){
+								return "<empty>";
+							}
+							else{
+								return s;
 							}
 						}
 					});
+					cell.setTextFieldFactory(valuesFactory);
 					return cell;
 				});
 				
@@ -1079,31 +1085,51 @@ public class EditorPage extends GridPane{
 					
 				};
 				
+				final EditListener<Integer> labelEditL = (event)->{
+					try {
+						int rid = event.cell()
+							.getTableView()
+							.getItems()
+							.get(event.cell().getIndex());
+						model.scratch_setRangeLabel(rid, event.newText());
+					} 
+					catch (Exception e1) {
+						event.cell().cancelEdit();
+						event.cell().update();
+						sendError(e1);
+					}
+					finally{
+						checkNext.run();
+					}
+				};
+				final Callback<Integer, String> labelFactory =
+				(item)->{
+					try {
+						return model.scratch_getRangeLabel(item);
+					}
+					catch(EditorException e){
+						sendError(e);
+						return ">ERROR<";
+					}
+				};
+				
 				labelCol.setCellFactory(col -> {
 					EditorTableCell<Integer> cell = new EditorTableCell<>();
-					cell.setOnEditCommit((event)->{
-						try {
-							int rid = event.cell()
-								.getTableView()
-								.getItems()
-								.get(event.cell().getIndex());
-							model.scratch_setRangeLabel(rid, event.newText());
-						} 
-						catch (Exception e1) {
-							event.cell().cancelEdit();
-							event.cell().update();
-							sendError(e1);
-						}
-						finally{
-							checkNext.run();
-						}
-					});
+					cell.setOnEditCommit(labelEditL);
+					cell.setTextFieldFactory(labelFactory);
 					return cell;
 				});
 				
-				minCol.setCellFactory(col -> {
-					EditorTableCell<Integer> cell = new EditorTableCell<>();
-					cell.setOnEditCommit(event->{
+				labelCol.setCellValueFactory(data ->{
+					String s = labelFactory.call(data.getValue());
+					if(s == null || s.length() == 0){
+						s = "<empty>";
+					}
+					return new SimpleStringProperty(s);
+				});
+				
+				final EditListener<Integer> minListener = 
+					event->{
 						if(event.newText() == null 
 						   || event.newText().length() == 0)
 						{
@@ -1124,13 +1150,31 @@ public class EditorPage extends GridPane{
 						finally{
 							checkNext.run();
 						}
-					});
+					};
+				minCol.setCellFactory(col -> {
+					EditorTableCell<Integer> cell = new EditorTableCell<>();
+					cell.setOnEditCommit(minListener);
 					return cell;
 				});
+
+				minCol.setCellValueFactory(data ->{
+					try {
+						Integer i = 
+								model.scratch_getRangeMin(data.getValue());
+						if(i == null){
+							return new SimpleStringProperty(null);
+						}
+						else {
+							return new SimpleStringProperty(i.toString());
+						}
+					} catch (Exception e) {
+						sendError(e);
+						return new SimpleStringProperty(">ERROR<");
+					}
+				});
 				
-				maxCol.setCellFactory(col -> {
-					EditorTableCell<Integer> cell = new EditorTableCell<>();
-					cell.setOnEditCommit(event->{
+				final EditListener<Integer> maxListener = 
+					event->{
 						if(event.newText() == null 
 						   || event.newText().length() == 0)
 						{
@@ -1151,41 +1195,12 @@ public class EditorPage extends GridPane{
 						finally{
 							checkNext.run();
 						}
-					});
+					};
+					
+				maxCol.setCellFactory(col -> {
+					EditorTableCell<Integer> cell = new EditorTableCell<>();
+					cell.setOnEditCommit(maxListener);
 					return cell;
-				});
-				
-				labelCol.setCellValueFactory(data ->{
-					try{
-						String s = 
-								model.scratch_getRangeLabel(data.getValue());
-						if(s == null || s.length() == 0){
-							return new SimpleStringProperty("<empty>");
-						}
-						else {
-							return new SimpleStringProperty(s);
-						}
-					}
-					catch (Exception e){
-						sendError(e);
-						return new SimpleStringProperty(">ERROR<");
-					}
-				});
-				
-				minCol.setCellValueFactory(data ->{
-					try {
-						Integer i = 
-								model.scratch_getRangeMin(data.getValue());
-						if(i == null){
-							return new SimpleStringProperty(null);
-						}
-						else {
-							return new SimpleStringProperty(i.toString());
-						}
-					} catch (Exception e) {
-						sendError(e);
-						return new SimpleStringProperty(">ERROR<");
-					}
 				});
 				
 				maxCol.setCellValueFactory(data->{

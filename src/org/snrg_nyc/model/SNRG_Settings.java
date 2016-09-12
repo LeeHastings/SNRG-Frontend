@@ -8,7 +8,7 @@ import org.snrg_nyc.persistence.Transferable;
 
 import com.google.gson.annotations.SerializedName;
 
-abstract class SNRG_Settings implements Transferable{
+abstract class SNRG_Settings extends Transferable{
 	private static final long serialVersionUID = 1L;
 	
 	@SerializedName("PropertyDefinitionList")

@@ -11,7 +11,7 @@ import org.snrg_nyc.persistence.Transferable;
  * @author Devin
  *
  */
-public abstract class NodeProperty implements Transferable {
+public abstract class NodeProperty extends Transferable {
 	private static final long serialVersionUID = 1L;
 	
 	public enum DistType{

@@ -55,4 +55,20 @@ public class Aggregator {
 			throw new EditorException("Unknown pathogen ID: "+pathogenID);
 		}
 	}
+	
+	public void 
+	setNodeDist(int propertyID, BivariateDistribution bd){
+		nodeProperties.put(propertyID, bd);
+	}
+	public void
+	setLayerDist(int propertyID, BivariateDistribution bd){
+		layerProperties.put(propertyID, bd);
+	}
+	public void
+	setPathogenDist(int pathogenID, int propertyID, BivariateDistribution bd){
+		if(!pathogenList.containsKey(pathogenID)){
+			pathogenList.put(pathogenID, new HashMap<>());
+		}
+		pathogenList.get(pathogenID).put(propertyID, bd);
+	}
 }

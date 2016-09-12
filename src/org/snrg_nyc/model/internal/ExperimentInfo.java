@@ -10,7 +10,7 @@ import com.google.gson.annotations.SerializedName;
  * @author Devin Hastings
  *
  */
-public class ExperimentInfo implements Transferable {
+public class ExperimentInfo extends Transferable {
 	private static final long serialVersionUID = 1L;
 	
 	@SerializedName("ExperimentName")

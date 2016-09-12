@@ -9,7 +9,7 @@ import org.snrg_nyc.persistence.Transferable;
 
 import com.google.gson.annotations.SerializedName;
 
-public class BivariatDistributionSettings implements Transferable {
+public class BivariatDistributionSettings extends Transferable {
 	private static final long serialVersionUID = 1L;
 
 	@SerializedName("BivariatDistributionID")

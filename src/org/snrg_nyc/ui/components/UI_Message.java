@@ -1,5 +1,6 @@
 package org.snrg_nyc.ui.components;
 
+
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 

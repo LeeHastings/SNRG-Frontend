@@ -18,7 +18,7 @@ import com.google.gson.annotations.SerializedName;
  * @author Devin Hastings
  *
  */
-public class UnivariatDistributionSettings implements Transferable {
+public class UnivariatDistributionSettings extends Transferable {
 	private static final long serialVersionUID = 1L;
 	static class Condition{
 		String Name;

@@ -3,6 +3,7 @@ package org.snrg_nyc.ui.components;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
+import javafx.util.Callback;
 
 /**
  * A custom table cell for editing text.
@@ -14,7 +15,8 @@ import javafx.scene.input.KeyCode;
  *
  * @param <T> The type of object in the table
  */
-public class EditorTableCell<T> extends TableCell<T, String> {
+public class EditorTableCell<T> 
+extends TableCell<T, String> implements Editable<T> {
 	
 	/**
 	 * A custom event system, because the default breaks when clicking
@@ -56,9 +58,13 @@ public class EditorTableCell<T> extends TableCell<T, String> {
 	private EditListener<T> editListener = null;
 	private boolean escPressed = false;
 	private boolean entPressed = false;
+	private Callback<T, String> textFactory;
 
 	public EditorTableCell(){
 		super();
+		textFactory = item-> getTableColumn()
+				            .getCellObservableValue(getIndex())
+				            .getValue();
 		
 		textField = new TextField(getItem());
 		textField.setMinWidth(this.getWidth()-this.getGraphicTextGap()*2);
@@ -84,6 +90,12 @@ public class EditorTableCell<T> extends TableCell<T, String> {
 			else if(event.getCode() == KeyCode.ENTER){
 				entPressed = true;
 				if(textField != null){
+					commitEdit(textField.getText());
+				}
+			}
+			else if(event.getCode() == KeyCode.TAB){
+				this.getTableView().getSelectionModel().selectRightCell();
+				if(textField!= null){
 					commitEdit(textField.getText());
 				}
 			}
@@ -134,7 +146,10 @@ public class EditorTableCell<T> extends TableCell<T, String> {
 		if(!isEmpty()){
 			super.startEdit();
 			setText(null);
-			textField.setText(null);
+			textField.setText(textFactory.call(
+					getTableView().getItems().get(getIndex())
+					));
+			
 			setGraphic(textField);
 			textField.requestFocus();
 		}
@@ -163,5 +178,13 @@ public class EditorTableCell<T> extends TableCell<T, String> {
 	cancelEdit(){
 		super.cancelEdit();
 		update();
+	}
+	@Override
+	public void
+	setTextFieldFactory(Callback<T, String> factory){
+		if(factory == null){
+			throw new IllegalArgumentException("A factory cannot be null!");
+		}
+		this.textFactory = factory;
 	}
 }
