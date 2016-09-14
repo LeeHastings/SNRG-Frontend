@@ -13,6 +13,12 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 
+/**
+ * Convert a list into a group of buttons, where each button selects one
+ * of the items.
+ * @author Devin Hastings
+ */
+
 public class ButtonList<T> extends GridPane {
 	public static interface LabelFactory<T>{
 		public String toString(T item);
