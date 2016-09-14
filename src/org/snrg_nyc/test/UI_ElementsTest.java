@@ -98,10 +98,8 @@ public class UI_ElementsTest extends Application{
 		
 		DynamicTable<String, String, Float> t= 
 			new DynamicTableBuilder<String, String, Float>()
-				.setColumnFactory((str) -> str+"col")
 			    .build(map, con);
 		
-		t.tableRegion().setMaxWidth(400);
 		t.rowLabelRegion().setMinWidth(80);
 		t.setRowLabelFactory((data)->{
 			return new SimpleStringProperty(data.getValue());
@@ -126,4 +124,5 @@ public class UI_ElementsTest extends Application{
 		stage1.setScene(scene);
 		stage1.show();
 	}
+
 }

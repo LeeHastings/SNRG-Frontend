@@ -1,10 +1,8 @@
 package org.snrg_nyc.ui.components;
 
-import javafx.collections.ObservableList;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TablePosition;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyCode;
 import javafx.util.Callback;
 
 /**
@@ -58,8 +56,7 @@ extends TableCell<T, String> implements Editable<T> {
 	
 	private TextField textField;
 	private EditListener<T> editListener = null;
-	private boolean escPressed = false;
-	private boolean entPressed = false;
+	private boolean escPressed, shiftPressed = false;
 	private Callback<T, String> textFactory;
 
 	public EditorTableCell(){
@@ -76,7 +73,6 @@ extends TableCell<T, String> implements Editable<T> {
 					escPressed = false;
 				}
 				else {
-					entPressed = false;
 					commitEdit(textField.getText());
 				}
 			}
@@ -84,33 +80,47 @@ extends TableCell<T, String> implements Editable<T> {
 		
 		
 		textField.setOnKeyPressed(event->{
-			if(event.getCode() == KeyCode.ESCAPE){
+			TablePosition<T,?> from = getTableView().getEditingCell();
+			switch(event.getCode()){
+			case ESCAPE:
 				escPressed = true;
 				cancelEdit();
-			}
-			else if(event.getCode() == KeyCode.ENTER){
-				entPressed = true;
-				if(getTableView().getItems().size() > getIndex()){
-					getTableView().edit(getIndex()+1, getTableColumn());
-				}
-			}
-			else if(event.getCode() == KeyCode.TAB){
-				if(textField!= null){
-					commitEdit(textField.getText());
-				}
-				int nextIndex = getTableView().getColumns().indexOf(getTableColumn())+1;
-				boolean hasNext = getTableView().getColumns().size() > nextIndex;
-				if(hasNext){
-					getTableView().edit(getIndex(), 
-							getTableView().getColumns().get(nextIndex));
-				}
-				else if(getTableView().getItems().size() > getIndex()){
-					getTableView().edit(getIndex()+1, 
-							getTableView().getColumns().get(0));
-				}
-			}
-			else{
+				break;
+			case SHIFT:
+				shiftPressed = true;
 				return;
+			case UP:
+				System.out.print("Up   : ");
+				moveTo(from.getRow()-1, from.getColumn());
+				break;
+			case DOWN:
+			case ENTER:
+				System.out.print("Down : ");
+				moveTo(from.getRow()+1, from.getColumn());
+				break;
+			case TAB:
+				if(shiftPressed){
+					System.out.print("Left : ");
+					moveTo(from.getRow(), from.getColumn()-1);
+				}
+				else {
+					System.out.print("Right: ");
+					moveTo(from.getRow(), from.getColumn()+1);
+				}
+				break;
+			default:
+				return;
+			}
+			shiftPressed = false;
+			TablePosition<T,?> to = getTableView().getEditingCell();
+			if(to == null){
+				System.err.printf("Stopped at (%d, %d)\n",
+						from.getRow(), from.getColumn());
+			}
+			else {
+				System.out.printf("Moved from (%d, %d) to (%d, %d)\n", 
+						from.getRow(), from.getColumn(), 
+						to.getRow(), to.getColumn());
 			}
 			event.consume();
 		});
@@ -196,5 +206,17 @@ extends TableCell<T, String> implements Editable<T> {
 			throw new IllegalArgumentException("A factory cannot be null!");
 		}
 		this.textFactory = factory;
+	}
+	
+	private boolean
+	moveTo(int row, int col){
+		
+		if(row >= 0 && col >= 0 && row < getTableView().getItems().size() 
+				&& col < getTableView().getColumns().size())
+		{
+			getTableView().edit(row, getTableView().getColumns().get(col));
+			return true;
+		}
+		return false;
 	}
 }
