@@ -1,6 +1,8 @@
 package org.snrg_nyc.ui.components;
 
+import javafx.collections.ObservableList;
 import javafx.scene.control.TableCell;
+import javafx.scene.control.TablePosition;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.util.Callback;
@@ -73,14 +75,13 @@ extends TableCell<T, String> implements Editable<T> {
 				if(escPressed){
 					escPressed = false;
 				}
-				else if(entPressed){
-					entPressed = false;
-				}
 				else {
+					entPressed = false;
 					commitEdit(textField.getText());
 				}
 			}
 		});
+		
 		
 		textField.setOnKeyPressed(event->{
 			if(event.getCode() == KeyCode.ESCAPE){
@@ -89,14 +90,23 @@ extends TableCell<T, String> implements Editable<T> {
 			}
 			else if(event.getCode() == KeyCode.ENTER){
 				entPressed = true;
-				if(textField != null){
-					commitEdit(textField.getText());
+				if(getTableView().getItems().size() > getIndex()){
+					getTableView().edit(getIndex()+1, getTableColumn());
 				}
 			}
 			else if(event.getCode() == KeyCode.TAB){
-				this.getTableView().getSelectionModel().selectRightCell();
 				if(textField!= null){
 					commitEdit(textField.getText());
+				}
+				int nextIndex = getTableView().getColumns().indexOf(getTableColumn())+1;
+				boolean hasNext = getTableView().getColumns().size() > nextIndex;
+				if(hasNext){
+					getTableView().edit(getIndex(), 
+							getTableView().getColumns().get(nextIndex));
+				}
+				else if(getTableView().getItems().size() > getIndex()){
+					getTableView().edit(getIndex()+1, 
+							getTableView().getColumns().get(0));
 				}
 			}
 			else{
