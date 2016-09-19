@@ -7,34 +7,21 @@ import org.snrg_nyc.persistence.Transferable;
 
 public class SimConfig extends Transferable {
 	private static final long serialVersionUID = 1L;
-	private Map<String, ConfigData<?>> data = new HashMap<>();
+	private Map<String, String> data = new HashMap<>();
 	
-	public static class ConfigData<T>{
-		T item;
-		public ConfigData(T item){
-			this.item = item;
-		}
-		public static ConfigData<?> fromString(String name, String item){
-			if(item.matches("\\d+\\.\\d+")){
-				return new ConfigData<Float>(Float.parseFloat(item));
-			}
-			else {
-				return new ConfigData<String>(item);
-			}
-		}
-		@Override
-		public String toString(){
-			return item.toString();
-		}
+	public SimConfig(){}
+	public SimConfig(Map<String, String> map){
+		data = map;
 	}
 	
-	public ConfigData<?> get(String id){
-		return data.get(id);
+	public Map<String, String> 
+	data(){
+		return data;
 	}
 	
 	@Override
-	public String getObjectID() {
+	public String 
+	getObjectID() {
 		return "ignored / see FSM_ID";
 	}
-
 }
