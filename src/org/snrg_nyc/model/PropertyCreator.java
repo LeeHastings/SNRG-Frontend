@@ -6,6 +6,46 @@ import java.util.Map;
 /**
  * The interface for building node properties.
  * Part of {@link PropertiesEditor}
+ * <p>
+ * There is a very particular sequence to the construction of a property.
+ * <ul>
+ *	<li>First, the property is constructed with 
+ *      {@link PropertyCreator#scratch_new} or 
+ *      {@link PropertyCreator#scratch_newInLayer}</li>
+ *      
+ *	<li>Then, if the property is ranged, the ranges are set using this sequence:
+ *	  <ul>
+ *		<li> Use {@link PropertyCreator#scratch_addRange} to make the range 
+ *		</li>
+ *		<li> Then, add attributes using 
+ *		    {@link PropertyCreator#scratch_setRangeLabel}, 
+ *		    {@link PropertyCreator#scratch_setRangeMin}, and
+ *		    {@link PropertyCreator#scratch_setRangeMax}
+ *		    (the last two begin for integer ranges) 
+ *		</li>
+ *	  </ul>
+ *	  Otherwise, calling {@link PropertyCreator#scratch_setBooleanInitValue} 
+ *	  for a BooleanProperty or 
+ *	  {@link PropertyCreator#scratch_setFractionInitValue} for a 
+ *	  FractionProperty will be enough to finish.
+ *	</li>
+ *	<li> If you intend for the property's distribution to depend on other 
+ *	  properties, now is the time to add them as dependencies using
+ *	  {@link PropertyCreator#scratch_addDependency}
+ *	</li>
+ *	<li>  Once all dependencies are added, you can start adding conditional
+ *	  distributions using the method 
+ *	  {@link PropertyCreator#scratch_addConditionalDistribution} for each 
+ *	  condition in your distribution.
+ *	</li>
+ *	<li> Finally, you can set the default distribution with 
+ *	  {@link PropertyCreator#scratch_setDefaultDistribution}
+ *	</li>
+ * </ul>
+ * After the property is completed, it can be added to the internal structure
+ * using {@link PropertyCreator#scratch_commit()}.  All exceptions should have 
+ * informative messages.
+ * </p>
  * @author Devin Hastings
  *
  */
