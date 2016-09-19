@@ -30,8 +30,8 @@ import com.google.gson.GsonBuilder;
 
 
 /**
- * An editor class for creating node properties.
- * The only public methods are those listed in the {@link PropertiesEditor}.
+ * The base class that implements most of the functionality in the 
+ * {@link PropertiesEditor} interface.
  * @author Devin Hastings
  *
  */
