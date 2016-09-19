@@ -5,16 +5,16 @@ import java.util.Map;
 
 public class LayerPropertyReader implements PropertyReader {
 	PropertyID id;
-	PropertiesEditor model;
-	public LayerPropertyReader(PropertiesEditor model, int pid){
+	PropertyViewer model;
+	public LayerPropertyReader(PropertyViewer model, int pid){
 		id = new PropertyID(pid);
 		this.model = model;
 	}
-	public LayerPropertyReader(PropertiesEditor model, int lid, int pid){
+	public LayerPropertyReader(PropertyViewer model, int lid, int pid){
 		id = new PropertyID(lid, pid);
 		this.model = model;
 	}
-	public LayerPropertyReader(PropertiesEditor model,PropertyID id){
+	public LayerPropertyReader(PropertyViewer model,PropertyID id){
 		this.id = id;
 		this.model = model;
 	}
