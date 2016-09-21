@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 
 import org.snrg_nyc.model.internal.DistributionJsonAdapter;
 import org.snrg_nyc.model.internal.NodeLayer;
+import org.snrg_nyc.model.internal.SimConfig;
 import org.snrg_nyc.model.internal.UnivariatDistributionSettings;
 import org.snrg_nyc.model.properties.AttachmentProperty;
 import org.snrg_nyc.model.properties.BooleanProperty;
@@ -17,6 +18,7 @@ import org.snrg_nyc.model.properties.FractionProperty;
 import org.snrg_nyc.model.properties.IntegerRangeProperty;
 import org.snrg_nyc.model.properties.NodeProperty;
 import org.snrg_nyc.model.properties.PropertyJsonAdapter;
+import org.snrg_nyc.model.properties.SimConfigJsonAdapter;
 import org.snrg_nyc.model.properties.ValueProperty;
 import org.snrg_nyc.model.properties.ValuesListProperty;
 import org.snrg_nyc.model.properties.NodeProperty.DistType;
@@ -76,6 +78,8 @@ public abstract class PropertiesEditor_Impl implements PropertiesEditor {
                 		UnivariatDistributionSettings.DistributionList.class,
                 		new DistributionJsonAdapter()
         		)
+                .registerTypeAdapter(SimConfig.class, 
+                		new SimConfigJsonAdapter())
                 .registerTypeAdapter(
                 		NodeProperty.class, 
                 		new PropertyJsonAdapter(getPropertyClasses())

@@ -19,33 +19,41 @@ public interface PropertiesEditor extends PropertyCreator, PropertyViewer {
 	 * @throws EditorException Thrown if there was some error while saving 
 	 * (the message will likely have details)
 	 */
-	public void save(String experimentName) throws EditorException;
+	public void 
+	save(String experimentName) throws EditorException;
 	
 	/**
 	 * Save the properties to the name currently in the experiment,
 	 * @throws EditorException Thrown if there was a problem while saving
 	 * @see  PropertiesEditor#save(String)
 	 */
-	public void save() throws EditorException;
+	public void 
+	save() throws EditorException;
 	
 	/**
 	 * Load an experiment with the given name from the persistent structure.
-	 * @param experimentName The name of the experiment (should be the same as when it was saved)
-	 * @throws EditorException Thrown if there is no experiment with the given name, or if the 
+	 * @param experimentName The name of the experiment (should be the same as 
+	 * when it was saved)
+	 * @throws EditorException Thrown if there is no experiment with the given 
+	 * name, or if the 
 	 * experiment saved there is somehow invalid.
 	 */
-	public void load(String experimentName) throws EditorException;
+	public void 
+	load(String experimentName) throws EditorException;
 	
 	/**
-	 * Clear the experiment of all properties and settings, leaving the UI in its initial state
+	 * Clear the experiment of all properties and settings, leaving the UI in 
+	 * its initial state
 	 */
 	public void clear();
 	
 	/**
 	 * Return the names of experiments stored in the persistent data structure
-	 * @return A list of names of experiments that can be used in {@link PropertiesEditor#load(String)}
+	 * @return A list of names of experiments that can be used in 
+	 * {@link PropertiesEditor#load(String)}
 	 */
-	public List<String> getExperimentNames();
+	public List<String> 
+	getExperimentNames();
 	
 	/**
 	 * If the given instance of {@link PropertiesEditor} can use layers.

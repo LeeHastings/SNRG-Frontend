@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.snrg_nyc.model.internal.ExperimentInfo;
+import org.snrg_nyc.model.internal.SimConfig;
 import org.snrg_nyc.model.properties.AttachmentProperty;
 import org.snrg_nyc.model.properties.BooleanProperty;
 import org.snrg_nyc.model.properties.EnumeratorProperty;
@@ -42,6 +43,8 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 	private List<EdgeEditor> edges;
 	
 	private ExperimentInfo expInfo = new ExperimentInfo();
+
+	private List<SimConfig> configSettings;
  	
 	/*         *\
 	 * Methods *
@@ -52,6 +55,7 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 		super();
 		pathogens = new ArrayList<>();
 		edges = new ArrayList<>();
+		configSettings = new ArrayList<>();
 		nodeSettings.setLayerAttributesList(layers);
 		nodeSettings.setPropertyDefinitionList(properties);
 	}
@@ -131,6 +135,9 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 		}
 		for(EdgeEditor e : edges){
 			map.putAll(e.getSavedObjects());
+		}
+		for(SimConfig s : configSettings){
+			map.put(s.getFsm_ID(), s);
 		}
 		return map;
 	}
@@ -227,7 +234,12 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 				edges.set(idx, new EdgeEditor(this, settings, objects));
 			}
 			else if(object instanceof ExperimentInfo){
+				it.remove();
 				this.expInfo = (ExperimentInfo) object;
+			}
+			else if(object instanceof SimConfig){
+				it.remove();
+				configSettings.add((SimConfig) object);
 			}
 			
 		}
