@@ -1,6 +1,8 @@
 package org.snrg_nyc.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +18,7 @@ import org.snrg_nyc.persistence.JsonExperimentPrinter;
 import org.snrg_nyc.persistence.JsonFileSerializer;
 import org.snrg_nyc.persistence.PersistenceException;
 import org.snrg_nyc.persistence.Transferable;
+import org.snrg_nyc.util.ConstKeyMap;
 
 
 /**
@@ -40,7 +43,7 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 	
 	private NodeSettings nodeSettings = new NodeSettings();
 	private List<PathogenEditor> pathogens;
-	private List<EdgeEditor> edges;
+	private Map<Integer, EdgeEditor> edges;
 	
 	private ExperimentInfo expInfo = new ExperimentInfo();
 
@@ -54,7 +57,7 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 	NodeEditor(){
 		super();
 		pathogens = new ArrayList<>();
-		edges = new ArrayList<>();
+		edges = new HashMap<>();
 		configSettings = new ArrayList<>();
 		nodeSettings.setLayerAttributesList(layers);
 		nodeSettings.setPropertyDefinitionList(properties);
@@ -133,7 +136,7 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 		for(PathogenEditor p : pathogens){
 			map.putAll(p.getSavedObjects());
 		}
-		for(EdgeEditor e : edges){
+		for(EdgeEditor e : edges.values()){
 			map.putAll(e.getSavedObjects());
 		}
 		for(SimConfig s : configSettings){
@@ -221,17 +224,13 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 				for(int i = 0; i < layers.size(); i++){
 					if(layers.get(i).getName().equals(layer)){
 						idx = i;
+						break;
 					}
 				}
 				if(idx == -1){
 					throw new EditorException("Unknown layer in edge settings: "+layer);
 				}
-				//Edges and layers indexes must match up
-				//TODO: Consider using hashmap instead?
-				while(idx >= edges.size()){
-					edges.add(null);
-				}
-				edges.set(idx, new EdgeEditor(this, settings, objects));
+				edges.put(idx, new EdgeEditor(this, settings, objects));
 			}
 			else if(object instanceof ExperimentInfo){
 				it.remove();
@@ -251,7 +250,7 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 		for(PathogenEditor p : pathogens){
 			p.validateLoadedObjects();
 		}
-		for(EdgeEditor e : edges){
+		for(EdgeEditor e : edges.values()){
 			e.validateLoadedObjects();
 		}
 	}
@@ -306,7 +305,7 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 				return false;
 			}
 		}
-		for(EdgeEditor edge : edges){
+		for(EdgeEditor edge : edges.values()){
 			if(edge != null && !edge.uniquePropName(name)){
 				return false;
 			}
@@ -374,18 +373,7 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 	@Override
 	public int layer_new(String name) throws EditorException {
 		int lid = super.layer_new(name);
-		
-		if(lid == edges.size()){
-			edges.add(new EdgeEditor(this, layers.get(lid)));
-		}
-		else if(lid < edges.size()){
-			edges.set(lid, new EdgeEditor(this, layers.get(lid)));
-		}
-		else {
-			layers.set(lid, null);
-			throw new EditorException("A layer was improperly added to the node settings, "
-					+ "and now a new layer cannot be properly added.");
-		}
+		edges.put(lid, new EdgeEditor(this, layers.get(lid)));
 		return lid;
 	}
 	@Override
@@ -419,5 +407,76 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 	@Override
 	public boolean allowsLayers() {
 		return true;
+	}
+	
+
+	/*
+	 * Simconfig Methods
+	 */
+	
+	@Override
+	public Collection<String> 
+	config_getTemplates() throws EditorException {
+		throw new EditorException(
+				"This editor does not support SimConfig files!");
+	}
+
+	@Override
+	public Collection<Integer> 
+	config_getIDs() throws EditorException {
+		throw new EditorException(
+				"This editor does not support SimConfig files!");
+	}
+
+	@Override
+	public int 
+	config_newFromTemplate(String template) throws EditorException {
+		throw new EditorException(
+				"This editor does not support SimConfig files!");
+	}
+
+	@Override
+	public Collection<String> 
+	config_getKeys(int confID) throws EditorException {
+		throw new EditorException(
+				"This editor does not support SimConfig files!");
+	}
+
+	@Override
+	public boolean 
+	config_hasKey(int confID, String key) throws EditorException {
+		throw new EditorException(
+				"This editor does not support SimConfig files!");
+	}
+
+	@Override
+	public String 
+	config_getString(int confID, String key) throws EditorException {
+		throw new EditorException(
+				"This editor does not support SimConfig files!");
+	}
+
+	@Override
+	public void 
+	config_setString(int confID, String key, String value)
+			throws EditorException 
+	{
+		throw new EditorException(
+				"This editor does not support SimConfig files!");
+		
+	}
+
+	@Override
+	public boolean 
+	config_isMap(int confID, String key) throws EditorException {
+		throw new EditorException(
+				"This editor does not support SimConfig files!");
+	}
+
+	@Override
+	public ConstKeyMap<String, String> 
+	config_getMap(int confID, String key) throws EditorException {
+		throw new EditorException(
+				"This editor does not support SimConfig files!");
 	}
 }

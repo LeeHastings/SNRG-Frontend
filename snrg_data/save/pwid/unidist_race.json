@@ -1,0 +1,35 @@
+{
+  "ExperimentName": "pwid",
+  "Type": "UnivariatDistribution",
+  "ObjectID": "unidist_race",
+  "Object": {
+    "UnivariatDistributionID": "unidist_race",
+    "BindToPropertyName": "race",
+    "DependencyDistributionList": [
+      {
+        "DistributionSampleList": [
+          {
+            "Label": "other",
+            "Value": 2.0
+          },
+          {
+            "Label": "asian_american",
+            "Value": 3.0
+          },
+          {
+            "Label": "white",
+            "Value": 30.0
+          },
+          {
+            "Label": "hispanic",
+            "Value": 21.0
+          },
+          {
+            "Label": "african_american",
+            "Value": 15.0
+          }
+        ]
+      }
+    ]
+  }
+}

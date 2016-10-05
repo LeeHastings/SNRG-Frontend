@@ -1,0 +1,21 @@
+{
+  "ExperimentName": "pwid",
+  "Type": "BivariatDistributionSettings",
+  "ObjectID": "infection_attachment_HIV_bi_dist",
+  "Object": {
+    "BivariatDistributionID": "infection_attachment_HIV_bi_dist",
+    "BindToPropertyName": "infection_attachment_HIV",
+    "BiValueDictionary": {
+      "true": {
+        "true": 0.40,
+        "false": 0.20
+      },
+      "false": {
+        "true": 0.20,
+        "false": 0.40
+      }
+    },
+    "MissingFieldAssignmentHandler": 0,
+    "MissingValueAssignmentHandler": 0
+  }
+}

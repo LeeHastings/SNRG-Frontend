@@ -3,6 +3,7 @@ package org.snrg_nyc.model;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,7 @@ import java.util.Map.Entry;
 import org.snrg_nyc.model.internal.DistributionJsonAdapter;
 import org.snrg_nyc.model.internal.NodeLayer;
 import org.snrg_nyc.model.internal.SimConfig;
+import org.snrg_nyc.model.internal.SimConfigJsonAdapter;
 import org.snrg_nyc.model.internal.UnivariatDistributionSettings;
 import org.snrg_nyc.model.properties.AttachmentProperty;
 import org.snrg_nyc.model.properties.BooleanProperty;
@@ -18,7 +20,6 @@ import org.snrg_nyc.model.properties.FractionProperty;
 import org.snrg_nyc.model.properties.IntegerRangeProperty;
 import org.snrg_nyc.model.properties.NodeProperty;
 import org.snrg_nyc.model.properties.PropertyJsonAdapter;
-import org.snrg_nyc.model.properties.SimConfigJsonAdapter;
 import org.snrg_nyc.model.properties.ValueProperty;
 import org.snrg_nyc.model.properties.ValuesListProperty;
 import org.snrg_nyc.model.properties.NodeProperty.DistType;
@@ -27,6 +28,7 @@ import org.snrg_nyc.model.properties.ValuesListProperty.Distribution;
 import org.snrg_nyc.persistence.ExperimentSerializer;
 import org.snrg_nyc.persistence.JsonFileSerializer;
 import org.snrg_nyc.persistence.Transferable;
+import org.snrg_nyc.util.ConstKeyMap;
 
 import com.google.gson.GsonBuilder;
 
@@ -1501,6 +1503,77 @@ public abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	public PropertiesEditor 
 	layer_getEdgeEditor(int lid) throws EditorException {
 		throw new EditorException(noPathogensMsg);
+	}
+	
+	/*
+	 * SimConfig Methods
+	 */
+	
+
+	@Override
+	public Collection<String> 
+	config_getTemplates() throws EditorException {
+		throw new EditorException(
+				"This editor does not support SimConfig files!");
+	}
+
+	@Override
+	public Collection<Integer> 
+	config_getIDs() throws EditorException {
+		throw new EditorException(
+				"This editor does not support SimConfig files!");
+	}
+
+	@Override
+	public int 
+	config_newFromTemplate(String template) throws EditorException {
+		throw new EditorException(
+				"This editor does not support SimConfig files!");
+	}
+
+	@Override
+	public Collection<String> 
+	config_getKeys(int confID) throws EditorException {
+		throw new EditorException(
+				"This editor does not support SimConfig files!");
+	}
+
+	@Override
+	public boolean 
+	config_hasKey(int confID, String key) throws EditorException {
+		throw new EditorException(
+				"This editor does not support SimConfig files!");
+	}
+
+	@Override
+	public String 
+	config_getString(int confID, String key) throws EditorException {
+		throw new EditorException(
+				"This editor does not support SimConfig files!");
+	}
+
+	@Override
+	public void 
+	config_setString(int confID, String key, String value)
+			throws EditorException 
+	{
+		throw new EditorException(
+				"This editor does not support SimConfig files!");
+		
+	}
+
+	@Override
+	public boolean 
+	config_isMap(int confID, String key) throws EditorException {
+		throw new EditorException(
+				"This editor does not support SimConfig files!");
+	}
+
+	@Override
+	public ConstKeyMap<String, String> 
+	config_getMap(int confID, String key) throws EditorException {
+		throw new EditorException(
+				"This editor does not support SimConfig files!");
 	}
 	
 }

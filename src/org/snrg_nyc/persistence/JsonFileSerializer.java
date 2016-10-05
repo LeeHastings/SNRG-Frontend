@@ -8,7 +8,6 @@ import java.io.Reader;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,14 +18,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
 public class JsonFileSerializer extends JsonSerializer {
-	public static final Path savePath = Paths.get("save_data");
 	private Path saveDir;
-	
-	static {
-		if(!Files.exists(savePath)){
-			savePath.toFile().mkdir();
-		}
-	}
 	
 	public JsonFileSerializer(GsonBuilder gBuilder) {
 		super(gBuilder);
@@ -36,7 +28,7 @@ public class JsonFileSerializer extends JsonSerializer {
 	@Override
 	public Map<String, Transferable> 
 	loadExperiment(String name) throws PersistenceException {
-		saveDir = savePath.resolve(name);
+		saveDir = FileSystem.savePath.resolve(name);
 		if(!Files.exists(saveDir)){
 			throw new PersistenceException("No experiment with name: "+name);
 		}
@@ -79,7 +71,7 @@ public class JsonFileSerializer extends JsonSerializer {
 	savedExperiments() {
 		List<String> experimentNames = new ArrayList<>();
 		try {
-			Files.list(savePath).forEach( p ->{
+			Files.list(FileSystem.savePath).forEach( p ->{
 				if(Files.isDirectory(p)){
 					experimentNames.add(p.getFileName().toString());
 				}
@@ -93,7 +85,7 @@ public class JsonFileSerializer extends JsonSerializer {
 	@Override
 	protected void 
 	validateEnvironment(String name) throws PersistenceException {
-		saveDir = savePath.resolve(name);
+		saveDir = FileSystem.savePath.resolve(name);
 
 		System.out.println("Saving to "+saveDir.toString());
 		

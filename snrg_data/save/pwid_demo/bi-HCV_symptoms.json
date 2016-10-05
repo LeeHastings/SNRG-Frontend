@@ -1,0 +1,21 @@
+{
+  "ExperimentName": "pwid",
+  "Type": "BivariatDistributionSettings",
+  "ObjectID": "HCV_symptoms_bi_dist",
+  "Object": {
+    "BivariatDistributionID": "HCV_symptoms_bi_dist",
+    "BindToPropertyName": "HCV_symptoms",
+    "BiValueDictionary": {
+      "True": {
+        "True": 10,
+        "False": 2
+      },
+      "False": {
+        "True": 2,
+        "False": 10
+      }
+    },
+    "MissingFieldAssignmentHandler": 0,
+    "MissingValueAssignmentHandler": 0
+  }
+}

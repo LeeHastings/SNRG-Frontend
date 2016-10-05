@@ -1,0 +1,23 @@
+{
+  "ExperimentName": "pwid_test",
+  "Type": "UnivariatDistributionSettings",
+  "ObjectID": "unidist_hcv_arrivaltime",
+  "Object": {
+    "UnivariatDistributionID": "unidist_hcv_arrivaltime",
+    "BindToPropertyName": "HCV_arrivaltime",
+    "DependencyDistributionList": [
+      {
+        "DistributionSampleList": [
+          {
+            "Label": "pre_simulation",
+            "Value": 100.0
+          },
+          {
+            "Label": "in_simulation",
+            "Value": 0.0
+          }
+        ]
+      }
+    ]
+  }
+}

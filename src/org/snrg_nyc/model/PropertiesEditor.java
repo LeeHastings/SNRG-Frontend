@@ -9,7 +9,8 @@ import java.util.List;
  * @author Devin Hastings
  * @version 0.2
  */
-public interface PropertiesEditor extends PropertyCreator, PropertyViewer {
+public interface PropertiesEditor 
+       extends PropertyCreator, PropertyViewer, SimConfigEditor {
 
 	/**
 	 * Save the properties to a persistent structure.  This does not 

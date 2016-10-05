@@ -1,0 +1,16 @@
+{
+  "ExperimentName": "pwid_test",
+  "Type": "SimConfig",
+  "ObjectID": "ignored / see FSM_ID",
+  "Object": {
+    "TimeContructed": "2015-12-14T07:29:15.3481007-05:00",
+    "FSM_ID": "Experiment_Config",
+    "FastTrack": "True",
+    "GraphName": "nyc_pwid",
+    "Trials": "1",
+    "ExperimentName": "pwid",
+    "ServerHostname": "localhost",
+    "Duration": "4380",
+    "Name": "Experiment_Config"
+  }
+}

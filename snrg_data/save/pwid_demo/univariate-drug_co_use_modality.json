@@ -1,0 +1,27 @@
+{
+  "ExperimentName": "pwid",
+  "Type": "UnivariatDistributionSettings",
+  "ObjectID": "drug_co_use_modality",
+  "Object": {
+    "UnivariatDistributionID": "drug_co_use_modality_dist",
+    "BindToPropertyName": "drug_co_use_modality",
+    "DependencyDistributionList": [
+      {
+        "DistributionSampleList": [
+          {
+            "Label": "needles_only",
+            "Value": 30
+          },
+          {
+            "Label": "cookers_only",
+            "Value": 10
+          },
+          {
+            "Label": "both_needles_and_cookers",
+            "Value": 60
+          }
+        ]
+      }
+    ]
+  }
+}
