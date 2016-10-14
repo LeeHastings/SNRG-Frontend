@@ -1,10 +1,11 @@
 package org.snrg_nyc.model.internal;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.snrg_nyc.model.EditorException;
 import org.snrg_nyc.persistence.Transferable;
+import org.snrg_nyc.util.ConstKeyMap;
 import org.snrg_nyc.util.Either;
 
 /**
@@ -15,8 +16,12 @@ import org.snrg_nyc.util.Either;
  */
 public class SimConfig extends Transferable {
 	private static final long serialVersionUID = 1L;
-	private Map<String, Either<String, Map<String, String>>> data = 
-			new HashMap<>();
+	
+	private Map<String, Either<String, Map<String, String>>> data;
+	
+	public ConstKeyMap<String, Either<String, ConstKeyMap<String, String>>>
+		safeData;
+	
 	private final String fsm_id = "FSM_ID";
 	
 	public SimConfig(String fsm_id){
@@ -33,7 +38,7 @@ public class SimConfig extends Transferable {
 	
 	public String 
 	getFsm_ID(){
-		return data.get(fsm_id).left();
+		return data.get(fsm_id).left;
 	}
 	public void 
 	setFsm_ID(String fsm_id) throws EditorException{
@@ -45,9 +50,62 @@ public class SimConfig extends Transferable {
 		}
 	}
 	
-	public Map<String, Either<String, Map<String, String>>> 
-	data(){
-		return data;
+	public String
+	getString(String key) throws EditorException{
+		if(!data.containsKey(key)){
+			throw new EditorException("Unknown key in SimConfig '"
+					+getFsm_ID()+"' - "+key);
+		}
+		if(!data.get(key).hasLeft()){
+			throw new EditorException("Item '"+key+"' in SimConfig '"
+					+getFsm_ID()+"' is not a string!");
+		}
+		return data.get(key).left;
+	}
+	
+	public void
+	setString(String key, String value) throws EditorException{
+		if(!data.containsKey(key)){
+			throw new EditorException("Unknown key in SimConfig '"
+					+getFsm_ID()+"' - "+key);
+		}
+		if(!data.get(key).hasLeft()){
+			throw new EditorException("Item '"+key+"' in SimConfig '"
+					+getFsm_ID()+"' is not a string!");
+		}
+		data.put(key, Either.left(value));
+	}
+	
+	public boolean
+	containsKey(String key){
+		return data.containsKey(key);
+	}
+	
+	public boolean
+	isMap(String key) throws EditorException {
+		if(!data.containsKey(key)){
+			throw new EditorException("Unknown key in SimConfig '"
+					+getFsm_ID()+"' - "+key);
+		}
+		return data.get(key).hasRight();
+	}
+	
+	public ConstKeyMap<String, String>
+	getMap(String key) throws EditorException{
+		if(!data.containsKey(key)){
+			throw new EditorException("Unknown key in SimConfig '"
+					+getFsm_ID()+"' - "+key);
+		}
+		if(!data.get(key).hasRight()){
+			throw new EditorException("Item '"+key+"' in SimConfig '"
+					+getFsm_ID()+"' is not a map!");
+		}
+		return new ConstKeyMap<>(data.get(key).right);
+	}
+	
+	public Set<String>
+	keySet(){
+		return data.keySet();
 	}
 	
 	@Override

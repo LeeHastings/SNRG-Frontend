@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 
+
 /**
  * An interface for storing {@link Transferable} objects to some 
  * persistent data structure
@@ -30,13 +31,33 @@ public interface ExperimentSerializer {
 	 * @throws PersistenceException Thrown if there was some problem 
 	 * retrieving the data
 	 */
-	public Map<String, Transferable> loadExperiment(String name) 
-			throws PersistenceException;
+	public Map<String, Transferable> 
+	loadExperiment(String name) throws PersistenceException;
 	
 	/**
 	 * All experiments that can be loaded with 
 	 * {@link ExperimentSerializer#loadExperiment}
 	 * @return A list of available experiment names
 	 */
-	public List<String> savedExperiments();
+	public List<String> 
+	savedExperiments();
+	
+	/**
+	 * Get the available templates for a given type
+	 * @param type The type of the object to look for
+	 * @return A list of valid templates for that type
+	 */
+	public List<String> 
+	templates(Class<? extends Transferable> type);
+	
+	/**
+	 * Load a specific object from the persistence templates
+	 * @param name The name of the object
+	 * @param type The type of the object
+	 * @return An object of the class Type from the name given
+	 * @throws PersistenceException Thrown if the object was not found or is 
+	 * not of the given type.
+	 */
+	public <T extends Transferable> T
+	loadFromTemplate(String name, Class<T> type) throws PersistenceException;
 }

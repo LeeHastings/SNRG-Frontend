@@ -1,15 +1,15 @@
 package org.snrg_nyc.util;
 
 /**
- * A class for containing one object from two possibilities.
+ * A class for containing one object from two classes.
  * @author Devin Hastings
  *
  * @param <Left>
  * @param <Right>
  */
 public class Either<Left, Right> {
-	private Left left;
-	private Right right;
+	public final Left left;
+	public final Right right;
 	
 	private Either(Left left, Right right){
 		if((left == null) == (right == null)){
@@ -31,13 +31,7 @@ public class Either<Left, Right> {
 	right(R right){
 		return new Either<L, R>(null, right);
 	}
-	
-	public Left left(){
-		return left;
-	}
-	public Right right(){
-		return right;
-	}
+
 	public boolean hasLeft(){
 		return left != null && right == null;
 	}

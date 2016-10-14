@@ -65,8 +65,21 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 	
 	private void 
 	assert_validPathogenID(int pathID) throws EditorException{
-		if(pathID < 0 || pathID >= pathogens.size() || pathogens.get(pathID) == null){
+		if(pathID < 0 
+		   || pathID >= pathogens.size() 
+		   || pathogens.get(pathID) == null)
+		{
 			throw new EditorException("Invalid pathogen ID: "+pathID);
+		}
+	}
+	
+	private void 
+	assert_validconfID(int confID) throws EditorException{
+		if(confID < 0 
+		   || confID >= configSettings.size() 
+		   || configSettings.get(confID) == null)
+		{
+			throw new EditorException("Invalid SimConfig ID: "+confID);
 		}
 	}
 	
@@ -417,43 +430,53 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 	@Override
 	public Collection<String> 
 	config_getTemplates() throws EditorException {
-		throw new EditorException(
-				"This editor does not support SimConfig files!");
+		return serializer.templates(SimConfig.class);
 	}
 
 	@Override
 	public Collection<Integer> 
 	config_getIDs() throws EditorException {
-		throw new EditorException(
-				"This editor does not support SimConfig files!");
+		List<Integer> ids = new ArrayList<>();
+		for(int i = 0; i < configSettings.size(); i++){
+			if(configSettings.get(i) != null){
+				ids.add(i);
+			}
+		}
+		return ids;
 	}
 
 	@Override
 	public int 
 	config_newFromTemplate(String template) throws EditorException {
-		throw new EditorException(
-				"This editor does not support SimConfig files!");
+		try {
+			configSettings.add(
+					serializer.loadFromTemplate(template, SimConfig.class));
+		} catch (PersistenceException e) {
+			e.printStackTrace();
+			throw new EditorException(e.getMessage());
+		}
+		return configSettings.size() - 1;
 	}
 
 	@Override
 	public Collection<String> 
 	config_getKeys(int confID) throws EditorException {
-		throw new EditorException(
-				"This editor does not support SimConfig files!");
+		assert_validconfID(confID);
+		return configSettings.get(confID).keySet();
 	}
 
 	@Override
 	public boolean 
 	config_hasKey(int confID, String key) throws EditorException {
-		throw new EditorException(
-				"This editor does not support SimConfig files!");
+		assert_validconfID(confID);
+		return configSettings.get(confID).containsKey(key);
 	}
 
 	@Override
 	public String 
 	config_getString(int confID, String key) throws EditorException {
-		throw new EditorException(
-				"This editor does not support SimConfig files!");
+		assert_validconfID(confID);
+		return configSettings.get(confID).getString(key);
 	}
 
 	@Override
@@ -461,16 +484,16 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 	config_setString(int confID, String key, String value)
 			throws EditorException 
 	{
-		throw new EditorException(
-				"This editor does not support SimConfig files!");
+		assert_validconfID(confID);
+		configSettings.get(confID).setString(key, value);
 		
 	}
 
 	@Override
 	public boolean 
 	config_isMap(int confID, String key) throws EditorException {
-		throw new EditorException(
-				"This editor does not support SimConfig files!");
+		assert_validconfID(confID);
+		return configSettings.get(confID).isMap(key);
 	}
 
 	@Override
