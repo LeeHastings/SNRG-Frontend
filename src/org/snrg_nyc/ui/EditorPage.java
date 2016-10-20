@@ -158,18 +158,18 @@ public class EditorPage extends GridPane{
 		if(message == null){
 			message = e.getClass().getSimpleName();
 		}
-		messages.add(new UI_Message(message, UI_Message.Type.Error));
+		messages.add(UI_Message.error(e.getMessage()));
 		e.printStackTrace();
 	}
 	
 	public void 
 	sendWarning(String s){
-		messages.add(new UI_Message(s, UI_Message.Type.Warning));
+		messages.add(UI_Message.warning(s));
 	}
 	
 	public void 
 	sendInfo(String s){
-		messages.add(new UI_Message(s, UI_Message.Type.Info));
+		messages.add(UI_Message.info(s));
 	}
 	
 	public void 

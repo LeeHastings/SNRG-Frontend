@@ -1,0 +1,11 @@
+{
+  "ExperimentName": "pwid_demo",
+  "Type": "SimConfig",
+  "ObjectID": "ignored / see FSM_ID",
+  "Object": {
+    "TimeContructed": "2015-12-14T07:29:16.8656714-05:00",
+    "FSM_ID": "Aging_Config",
+    "aging_interval": "365",
+    "Name": "Aging_Config"
+  }
+}

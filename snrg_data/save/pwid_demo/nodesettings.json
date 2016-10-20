@@ -1,8 +1,76 @@
 {
-  "ExperimentName": "pwid",
+  "ExperimentName": "pwid_demo",
   "Type": "NodeSettings",
   "ObjectID": "NodeSettings",
   "Object": {
+    "LayerAttributesList": [
+      {
+        "LayerID": "drug_co_use",
+        "PropertyDefinitionList": [
+          {
+            "IntegerRangeProperty": {
+              "PropertyName": "averagedegree",
+              "Description": "The ideal degree on this network layer (static)",
+              "DependencyLevel": 0,
+              "IntegerRangeList": [
+                {
+                  "RangeID": "low",
+                  "Min": 1,
+                  "Max": 3
+                },
+                {
+                  "RangeID": "medium",
+                  "Min": 4,
+                  "Max": 7
+                },
+                {
+                  "RangeID": "high",
+                  "Min": 8,
+                  "Max": 16
+                }
+              ],
+              "DistributionID": "unidist_averagedegree"
+            }
+          },
+          {
+            "IntegerRangeProperty": {
+              "PropertyName": "degreedelta",
+              "Description": "The delta degree on drug_use network layer (static)",
+              "DependencyLevel": 0,
+              "IntegerRangeList": [
+                {
+                  "RangeID": "small",
+                  "Min": 1,
+                  "Max": 3
+                },
+                {
+                  "RangeID": "big",
+                  "Min": 8,
+                  "Max": 16
+                }
+              ],
+              "DistributionID": "unidist_degreedelta"
+            }
+          },
+          {
+            "FractionProperty": {
+              "PropertyName": "drug_co_use_riskinterval",
+              "Description": "Days between successive risk events (static)",
+              "DependencyLevel": 0,
+              "DisableRandom_UseInitValue": 2.5
+            }
+          },
+          {
+            "FractionProperty": {
+              "PropertyName": "drug_co_use_churninterval",
+              "Description": "Days between successive churn events (static)",
+              "DependencyLevel": 0,
+              "DisableRandom_UseInitValue": 14.25
+            }
+          }
+        ]
+      }
+    ],
     "PropertyDefinitionList": [
       {
         "EnumeratorProperty": {
@@ -13,7 +81,7 @@
             "male",
             "female"
           ],
-          "DistributionID": "gender_dist"
+          "DistributionID": "unidist_gender"
         }
       },
       {
@@ -48,7 +116,7 @@
               "Max": 65
             }
           ],
-          "DistributionID": "age_dist"
+          "DistributionID": "unidist_age"
         }
       },
       {
@@ -68,7 +136,7 @@
               "Max": 40000
             }
           ],
-          "DistributionID": "longevity_dist"
+          "DistributionID": "unidist_longevity"
         }
       },
       {
@@ -83,7 +151,7 @@
             "asian_american",
             "other"
           ],
-          "DistributionID": "race_dist"
+          "DistributionID": "unidist_race"
         }
       },
       {
@@ -92,7 +160,7 @@
           "Description": "The presence of HIV (dynamic)",
           "DependencyLevel": 1,
           "PathogenType": "HIV",
-          "DistributionID": "hiv_attach_dist"
+          "DistributionID": "unidist_infection_attachment_hiv"
         }
       },
       {
@@ -101,78 +169,8 @@
           "Description": "The presence of HCV (dynamic)",
           "DependencyLevel": 1,
           "PathogenType": "HCV",
-          "DistributionID": "hcv_attach_dist"
+          "DistributionID": "unidist_infection_attachment_hcv"
         }
-      }
-    ],
-    "LayerAttributesList": [
-      {
-        "LayerID": "drug_co_use",
-        "PropertyDefinitionList": [
-          {
-            "IntegerRangeProperty": {
-              "PropertyName": "averagedegree",
-              "Description": "The ideal degree on this network layer (static)",
-              "DependencyLevel": 0,
-              "IntegerRangeList": [
-                {
-                  "RangeID": "low",
-                  "Min": 1,
-                  "Max": 3
-                },
-                {
-                  "RangeID": "medium",
-                  "Min": 4,
-                  "Max": 7
-                },
-                {
-                  "RangeID": "high",
-                  "Min": 8,
-                  "Max": 16
-                }
-              ],
-              "DistributionID": "drug_co_use_averagedegree_dist"
-            }
-          },
-          {
-            "IntegerRangeProperty": {
-              "PropertyName": "degreedelta",
-              "Description": "The delta degree on drug_use network layer (static)",
-              "DependencyLevel": 0,
-              "IntegerRangeList": [
-                {
-                  "RangeID": "small",
-                  "Min": 1,
-                  "Max": 3
-                },
-                {
-                  "RangeID": "big",
-                  "Min": 8,
-                  "Max": 16
-                }
-              ],
-              "DistributionID": "drug_co_use_degreedelta_dist"
-            }
-          },
-          {
-            "FractionProperty": {
-              "PropertyName": "drug_co_use_riskinterval",
-              "Description": "Days between successive risk events (static)",
-              "DependencyLevel": 0,
-              "DisableRandom_UseInitValue": 2.5,
-              "DistributionID": null
-            }
-          },
-          {
-            "FractionProperty": {
-              "PropertyName": "drug_co_use_churninterval",
-              "Description": "Days between successive churn events (static)",
-              "DependencyLevel": 0,
-              "DisableRandom_UseInitValue": 14.25,
-              "DistributionID": null
-            }
-          }
-        ]
       }
     ]
   }

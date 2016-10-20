@@ -15,4 +15,6 @@ public class Fonts {
 	
 	public static final Font headFont = Font.font("sans", FontWeight.NORMAL, 
 			FontPosture.REGULAR, 15);
+	
+	public static final Font boldReg = Font.font("sans", FontWeight.BOLD, 12);
 }

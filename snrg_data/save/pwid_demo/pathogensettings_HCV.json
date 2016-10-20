@@ -1,0 +1,79 @@
+{
+  "ExperimentName": "pwid_demo",
+  "Type": "PathogenSettings",
+  "ObjectID": "HCV",
+  "Object": {
+    "PathogenID": "HCV",
+    "LayerAttributesList": [],
+    "PropertyDefinitionList": [
+      {
+        "IntegerRangeProperty": {
+          "PropertyName": "HCV_arrivaltime",
+          "Description": "The time at which this infection entered the node (dynamic, once)",
+          "DependencyLevel": 0,
+          "IntegerRangeList": [
+            {
+              "RangeID": "pre_simulation",
+              "Min": -180,
+              "Max": -1
+            },
+            {
+              "RangeID": "in_simulation",
+              "Min": 0,
+              "Max": 36500
+            }
+          ],
+          "DistributionID": "unidist_hcv_arrivaltime"
+        }
+      },
+      {
+        "IntegerRangeProperty": {
+          "PropertyName": "HCV_cirrhosistime",
+          "Description": "The time at which this individual entered HCV_Cirrhosis_State",
+          "DependencyLevel": 0,
+          "IntegerRangeList": [
+            {
+              "RangeID": "unassigned",
+              "Min": -999,
+              "Max": -998
+            },
+            {
+              "RangeID": "assigned",
+              "Min": 0,
+              "Max": 36500
+            }
+          ],
+          "DistributionID": "unidist_hcv_cirrhosistime"
+        }
+      },
+      {
+        "BooleanProperty": {
+          "PropertyName": "HCV_symptoms",
+          "Description": "Symptoms of HCV pathogen are externally visible (dynamic)",
+          "DependencyLevel": 0,
+          "DisableRandom_UseInitValue": false
+        }
+      },
+      {
+        "EnumeratorProperty": {
+          "PropertyName": "HCV_initialstate",
+          "Description": "The state of the HCV infection at the time when the node entered the simulation",
+          "DependencyLevel": 1,
+          "EnumValues": [
+            "HCV_Negative_State",
+            "HCV_Acute_State",
+            "HCV_Chronic_State",
+            "HCV_Cirrhosis_State",
+            "HCV_Stage1_Fibro_State",
+            "HCV_Stage2_Fibro_State",
+            "HCV_Stage3_Fibro_State",
+            "HCV_Decomp_State",
+            "HCV_HCC_State",
+            "HCV_Fatality_State"
+          ],
+          "DistributionID": "unidist_hcv_initialstate"
+        }
+      }
+    ]
+  }
+}

@@ -12,10 +12,10 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.JsonSyntaxException;
-import com.google.gson.reflect.TypeToken;
 
 public class SimConfigJsonAdapter 
 implements JsonSerializer<SimConfig>, JsonDeserializer<SimConfig> {
@@ -28,26 +28,13 @@ implements JsonSerializer<SimConfig>, JsonDeserializer<SimConfig> {
 			JsonObject js = json.getAsJsonObject();
 			String fsm_ID = js.get("FSM_ID").getAsString();
 			
-			Map<String, Either<String, Map<String,String>>> data =
-					new HashMap<>();
+			Map<String, SimConfig.Setting> map = new HashMap<>();
 			
-			for(Map.Entry<String, JsonElement> entry : js.entrySet()){
-				if(entry.getValue().isJsonPrimitive()){
-					data.put(entry.getKey(), 
-							Either.left(entry.getValue().getAsString()) );
-				}
-				else if(entry.getValue().isJsonObject()) {
-					Type t = new TypeToken<Map<String, String>>(){}.getType();
-					data.put(entry.getKey(), Either.right(
-							context.deserialize(entry.getValue(), t)));
-				}
-				else {
-					throw new JsonParseException(
-							"Unknown SimConfig data: "+entry.getValue());
-				}
+			for(Map.Entry<String, JsonElement> e : js.entrySet()){
+				map.put(e.getKey(), deserializeSetting(e.getValue()));
 			}
 			
-			return new SimConfig(fsm_ID, data);
+			return new SimConfig(fsm_ID, map);
 		}
 		catch(JsonSyntaxException e){
 			System.out.println("Json object: " + json);
@@ -64,17 +51,49 @@ implements JsonSerializer<SimConfig>, JsonDeserializer<SimConfig> {
 	public JsonElement 
 	serialize(SimConfig config, Type type, JsonSerializationContext context) {
 		JsonObject js = new JsonObject();
-		Map<String, Either<String, Map<String, String>>> data = config.data();
+		Map<String, SimConfig.Setting> data = config.data();
 		
 		for(String key : data.keySet()){
-			if(data.get(key).hasLeft()){
-				js.addProperty(key, data.get(key).left());
-			}
-			else{
-				js.add(key, context.serialize(data.get(key).right()));
+			try {
+				js.add(key, serializeSetting(data.get(key)));
+			} 
+			catch (EditorException e) {
+				e.printStackTrace();
+				throw new JsonParseException("Could not serialize object '"
+						+key+"': "+e.getMessage());
 			}
 		}
 		return js;
+	}
+	
+	private JsonElement
+	serializeSetting(SimConfig.Setting setting) throws EditorException {
+		if(setting.isMap()){
+			JsonObject json = new JsonObject();
+			
+			for(Map.Entry<String,SimConfig.Setting>e : setting.getMap().entrySet()){
+				json.add(e.getKey(), serializeSetting(e.getValue()));
+			}
+			return json;
+		}
+		else {
+			return new JsonPrimitive(setting.getString());
+		}
+	}
+	
+	private SimConfig.Setting
+	deserializeSetting(JsonElement json){
+		if(json.isJsonPrimitive()){
+			return new SimConfig.Setting(Either.left(json.getAsString()));
+		}
+		else {
+			Map<String, SimConfig.Setting> map = new HashMap<>();
+			JsonObject js = json.getAsJsonObject();
+			for(Map.Entry<String, JsonElement> e : js.entrySet()){
+				map.put(e.getKey(), deserializeSetting(e.getValue()));
+			}
+			return new SimConfig.Setting(Either.right(map));
+		}
 	}
 
 }

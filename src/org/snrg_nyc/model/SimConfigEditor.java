@@ -2,11 +2,9 @@ package org.snrg_nyc.model;
 
 import java.util.Collection;
 
-import org.snrg_nyc.util.ConstKeyMap;
-
 /**
  * An interface for editing SimConfig files, which are basically maps containing
- * either Strings or more maps.
+ * either Strings or more maps (to an arbitrary depth).
  * 
  * @author Devin Hastings
  *
@@ -49,70 +47,74 @@ public interface SimConfigEditor {
 	config_newFromTemplate(String template) throws EditorException;
 	
 	/**
-	 * Get the keys for the members of the SimConfig file
-	 * @param confID The ID of the SimConfig file
-	 * @return A collection of Strings representing the keys
-	 * @throws EditorException Thrown if the Con
+	 * Get the keys from the cSimConfig object, or a submap if keys are provided
+	 * @param confID The ID of the Simconfig object
+	 * @param keys The keys pointing to the submap, so internally it's 
+	 * something like <code>map.get(keys[0]).get(keys[1]).get(...)</code>
+	 * @return Return the keys in the given map
+	 * @throws EditorException Thrown if the confID is invalid, or if the keys
+	 * do not lead to a valid map.
 	 */
 	public Collection<String>
-	config_getKeys(int confID) throws EditorException;
+	config_getKeys(int confID, String ... keys) throws EditorException;
 	
 	/**
-	 * Check if the given key exists in the given SimConfig map
-	 * @param confID The id of the SimConfig object
-	 * @param key The key to check for
-	 * @return If the given key is in the object
-	 * @throws EditorException thrown if the confID is not valid.
+	 * Check if the given key exists in a SimConfig map
+	 * @param confID The ID of the SimConfig object
+	 * @param keys The keys to search for, in the style of
+	 * <code>map.get(keys[0]).get(keys[1]).get(...)</code>
+	 * @return If the given key (and submaps) exist
+	 * @throws EditorException Thrown if the confID is invalid.
 	 */
 	public boolean
-	config_hasKey(int confID, String key) throws EditorException;
-	
+	config_hasKey(int confID, String ... keys) 
+			throws EditorException;
+
 	/**
-	 * Get a string value from the SimConfig object
-	 * @param confID The ID of the configuration
-	 * @param key A key within the SimConfig
-	 * @return The value at that key in the SimConfig
-	 * @throws EditorException Thrown if the ID or key is invalid, or if the 
-	 * value at that key is a map, not a string.
+	 * Get the string pointed to by the keys.
+	 * @param confID The ID of the SimConfig object.
+	 * @param keys The keys pointing to the submap, so internally it's 
+	 * something like <code>map.get(keys[0]).get(keys[1]).get(...)</code>
+	 * @return The String pointed to by the submaps
+	 * @throws EditorException Thrown if the confID or keys are invalid, or if
+	 * the object pointed to is actually a map.
 	 */
-	
 	public String
-	config_getString(int confID, String key) throws EditorException;
-	
+	config_getString(int confID,String ... keys) 
+			throws EditorException;
+
 	/**
-	 * Set a string value in the SimConfig object
-	 * @param confID The ID of the configuration
-	 * @param key A key within the SimConfig
-	 * @param value The value to set at the given key
-	 * @throws EditorException Thrown if the ID or key is invalid, or if the 
-	 * value at that key is a map, not a string.
+	 * Set the value of a string at a given location
+	 * @param confID The ID of the SimConfig object
+	 * @param value The new value of the item
+	 * @param keys The keys in the submaps, something like 
+	 * <code>map.get(keys[0]).get(keys[1]).get(...)</code>
+	 * @throws EditorException Thrown if the confID or keys are invalid, or 
+	 * if the value pointed to is a map, not a string.
 	 */
 	public void 
-	config_setString(int confID, String key, String value) 
+	config_setString(int confID, String value, String ... keys) 
+			throws EditorException;
+
+	/**
+	 * Check if the given item is a map
+	 * @param confID The ID of the SimConfig file
+	 * @param keys The submap keys, in the style of 
+	 * <code>map.get(keys[0]).get(keys[1]).get(...)</code>
+	 * @return If the key is a map
+	 * @throws EditorException Thrown if the confID or any of the keys are 
+	 * invalid
+	 */
+	public boolean 
+	config_isMap(int confID, String ... keys) 
 			throws EditorException;
 	
 	/**
-	 * Check if the value at this key is a map.
-	 * @param confID The ID of the SimConfig item to check
-	 * @param key The key in the SimConfig
-	 * @return If the value pointed to by the key is a map
-	 * @throws EditorException Thrown if the confID or key is invalid
+	 * Delete a SimConfig object
+	 * @param confID The ID of the object
+	 * @throws EditorException Thrown if the ID is invalid
 	 */
-	public boolean 
-	config_isMap(int confID, String key) throws EditorException;
-	
-	/**
-	 * Get an inner map from a SimConfig file.  Any changes to this map are 
-	 * reflected in the SimConfig file.
-	 * @param confID The ID of the SimConfig file
-	 * @param key The key of the map
-	 * @return An {@link ConstKeyMap} of Strings, backed by the SimConfig's 
-	 * real map
-	 * @throws EditorException Thrown if the confID or mapKey is invalid, or
-	 * if mapKey points to a string, instead of a map.
-	 */
-	public ConstKeyMap<String, String>
-	config_getMap(int confID, String key) throws EditorException;
-	
+	public void
+	config_delete(int confID) throws EditorException;
 	
 }

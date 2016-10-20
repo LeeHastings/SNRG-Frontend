@@ -1,0 +1,11 @@
+{
+  "ExperimentName": "pwid_demo",
+  "Type": "SimConfig",
+  "ObjectID": "ignored / see FSM_ID",
+  "Object": {
+    "TimeContructed": "2015-12-14T07:29:16.9057143-05:00",
+    "FSM_ID": "InterventionScenario_Config",
+    "intervention_list": "DAA_3perc_at5yr_for35yr",
+    "Name": "InterventionScenario"
+  }
+}

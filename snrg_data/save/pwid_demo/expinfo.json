@@ -1,10 +1,10 @@
 {
-  "ExperimentName": "pwid",
+  "ExperimentName": "pwid_demo",
   "Type": "ExperimentInfo",
   "ObjectID": "ExperimentInfo",
   "Object": {
-    "Description": "NIH/NIDA RO1DA034637-01",
+    "ExperimentName": "pwid_demo",
     "UserName": "Bilal Khan",
-    "ExperimentName": "pwid"
+    "Description": "NIH/NIDA RO1DA034637-01"
   }
 }

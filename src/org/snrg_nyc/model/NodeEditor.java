@@ -19,6 +19,7 @@ import org.snrg_nyc.persistence.JsonFileSerializer;
 import org.snrg_nyc.persistence.PersistenceException;
 import org.snrg_nyc.persistence.Transferable;
 import org.snrg_nyc.util.ConstKeyMap;
+import org.snrg_nyc.util.Either;
 
 
 /**
@@ -449,57 +450,109 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 	public int 
 	config_newFromTemplate(String template) throws EditorException {
 		try {
-			configSettings.add(
-					serializer.loadFromTemplate(template, SimConfig.class));
-		} catch (PersistenceException e) {
+			SimConfig sc = 
+					serializer.loadFromTemplate(template, SimConfig.class);
+			int len = configSettings.size();
+			for(int i =0; i < len; i++){
+				if(configSettings.get(i) == null){
+					configSettings.set(i, sc);
+					return i;
+				}
+			}
+			configSettings.add(sc);
+			return len;
+			
+		} 
+		catch (PersistenceException e) {
 			e.printStackTrace();
 			throw new EditorException(e.getMessage());
 		}
-		return configSettings.size() - 1;
 	}
 
 	@Override
 	public Collection<String> 
-	config_getKeys(int confID) throws EditorException {
+	config_getKeys(int confID, String...keys) throws EditorException {
 		assert_validconfID(confID);
-		return configSettings.get(confID).keySet();
+		ConstKeyMap<String,SimConfig.Setting> s =
+				configSettings.get(confID).getMap();
+		
+		for(int i = 0; i<keys.length;i++){
+			s = s.get(keys[i]).getMap();
+		}
+		return s.keySet();
 	}
 
 	@Override
 	public boolean 
-	config_hasKey(int confID, String key) throws EditorException {
+	config_hasKey(int confID, String...keys) throws EditorException {
 		assert_validconfID(confID);
-		return configSettings.get(confID).containsKey(key);
+		if(keys.length == 0){
+			return false;
+		}
+		ConstKeyMap<String, SimConfig.Setting> map =
+				configSettings.get(confID).getMap();
+		for(int i = 0; i < keys.length; i++){
+			if(!map.containsKey(keys[i])){
+				return false;
+			}
+			else if(i < keys.length-1){
+				map = map.get(keys[i]).getMap();
+			}
+		}
+		return true;
 	}
 
 	@Override
 	public String 
-	config_getString(int confID, String key) throws EditorException {
+	config_getString(int confID,  String...keys) throws EditorException {
 		assert_validconfID(confID);
-		return configSettings.get(confID).getString(key);
+		if(keys.length == 0){
+			throw new EditorException("No keys provided while getting string");
+		}
+		ConstKeyMap<String, SimConfig.Setting> map =
+				configSettings.get(confID).getMap();
+		for(int i = 0; i < keys.length-1; i++){
+			map = map.get(keys[i]).getMap();
+		}
+		return map.get(keys[keys.length-1]).getString();
 	}
 
 	@Override
 	public void 
-	config_setString(int confID, String key, String value)
+	config_setString(int confID, String value, String ... keys)
 			throws EditorException 
 	{
 		assert_validconfID(confID);
-		configSettings.get(confID).setString(key, value);
-		
+		if(keys.length==0){
+			throw new EditorException("Tried to set a string without a key");
+		}
+		ConstKeyMap<String, SimConfig.Setting> map = 
+				configSettings.get(confID).getMap();
+		for(int i = 0; i < keys.length-1; i++){
+			map = map.get(keys[i]).getMap();
+		}
+		map.set(keys[keys.length-1], new SimConfig.Setting(Either.left(value)));
 	}
 
 	@Override
 	public boolean 
-	config_isMap(int confID, String key) throws EditorException {
+	config_isMap(int confID, String...keys) throws EditorException {
 		assert_validconfID(confID);
-		return configSettings.get(confID).isMap(key);
+		if(keys.length==0){
+			return true;
+		}
+		SimConfig.Setting s= configSettings.get(confID).getMap().get(keys[0]);
+		for(int i = 1; i < keys.length; i++){
+			s = s.getMap().get(keys[i]);
+		}
+		return s.isMap();
 	}
-
+	
 	@Override
-	public ConstKeyMap<String, String> 
-	config_getMap(int confID, String key) throws EditorException {
-		throw new EditorException(
-				"This editor does not support SimConfig files!");
+	public void 
+	config_delete(int confID) throws EditorException {
+		assert_validconfID(confID);
+		configSettings.set(confID, null);
 	}
+	
 }

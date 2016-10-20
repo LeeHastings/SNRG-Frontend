@@ -15,12 +15,12 @@ public class UI_Message {
 	private Color color;
 	private Type msgType;
 	
-	public enum Type{
+	private enum Type{
 		Info,
 		Warning,
 		Error
 	}
-	public UI_Message(String message, Type messageType){
+	private UI_Message(String message, Type messageType){
 		msg = message != null? message : ">ERROR NO MESSAGE<";
 		msgType = messageType;
 		
@@ -36,6 +36,17 @@ public class UI_Message {
 			break;
 		}
 	}
+	
+	public static UI_Message error(String message){
+		return new UI_Message(message, Type.Error);
+	}
+	public static UI_Message info(String message){
+		return new UI_Message(message, Type.Info);
+	}
+	public static UI_Message warning(String message){
+		return new UI_Message(message, Type.Warning);
+	}
+	
 	public Text 
 	getMessageUI(){
 		Text tx = new Text(msg);
@@ -45,5 +56,10 @@ public class UI_Message {
 	public String 
 	getText(){
 		return msgType.name()+": "+msg;
+	}
+	@Override
+	public String
+	toString(){
+		return "UI_Message - "+getText();
 	}
 }

@@ -2,9 +2,8 @@ package org.snrg_nyc.persistence;
 
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 import java.io.Reader;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -12,8 +11,6 @@ import java.util.Map;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonSyntaxException;
 
 abstract class JsonSerializer implements ExperimentSerializer {
 
@@ -61,11 +58,16 @@ abstract class JsonSerializer implements ExperimentSerializer {
 	templates(Class<? extends Transferable> type){
 		File p = FileSystem.templatePath.resolve(type.getSimpleName()).toFile();
 		if(p.exists()){
-			return Arrays.asList(p.list( (File f, String s)-> 
-				s.endsWith(".json") && !f.isDirectory()
-			));
+			List<String> l = new ArrayList<>();
+			for(String s : p.list()){
+				if(s.endsWith(".json")){
+					l.add(s.replaceAll(".json", ""));
+				}
+			}
+			return l;
 		}
 		else {
+			System.out.println("No templates in "+p);
 			return Collections.<String>emptyList();
 		}
 	}
@@ -82,14 +84,15 @@ abstract class JsonSerializer implements ExperimentSerializer {
 		
 		try {
 			Reader r = new FileReader(f);
-			T t = gson.fromJson(r, type);
+			PersistentDataEntry pde =
+					gson.fromJson(r, PersistentDataEntry.class);
 			r.close();
-			return t;
+			return type.cast(pde.getObject());
 		} 
-		catch(JsonSyntaxException | JsonIOException | IOException e){
+		catch(Exception e){
 			e.printStackTrace();
 			throw new PersistenceException(
-					"Loading template failed - "+e.getMessage());
+					"Loading template '"+name+"' failed - "+e.getMessage());
 		} 
 	}
 	

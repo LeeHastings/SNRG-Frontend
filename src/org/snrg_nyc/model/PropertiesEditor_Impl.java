@@ -28,7 +28,6 @@ import org.snrg_nyc.model.properties.ValuesListProperty.Distribution;
 import org.snrg_nyc.persistence.ExperimentSerializer;
 import org.snrg_nyc.persistence.JsonFileSerializer;
 import org.snrg_nyc.persistence.Transferable;
-import org.snrg_nyc.util.ConstKeyMap;
 
 import com.google.gson.GsonBuilder;
 
@@ -1533,28 +1532,28 @@ public abstract class PropertiesEditor_Impl implements PropertiesEditor {
 
 	@Override
 	public Collection<String> 
-	config_getKeys(int confID) throws EditorException {
+	config_getKeys(int confID, String...keys) throws EditorException {
 		throw new EditorException(
 				"This editor does not support SimConfig files!");
 	}
 
 	@Override
 	public boolean 
-	config_hasKey(int confID, String key) throws EditorException {
+	config_hasKey(int confID, String... keys) throws EditorException {
 		throw new EditorException(
 				"This editor does not support SimConfig files!");
 	}
 
 	@Override
 	public String 
-	config_getString(int confID, String key) throws EditorException {
+	config_getString(int confID, String... keys) throws EditorException {
 		throw new EditorException(
 				"This editor does not support SimConfig files!");
 	}
 
 	@Override
 	public void 
-	config_setString(int confID, String key, String value)
+	config_setString(int confID, String value, String... keys)
 			throws EditorException 
 	{
 		throw new EditorException(
@@ -1564,14 +1563,14 @@ public abstract class PropertiesEditor_Impl implements PropertiesEditor {
 
 	@Override
 	public boolean 
-	config_isMap(int confID, String key) throws EditorException {
+	config_isMap(int confID, String...keys) throws EditorException {
 		throw new EditorException(
 				"This editor does not support SimConfig files!");
 	}
-
+	
 	@Override
-	public ConstKeyMap<String, String> 
-	config_getMap(int confID, String key) throws EditorException {
+	public void 
+	config_delete(int confID) throws EditorException {
 		throw new EditorException(
 				"This editor does not support SimConfig files!");
 	}

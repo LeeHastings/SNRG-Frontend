@@ -36,20 +36,25 @@ public class JsonFileSerializer extends JsonSerializer {
 		
 		try { 
 			Files.list(saveDir).forEach(p ->{
-				if(!Files.isDirectory(p) && p.getFileName().toString().endsWith(".json")){
+				if(!Files.isDirectory(p) 
+				   && p.getFileName().toString().endsWith(".json"))
+				{
 					
-					String fileName = p.getFileName().toString().replaceAll(".json", "");
+					String fileName = 
+							p.getFileName().toString().replaceAll(".json", "");
 					try {
 						Reader r = new FileReader(p.toFile());
 						JsonElement js = new JsonParser().parse(r);
 						
-						PersistentDataEntry pde = gson().fromJson(js, PersistentDataEntry.class);
+						PersistentDataEntry pde = 
+								gson().fromJson(js, PersistentDataEntry.class);
 						Transferable obj = pde.getObject();
 						
 						loaded.put(fileName, obj);
 					} 
 					catch (JsonNoClassException e) {
-						System.err.println("Unrecognized type in "+fileName+": "+e.getMessage());
+						System.err.println("Unrecognized type in "
+						                   +fileName+": "+e.getMessage());
 					}
 					catch(Exception e){
 						e.printStackTrace();

@@ -8,6 +8,7 @@ import org.snrg_nyc.model.PropertiesEditor;
 import org.snrg_nyc.ui.components.ButtonList;
 import org.snrg_nyc.ui.components.ExperimentInfoWindow;
 import org.snrg_nyc.ui.components.Fonts;
+import org.snrg_nyc.ui.components.SimConfigPage;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -92,7 +93,33 @@ public class UI_Main extends Application{
 		fileM.getItems().addAll(newProject, save, load, quit);
 		
 		MenuItem expInfo = new MenuItem("Experiment Info");
-		editM.getItems().addAll(expInfo);
+		MenuItem simconfig = new MenuItem("Simulation Config");
+		editM.getItems().addAll(expInfo, simconfig);
+		
+		simconfig.setOnAction(event->{
+			SimConfigPage scp = new SimConfigPage(editor);
+			scp.closeProperty().addListener((val, o, close)->{
+				if(close){
+					editorPane.setContent(editor);
+				}
+			});
+			editorPane.setContent(scp);
+		});
+		
+		//Edit experiment info
+		expInfo.setOnAction(event->{
+			try {
+				ExperimentInfoWindow exp = new ExperimentInfoWindow(model);
+				exp.closeProperty().addListener((val, oldval, close)->{
+					if(close){
+						editorPane.setContent(editor);
+					}
+				});
+				editorPane.setContent(exp);
+			} catch (Exception e) {
+				editor.sendError(e);
+			}
+		});
 		
 		//The Quit menu
 		quitAlert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -174,22 +201,6 @@ public class UI_Main extends Application{
 				}
 			}
 			catch (Exception e){
-				editor.sendError(e);
-			}
-		});
-		
-		//Edit experiment info
-		expInfo.setOnAction(event->{
-			ExperimentInfoWindow exp;
-			try {
-				exp = new ExperimentInfoWindow(model);
-				exp.closeProperty().addListener((val, oldval, close)->{
-					if(close){
-						editorPane.setContent(editor);
-					}
-				});
-				editorPane.setContent(exp);
-			} catch (Exception e) {
 				editor.sendError(e);
 			}
 		});

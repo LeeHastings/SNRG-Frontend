@@ -1,5 +1,5 @@
 {
-  "ExperimentName": "pwid",
+  "ExperimentName": "pwid_demo",
   "Type": "EdgeSettings",
   "ObjectID": "drug_co_use",
   "Object": {
@@ -17,7 +17,7 @@
             "cookers_only",
             "both_needles_and_cookers"
           ],
-          "DistributionID": "drug_co_use_modality_dist"
+          "DistributionID": "unidist_drug_co_use_modality"
         }
       },
       {
@@ -37,9 +37,9 @@
               "Max": 1
             }
           ],
-          "DistributionID": "drug_co_use_edgecreationtime_dist"
+          "DistributionID": "unidist_drug_co_use_edgecreationtime"
         }
-	  },
+      },
       {
         "IntegerRangeProperty": {
           "PropertyName": "drug_co_use_edgelongevity",
@@ -57,7 +57,7 @@
               "Max": 1095
             }
           ],
-          "DistributionID": "drug_co_use_edgelongevity_dist"
+          "DistributionID": "unidist_drug_co_use_edgelongevity"
         }
       }
     ]
