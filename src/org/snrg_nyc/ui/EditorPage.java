@@ -21,8 +21,8 @@ import org.snrg_nyc.ui.components.Fonts;
 import org.snrg_nyc.ui.components.LayerCell;
 import org.snrg_nyc.ui.components.PropertyNameFactory;
 import org.snrg_nyc.ui.components.PropertyTypeFactory;
-import org.snrg_nyc.ui.components.UI_Message;
 import org.snrg_nyc.util.Executor;
+import org.snrg_nyc.util.Message;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
@@ -89,8 +89,8 @@ public class EditorPage extends GridPane{
 	private final BooleanProperty addedProperty = new SimpleBooleanProperty();
 	private final BooleanProperty addedLayer = new SimpleBooleanProperty();
 	private final BooleanProperty addedPathogen = new SimpleBooleanProperty();
-	private final ListProperty<UI_Message> messages = 
-			new SimpleListProperty<UI_Message>();
+	private final ListProperty<Message> messages = 
+			new SimpleListProperty<Message>();
 
 	final ObservableList<Optional<Integer>> layers =
 			FXCollections.observableArrayList();
@@ -153,23 +153,30 @@ public class EditorPage extends GridPane{
 	 * Handy wrappers for sending messages to the editor
 	 */
 	public void 
+	sendMessage(Message m){
+		if(m != null){
+			messages.add(m);
+		}
+	}
+	public void 
 	sendError(Exception e){
 		String message = e.getMessage();
 		if(message == null){
+			//Get something more informative
 			message = e.getClass().getSimpleName();
 		}
-		messages.add(UI_Message.error(e.getMessage()));
+		messages.add(Message.error(e.getMessage()));
 		e.printStackTrace();
 	}
 	
 	public void 
 	sendWarning(String s){
-		messages.add(UI_Message.warning(s));
+		messages.add(Message.warning(s));
 	}
 	
 	public void 
 	sendInfo(String s){
-		messages.add(UI_Message.info(s));
+		messages.add(Message.info(s));
 	}
 	
 	public void 
@@ -1733,7 +1740,7 @@ public class EditorPage extends GridPane{
 	 * The messages the editor has received
 	 * @return A read only copy of the editor messages
 	 */
-	public ReadOnlyListProperty<UI_Message> 
+	public ReadOnlyListProperty<Message> 
 	messagesProperty(){
 		return messages;
 	}

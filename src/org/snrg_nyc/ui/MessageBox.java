@@ -1,6 +1,6 @@
 package org.snrg_nyc.ui;
 
-import org.snrg_nyc.ui.components.UI_Message;
+import org.snrg_nyc.util.Message;
 
 import javafx.collections.ListChangeListener.Change;
 import javafx.geometry.Insets;
@@ -9,6 +9,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
 public class MessageBox extends VBox {
@@ -44,27 +45,44 @@ public class MessageBox extends VBox {
 		 * it simply deletes all the text elements and gets them again
 		 */
 		editor.messagesProperty().addListener(
-			(Change<? extends UI_Message> c)-> {
+			(Change<? extends Message> c)-> {
 				Text t;
 				double w = messagePane.getWidth()-20;
 				c.next();
 				if(c.getRemovedSize() > 0){
 					messageBox.getChildren().clear();
-					for(UI_Message m : editor.messagesProperty()){
-						t = m.getMessageUI();
+					for(Message m : editor.messagesProperty()){
+						t = toUI(m);
 						t.setWrappingWidth(w);
 						messageBox.getChildren().add(t);
-						System.out.println(m.getText());
+						System.out.println(m);
 					}
 				} 
 				else {
-					for(UI_Message m : c.getAddedSubList()){
-						t = m.getMessageUI();
+					for(Message m : c.getAddedSubList()){
+						t = toUI(m);
 						t.setWrappingWidth(w);
 						messageBox.getChildren().add(t);
-						System.out.println(m.getText());
+						System.out.println(m);
 					}
 				}
 			});
+	}
+	private Text toUI(Message m){
+		Text t = new Text(m.text());
+		Color color = Color.BLACK; //For future unknown types
+		switch(m.type()){
+		case INFO:
+			color = Color.CADETBLUE;
+			break;
+		case WARNING:
+			color = Color.FIREBRICK;
+			break;
+		case ERROR:
+			color = Color.RED;
+			break;
+		}
+		t.setFill(color);
+		return t;
 	}
 }
