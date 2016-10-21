@@ -1,2 +1,2 @@
-snrg_data/save/*
+snrg_data/save/**
 bin/org
