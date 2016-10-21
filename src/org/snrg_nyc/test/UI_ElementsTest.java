@@ -37,7 +37,7 @@ public class UI_ElementsTest extends Application{
 	
 	public void 
 	testBiDistMaker() throws EditorException{
-		PropertiesEditor model = new NodeEditor();
+		PropertiesEditor model = new NodeEditor((m)->System.out.println(m));
 		model.load("pwid_demo");
 		
 	}

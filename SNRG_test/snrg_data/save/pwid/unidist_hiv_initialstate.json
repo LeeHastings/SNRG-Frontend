@@ -1,0 +1,31 @@
+{
+  "ExperimentName": "pwid",
+  "Type": "UnivariatDistribution",
+  "ObjectID": "unidist_hiv_initialstate",
+  "Object": {
+    "UnivariatDistributionID": "unidist_hiv_initialstate",
+    "BindToPropertyName": "HIV_initialstate",
+    "DependencyDistributionList": [
+      {
+        "DistributionSampleList": [
+          {
+            "Label": "HIV_Uninfected_State",
+            "Value": 0.0
+          },
+          {
+            "Label": "HIV_Acute_State",
+            "Value": 10.0
+          },
+          {
+            "Label": "HIV_Chronic_State",
+            "Value": 90.0
+          },
+          {
+            "Label": "HIV_Fatality_State",
+            "Value": 0.0
+          }
+        ]
+      }
+    ]
+  }
+}

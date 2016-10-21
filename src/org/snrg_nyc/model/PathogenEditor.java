@@ -44,7 +44,7 @@ class PathogenEditor extends PropertiesEditor_Impl{
 	 * @throws EditorException Thrown if the given parent is not an instance of a {@link NodeEditor}
 	 */
 	public PathogenEditor(NodeEditor parent, String pathogen) throws EditorException{
-		super();
+		super(parent.messageHandler);
 		this.parent = parent;
 		
 		pathSettings = new PathogenSettings(pathogen);
@@ -62,7 +62,7 @@ class PathogenEditor extends PropertiesEditor_Impl{
 	PathogenEditor(NodeEditor parent, PathogenSettings settings,
 			Map<String, Transferable> objects) throws EditorException
 	{
-		super();
+		super(parent.messageHandler);
 		this.parent = parent;
 		pathSettings = settings;
 		layers = settings.getLayerAttributesList();

@@ -20,6 +20,7 @@ import org.snrg_nyc.persistence.PersistenceException;
 import org.snrg_nyc.persistence.Transferable;
 import org.snrg_nyc.util.ConstKeyMap;
 import org.snrg_nyc.util.Either;
+import org.snrg_nyc.util.Message;
 
 
 /**
@@ -54,9 +55,17 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 	 * Methods *
 	\*         */
 	
+	/**
+	 * Create a new Properties Editor, with a message handler for any messages
+	 * sent by the editor.
+	 * @param m The {@link Message.MessageHandler} for dealing with messages 
+	 * from the editor.  This was created because it was important for the user
+	 * to be informed of certain events, and other alternatives, such as 
+	 * exceptions, global states, and returned messages, seemed more cumbersome.
+	 */
 	public 
-	NodeEditor(){
-		super();
+	NodeEditor(Message.MessageHandler m){
+		super(m);
 		pathogens = new ArrayList<>();
 		edges = new HashMap<>();
 		configSettings = new ArrayList<>();
@@ -394,7 +403,8 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 	public PropertiesEditor layer_getEdgeEditor(int lid) throws EditorException{
 		assert_validLID(lid);
 		if(lid >= edges.size()){
-			throw new EditorException("Layer ID is outside of edge settings bounds: "+lid);
+			throw new EditorException(
+					"Layer ID is outside of edge settings bounds: "+lid);
 		}
 		return edges.get(lid);
 	}

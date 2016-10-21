@@ -1,0 +1,53 @@
+{
+  "ExperimentName": "pwid_test",
+  "Type": "PathogenSettings",
+  "ObjectID": "HIV",
+  "Object": {
+    "PathogenID": "HIV",
+    "LayerAttributesList": [],
+    "PropertyDefinitionList": [
+      {
+        "IntegerRangeProperty": {
+          "PropertyName": "HIV_arrivaltime",
+          "Description": "The time at which this infection entered the node (dynamic, once)",
+          "DependencyLevel": 0,
+          "IntegerRangeList": [
+            {
+              "RangeID": "pre_simulation",
+              "Min": -180,
+              "Max": -1
+            },
+            {
+              "RangeID": "in_simulation",
+              "Min": 0,
+              "Max": 36500
+            }
+          ],
+          "DistributionID": "unidist_hiv_arrivaltime"
+        }
+      },
+      {
+        "BooleanProperty": {
+          "PropertyName": "HIV_symptoms",
+          "Description": "Symptoms of HIV pathogen are externally visible (dynamic)",
+          "DependencyLevel": 0,
+          "DisableRandom_UseInitValue": false
+        }
+      },
+      {
+        "EnumeratorProperty": {
+          "PropertyName": "HIV_initialstate",
+          "Description": "The state of the HIV infection at the time when the node entered the simulation",
+          "DependencyLevel": 1,
+          "EnumValues": [
+            "HIV_Uninfected_State",
+            "HIV_Acute_State",
+            "HIV_Chronic_State",
+            "HIV_Fatality_State"
+          ],
+          "DistributionID": "unidist_hiv_initialstate"
+        }
+      }
+    ]
+  }
+}

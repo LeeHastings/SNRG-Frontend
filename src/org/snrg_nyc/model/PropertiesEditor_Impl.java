@@ -28,6 +28,7 @@ import org.snrg_nyc.model.properties.ValuesListProperty.Distribution;
 import org.snrg_nyc.persistence.ExperimentSerializer;
 import org.snrg_nyc.persistence.JsonFileSerializer;
 import org.snrg_nyc.persistence.Transferable;
+import org.snrg_nyc.util.Message;
 
 import com.google.gson.GsonBuilder;
 
@@ -38,7 +39,7 @@ import com.google.gson.GsonBuilder;
  * @author Devin Hastings
  *
  */
-public abstract class PropertiesEditor_Impl implements PropertiesEditor {
+abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	
 	/*         *\
 	 * Members *
@@ -57,11 +58,13 @@ public abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	
 	protected ExperimentSerializer serializer;
 	
+	protected Message.MessageHandler messageHandler;
+	
 	/*         *\
 	 * Methods *
 	\*         */
 	
-	public PropertiesEditor_Impl(){
+	public PropertiesEditor_Impl(Message.MessageHandler m){
 		properties = new ArrayList<>();
 		layers = new ArrayList<>();
 		
@@ -69,6 +72,7 @@ public abstract class PropertiesEditor_Impl implements PropertiesEditor {
 		scratchLayerID = null;
 		
 		serializer = new JsonFileSerializer(jsonConfig());
+		messageHandler = m;
 	}
 	
 	protected GsonBuilder jsonConfig(){

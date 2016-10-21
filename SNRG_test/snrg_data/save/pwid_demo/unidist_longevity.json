@@ -1,0 +1,23 @@
+{
+  "ExperimentName": "pwid_demo",
+  "Type": "UnivariatDistributionSettings",
+  "ObjectID": "unidist_longevity",
+  "Object": {
+    "UnivariatDistributionID": "unidist_longevity",
+    "BindToPropertyName": "longevity",
+    "DependencyDistributionList": [
+      {
+        "DistributionSampleList": [
+          {
+            "Label": "transient",
+            "Value": 5.0
+          },
+          {
+            "Label": "steady",
+            "Value": 95.0
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import org.snrg_nyc.model.EditorException;
 import org.snrg_nyc.model.LayerPropertyReader;
+import org.snrg_nyc.model.NodeEditor;
 import org.snrg_nyc.model.PropertiesEditor;
 import org.snrg_nyc.model.PropertyID;
 import org.snrg_nyc.model.PropertyReader;
@@ -102,8 +103,7 @@ public class EditorPage extends GridPane{
 	 * {@link PropertiesEditor}
 	 * @param ui The {@link PropertiesEditor} to interface with.
 	 */
-	public EditorPage(PropertiesEditor ui){
-		this.model = ui;
+	public EditorPage(){
 		mode = Mode.IDLE;
 		setAlignment(Pos.TOP_LEFT);
 		setVgap(10);
@@ -147,8 +147,9 @@ public class EditorPage extends GridPane{
 				advancePage.set(true);
 			}
 		});
+		this.model = new NodeEditor((m)->sendMessage(m));
 	}
-	
+
 	/*
 	 * Handy wrappers for sending messages to the editor
 	 */

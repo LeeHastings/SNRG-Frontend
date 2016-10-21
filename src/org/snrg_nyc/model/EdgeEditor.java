@@ -12,7 +12,7 @@ class EdgeEditor extends PropertiesEditor_Impl {
 	
 	public 
 	EdgeEditor(NodeEditor parent, NodeLayer layer){
-		super();
+		super(parent.messageHandler);
 		this.parent = parent;
 		settings = new EdgeSettings(layer.getName());
 		settings.setPropertyDefinitionList(properties);
@@ -21,7 +21,7 @@ class EdgeEditor extends PropertiesEditor_Impl {
 	EdgeEditor(NodeEditor parent, EdgeSettings settings, 
 			Map<String, Transferable> objects) throws EditorException
 	{
-		super();
+		super(parent.messageHandler);
 		this.parent = parent;
 		this.settings = settings;
 		properties = settings.getPropertyDefinitionList();

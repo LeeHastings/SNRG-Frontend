@@ -1,0 +1,177 @@
+{
+  "ExperimentName": "pwid_demo",
+  "Type": "NodeSettings",
+  "ObjectID": "NodeSettings",
+  "Object": {
+    "LayerAttributesList": [
+      {
+        "LayerID": "drug_co_use",
+        "PropertyDefinitionList": [
+          {
+            "IntegerRangeProperty": {
+              "PropertyName": "averagedegree",
+              "Description": "The ideal degree on this network layer (static)",
+              "DependencyLevel": 0,
+              "IntegerRangeList": [
+                {
+                  "RangeID": "low",
+                  "Min": 1,
+                  "Max": 3
+                },
+                {
+                  "RangeID": "medium",
+                  "Min": 4,
+                  "Max": 7
+                },
+                {
+                  "RangeID": "high",
+                  "Min": 8,
+                  "Max": 16
+                }
+              ],
+              "DistributionID": "unidist_averagedegree"
+            }
+          },
+          {
+            "IntegerRangeProperty": {
+              "PropertyName": "degreedelta",
+              "Description": "The delta degree on drug_use network layer (static)",
+              "DependencyLevel": 0,
+              "IntegerRangeList": [
+                {
+                  "RangeID": "small",
+                  "Min": 1,
+                  "Max": 3
+                },
+                {
+                  "RangeID": "big",
+                  "Min": 8,
+                  "Max": 16
+                }
+              ],
+              "DistributionID": "unidist_degreedelta"
+            }
+          },
+          {
+            "FractionProperty": {
+              "PropertyName": "drug_co_use_riskinterval",
+              "Description": "Days between successive risk events (static)",
+              "DependencyLevel": 0,
+              "DisableRandom_UseInitValue": 2.5
+            }
+          },
+          {
+            "FractionProperty": {
+              "PropertyName": "drug_co_use_churninterval",
+              "Description": "Days between successive churn events (static)",
+              "DependencyLevel": 0,
+              "DisableRandom_UseInitValue": 14.25
+            }
+          }
+        ]
+      }
+    ],
+    "PropertyDefinitionList": [
+      {
+        "EnumeratorProperty": {
+          "PropertyName": "gender",
+          "Description": "Gender of individual (static)",
+          "DependencyLevel": 0,
+          "EnumValues": [
+            "male",
+            "female"
+          ],
+          "DistributionID": "unidist_gender"
+        }
+      },
+      {
+        "IntegerRangeProperty": {
+          "PropertyName": "age",
+          "Description": "Age (in years) of individual at start of simulation (static)",
+          "DependencyLevel": 0,
+          "IntegerRangeList": [
+            {
+              "RangeID": "1x",
+              "Min": 16,
+              "Max": 25
+            },
+            {
+              "RangeID": "2x",
+              "Min": 26,
+              "Max": 35
+            },
+            {
+              "RangeID": "3x",
+              "Min": 36,
+              "Max": 45
+            },
+            {
+              "RangeID": "4x",
+              "Min": 46,
+              "Max": 55
+            },
+            {
+              "RangeID": "5x",
+              "Min": 56,
+              "Max": 65
+            }
+          ],
+          "DistributionID": "unidist_age"
+        }
+      },
+      {
+        "IntegerRangeProperty": {
+          "PropertyName": "longevity",
+          "Description": "Number of days individual is in risk population (static)",
+          "DependencyLevel": 0,
+          "IntegerRangeList": [
+            {
+              "RangeID": "transient",
+              "Min": 7,
+              "Max": 30
+            },
+            {
+              "RangeID": "steady",
+              "Min": 20000,
+              "Max": 40000
+            }
+          ],
+          "DistributionID": "unidist_longevity"
+        }
+      },
+      {
+        "EnumeratorProperty": {
+          "PropertyName": "race",
+          "Description": "Race of individual (static)",
+          "DependencyLevel": 0,
+          "EnumValues": [
+            "african_american",
+            "hispanic",
+            "white",
+            "asian_american",
+            "other"
+          ],
+          "DistributionID": "unidist_race"
+        }
+      },
+      {
+        "AttachmentProperty": {
+          "PropertyName": "infection_attachment_HIV",
+          "Description": "The presence of HIV (dynamic)",
+          "DependencyLevel": 1,
+          "PathogenType": "HIV",
+          "DistributionID": "unidist_infection_attachment_hiv"
+        }
+      },
+      {
+        "AttachmentProperty": {
+          "PropertyName": "infection_attachment_HCV",
+          "Description": "The presence of HCV (dynamic)",
+          "DependencyLevel": 1,
+          "PathogenType": "HCV",
+          "DistributionID": "unidist_infection_attachment_hcv"
+        }
+      }
+    ]
+  }
+}

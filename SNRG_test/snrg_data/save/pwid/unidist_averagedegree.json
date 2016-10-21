@@ -1,0 +1,27 @@
+{
+  "ExperimentName": "pwid",
+  "Type": "UnivariatDistribution",
+  "ObjectID": "unidist_averagedegree",
+  "Object": {
+    "UnivariatDistributionID": "unidist_averagedegree",
+    "BindToPropertyName": "averagedegree",
+    "DependencyDistributionList": [
+      {
+        "DistributionSampleList": [
+          {
+            "Label": "low",
+            "Value": 15.0
+          },
+          {
+            "Label": "medium",
+            "Value": 7.0
+          },
+          {
+            "Label": "high",
+            "Value": 4.0
+          }
+        ]
+      }
+    ]
+  }
+}

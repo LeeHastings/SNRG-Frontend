@@ -3,7 +3,6 @@ package org.snrg_nyc.ui;
 import java.util.Optional;
 
 import org.snrg_nyc.model.EditorException;
-import org.snrg_nyc.model.NodeEditor;
 import org.snrg_nyc.model.PropertiesEditor;
 import org.snrg_nyc.ui.components.ButtonList;
 import org.snrg_nyc.ui.components.ExperimentInfoWindow;
@@ -54,16 +53,17 @@ public class UI_Main extends Application{
 	
 	private BorderPane window;
 
+	{
+		window = new BorderPane();
+		editor = new EditorPage();		
+		model = editor.model();
+		scene = new Scene(window, 1100, 600);
+	}
 	@Override
 	public void 
 	start(Stage initStage){
-		model = new NodeEditor();
-		window = new BorderPane();
 		stage = initStage;
 		stage.setTitle("Node Settings Editor");
-		editor = new EditorPage(this.model);		
-		scene = new Scene(window, 1100, 600);
-
 		//Style
 		scene.getStylesheets().add(
 				UI_Main.class.getResource("ui_style.css").toExternalForm());

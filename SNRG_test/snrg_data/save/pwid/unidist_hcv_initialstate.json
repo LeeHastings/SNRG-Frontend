@@ -1,0 +1,55 @@
+{
+  "ExperimentName": "pwid",
+  "Type": "UnivariatDistribution",
+  "ObjectID": "unidist_hcv_initialstate",
+  "Object": {
+    "UnivariatDistributionID": "unidist_hcv_initialstate",
+    "BindToPropertyName": "HCV_initialstate",
+    "DependencyDistributionList": [
+      {
+        "DistributionSampleList": [
+          {
+            "Label": "HCV_Negative_State",
+            "Value": 0.0
+          },
+          {
+            "Label": "HCV_Acute_State",
+            "Value": 10.0
+          },
+          {
+            "Label": "HCV_Chronic_State",
+            "Value": 90.0
+          },
+          {
+            "Label": "HCV_Cirrhosis_State",
+            "Value": 0.0
+          },
+          {
+            "Label": "HCV_Stage1_Fibro_State",
+            "Value": 0.0
+          },
+          {
+            "Label": "HCV_Stage2_Fibro_State",
+            "Value": 0.0
+          },
+          {
+            "Label": "HCV_Stage3_Fibro_State",
+            "Value": 0.0
+          },
+          {
+            "Label": "HCV_Decomp_State",
+            "Value": 0.0
+          },
+          {
+            "Label": "HCV_HCC_State",
+            "Value": 0.0
+          },
+          {
+            "Label": "HCV_Fatality_State",
+            "Value": 0.0
+          }
+        ]
+      }
+    ]
+  }
+}

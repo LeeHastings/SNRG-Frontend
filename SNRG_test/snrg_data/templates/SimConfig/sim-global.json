@@ -1,0 +1,15 @@
+{
+  "ExperimentName": "pwid",
+  "Type": "SimConfig",
+  "ObjectID": "ignored / see FSM_ID",
+  "Object": {
+    "FSM_ID": "Global_Config",
+    "TimeContructed": "2015-12-14T07:29:16.9272215-05:00",
+    "Name": "Global_Config",
+	"global_first_trigger_time": "1",
+    "global_interval": "3650",
+    "console_enabled": "False",
+    "pajekfile_prefix": "pajek",
+    "gephifile_prefix": "gephi"
+  }
+}

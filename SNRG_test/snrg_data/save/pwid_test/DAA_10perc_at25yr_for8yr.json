@@ -1,0 +1,24 @@
+{
+  "ExperimentName": "pwid_test",
+  "Type": "SimConfig",
+  "ObjectID": "ignored / see FSM_ID",
+  "Object": {
+    "intervention_churn_interval_multiplier": "1000.0",
+    "intervention_treatment_duration": "168",
+    "intervention_risk_interval_multiplier": "1000.0",
+    "intervention_cured_state_name": "HCV_Negative_State",
+    "Name": "Intervention_Config",
+    "TimeContructed": "2015-12-14T07:29:16.9057143-05:00",
+    "intervention_wave_percentage": "10",
+    "intervention_factory_name": "DAA",
+    "FSM_ID": "DAA_10perc_at25yr_for8yr",
+    "pathogen_name": "HCV",
+    "intervention_number_of_waves": "8",
+    "strain_name": "1",
+    "intervention_cure_prob": "90",
+    "admission_criteria_states": "HCV_Acute_State+HCV_Chronic_State+HCV_Cirrhosis_State+HCV_Stage1_Fibro_State+HCV_Stage2_Fibro_State+HCV_Stage3_Fibro_State+HCV_Decomp_State+HCV_HCC_State",
+    "intervention_wave_duration": "365",
+    "intervention_start_time": "9125",
+    "intervention_completion_prob": "95"
+  }
+}

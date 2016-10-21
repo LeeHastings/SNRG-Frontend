@@ -1,0 +1,23 @@
+{
+  "ExperimentName": "pwid_test",
+  "Type": "UnivariatDistributionSettings",
+  "ObjectID": "unidist_hcv_cirrhosistime",
+  "Object": {
+    "UnivariatDistributionID": "unidist_hcv_cirrhosistime",
+    "BindToPropertyName": "HCV_cirrhosistime",
+    "DependencyDistributionList": [
+      {
+        "DistributionSampleList": [
+          {
+            "Label": "unassigned",
+            "Value": 100.0
+          },
+          {
+            "Label": "assigned",
+            "Value": 0.0
+          }
+        ]
+      }
+    ]
+  }
+}

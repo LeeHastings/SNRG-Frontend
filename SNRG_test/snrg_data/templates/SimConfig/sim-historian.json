@@ -1,0 +1,10 @@
+{
+  "ExperimentName": "pwid",
+  "Type": "SimConfig",
+  "ObjectID": "ignored / see FSM_ID",
+  "Object": {
+    "FSM_ID": "Historian_Config",
+    "Name": "Historian_Config",
+    "historian_enabled": "False"
+  }
+}

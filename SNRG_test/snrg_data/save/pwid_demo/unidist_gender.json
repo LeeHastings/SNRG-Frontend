@@ -1,0 +1,23 @@
+{
+  "ExperimentName": "pwid_demo",
+  "Type": "UnivariatDistributionSettings",
+  "ObjectID": "unidist_gender",
+  "Object": {
+    "UnivariatDistributionID": "unidist_gender",
+    "BindToPropertyName": "gender",
+    "DependencyDistributionList": [
+      {
+        "DistributionSampleList": [
+          {
+            "Label": "male",
+            "Value": 6.0
+          },
+          {
+            "Label": "female",
+            "Value": 4.0
+          }
+        ]
+      }
+    ]
+  }
+}

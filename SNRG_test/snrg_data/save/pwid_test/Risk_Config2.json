@@ -1,0 +1,10 @@
+{
+  "ExperimentName": "pwid_test",
+  "Type": "SimConfig",
+  "ObjectID": "ignored / see FSM_ID",
+  "Object": {
+    "TimeContructed": "2015-12-14T07:29:16.8598141-05:00",
+    "FSM_ID": "Risk_Config2",
+    "Name": "Risk_Config2"
+  }
+}

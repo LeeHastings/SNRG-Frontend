@@ -1,0 +1,23 @@
+{
+  "ExperimentName": "pwid_demo",
+  "Type": "UnivariatDistributionSettings",
+  "ObjectID": "unidist_degreedelta",
+  "Object": {
+    "UnivariatDistributionID": "unidist_degreedelta",
+    "BindToPropertyName": "degreedelta",
+    "DependencyDistributionList": [
+      {
+        "DistributionSampleList": [
+          {
+            "Label": "small",
+            "Value": 50.0
+          },
+          {
+            "Label": "big",
+            "Value": 50.0
+          }
+        ]
+      }
+    ]
+  }
+}

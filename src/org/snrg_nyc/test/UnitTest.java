@@ -42,7 +42,7 @@ public class UnitTest {
 	static void 
 	test_validInput(){
 		
-		EditorTester bl = new NodeEditor();
+		EditorTester bl = new NodeEditor((m)->System.out.println(m));
 		System.out.println("Node Property types:");
 		
 		bl.utest_setPrintMode(true);
@@ -184,7 +184,7 @@ public class UnitTest {
 			}
 			catch(EditorException e){
 				e.printStackTrace();
-				bl = new NodeEditor();
+				bl = new NodeEditor((m)->System.out.println(m));
 				bl.utest_loadWithMessages("hcv_project");
 			}
 			
@@ -200,7 +200,7 @@ public class UnitTest {
 	 */
 	static void 
 	test_invalidInput( int runs){
-		EditorTester bl = new NodeEditor();
+		EditorTester bl = new NodeEditor((m)->System.out.println(m));
 		//bl.utest_setPrintMode(true);
 
 		List<String> types = bl.getPropertyTypes();
