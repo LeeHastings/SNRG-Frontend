@@ -1418,6 +1418,17 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 		}
 		return null;
 	}
+	
+	@Override
+	public Integer
+	search_layerWithName(String name) throws EditorException{
+		for(int lid : layer_getLayerIDs()){
+			if(layer_getName(lid).equals(name)){
+				return lid;
+			}
+		}
+		return null;
+	}
 
 	@Override
 	public Integer 
