@@ -1,0 +1,47 @@
+.menu {
+	-fx-border-color:lightgrey ;
+}
+.message-text{
+	-fx-background-color:white;
+}
+
+.distribution-viewer{
+	-fx-background-color:#f8f8f8;
+	-fx-border-color:lightgrey;
+}
+
+/* The main scrollbar **track** CSS class  */
+
+.dynamictable .scroll-bar .track{
+	-fx-padding:0px;
+	-fx-background-color:transparent;
+	-fx-border-color:transparent;
+	-fx-background-radius: 0em;
+	-fx-border-radius:2em;
+
+}
+
+/* The increment and decrement button CSS class of scrollbar */
+
+.dynamictable .scroll-bar .increment-button ,
+.dynamictable .scroll-bar .decrement-button {
+	-fx-background-color:transparent;
+	-fx-background-radius: 0em;
+	-fx-padding:0 0 0 0;
+}
+
+.dynamictable  .scroll-bar .increment-arrow,
+.dynamictable  .scroll-bar  .decrement-arrow
+{
+	-fx-shape: " ";	
+	-fx-padding:0;        
+}
+
+/* The main scrollbar **thumb** CSS class which we drag every time (movable) */
+.dynamictable .scroll-bar .thumb {
+    -fx-background-color:transparent;
+	-fx-background-insets: 0, 0, 0;
+	-fx-background-radius: 2em;
+    -fx-padding:0px;
+
+}
