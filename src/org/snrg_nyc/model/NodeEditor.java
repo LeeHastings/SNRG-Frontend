@@ -7,6 +7,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.snrg_nyc.model.internal.Aggregator;
+import org.snrg_nyc.model.internal.AggregatorSettings;
+import org.snrg_nyc.model.internal.BivariatDistributionSettings;
+import org.snrg_nyc.model.internal.BivariateDistribution;
 import org.snrg_nyc.model.internal.ExperimentInfo;
 import org.snrg_nyc.model.internal.SimConfig;
 import org.snrg_nyc.model.properties.AttachmentProperty;
@@ -14,6 +18,7 @@ import org.snrg_nyc.model.properties.BooleanProperty;
 import org.snrg_nyc.model.properties.EnumeratorProperty;
 import org.snrg_nyc.model.properties.FractionProperty;
 import org.snrg_nyc.model.properties.IntegerRangeProperty;
+import org.snrg_nyc.model.properties.ValuesListProperty;
 import org.snrg_nyc.persistence.JsonExperimentPrinter;
 import org.snrg_nyc.persistence.JsonFileSerializer;
 import org.snrg_nyc.persistence.PersistenceException;
@@ -50,6 +55,8 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 	private ExperimentInfo expInfo = new ExperimentInfo();
 
 	private List<SimConfig> configSettings;
+	
+	private List<Aggregator> aggregators;
  	
 	/*         *\
 	 * Methods *
@@ -67,6 +74,7 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 	NodeEditor(Message.MessageHandler m){
 		super(m);
 		pathogens = new ArrayList<>();
+		aggregators = new ArrayList<>();
 		edges = new HashMap<>();
 		configSettings = new ArrayList<>();
 		nodeSettings.setLayerAttributesList(layers);
@@ -165,6 +173,11 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 		for(SimConfig s : configSettings){
 			map.put(s.getFsm_ID(), s);
 		}
+		for(Aggregator a : this.aggregators){
+			if(a != null){
+				map.put(a.name(this), AggregatorSettings.of(a, this));
+			}
+		}
 		return map;
 	}
 	
@@ -230,6 +243,7 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 		}
 		
 		Iterator<Transferable> it = objects.values().iterator();
+		List<BivariateDistribution> bidists = new ArrayList<>();
 		while(it.hasNext()){
 			Transferable object = it.next();
 			if(object instanceof PathogenSettings){
@@ -251,7 +265,8 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 					}
 				}
 				if(idx == -1){
-					throw new EditorException("Unknown layer in edge settings: "+layer);
+					throw new EditorException(
+							"Unknown layer in edge settings: "+layer);
 				}
 				edges.put(idx, new EdgeEditor(this, settings, objects));
 			}
@@ -263,13 +278,31 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 				it.remove();
 				configSettings.add((SimConfig) object);
 			}
+			else if(object instanceof BivariatDistributionSettings){
+				it.remove();
+				BivariatDistributionSettings b = 
+						(BivariatDistributionSettings) object;
+				ValuesListProperty<?> prop = (ValuesListProperty<?>) 
+					properties.get(search_nodePropWithName(b.propertyName()));
+				
+				bidists.add(b.toInternalMap(prop));
+			}
 			
 		}
-		//TODO need to properly load aggregator settings
+		//Get secondary objects
+		Iterator<Transferable> it2 = objects.values().iterator();
+		while(it2.hasNext()){
+			Transferable object = it2.next();
+			if(object instanceof AggregatorSettings){
+				it.remove();
+				AggregatorSettings a = (AggregatorSettings) object;
+				aggregators.add(a.toInternal(this, bidists));
+			}
+		}
 		
 		loadDistributions(objects);
-		//Make sure everything loaded properly
 		validateLoadedObjects();
+		
 		for(PathogenEditor p : pathogens){
 			p.validateLoadedObjects();
 		}

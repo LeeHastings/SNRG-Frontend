@@ -1429,6 +1429,16 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 		}
 		return null;
 	}
+	@Override
+	public Integer
+	search_pathogenWithName(String name) throws EditorException{
+		for(int pathID : pathogen_getPathogenIDs()){
+			if(pathogen_getName(pathID).equals(name)){
+				return pathID;
+			}
+		}
+		return null;
+	}
 
 	@Override
 	public Integer 

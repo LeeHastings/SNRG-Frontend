@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 import org.snrg_nyc.model.EditorException;
+import org.snrg_nyc.model.PropertiesEditor;
 
 public class Aggregator {
 	Map<Integer, BivariateDistribution> nodeProperties, layerProperties;
@@ -75,5 +76,13 @@ public class Aggregator {
 			pathogenList.put(pathogenID, new HashMap<>());
 		}
 		pathogenList.get(pathogenID).put(propertyID, bd);
+	}
+	
+	public int layerID(){
+		return layerID;
+	}
+	
+	public String name(PropertiesEditor e) throws EditorException{
+		return("aggregator_"+e.layer_getName(layerID));
 	}
 }

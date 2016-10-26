@@ -105,7 +105,10 @@ public class BivariatDistributionSettings implements Transferable {
 		bd.setID(distID);
 		return bd;
 	}
-
+	public String
+	propertyName(){
+		return propName;
+	}
 	@Override
 	public String 
 	getObjectID() {

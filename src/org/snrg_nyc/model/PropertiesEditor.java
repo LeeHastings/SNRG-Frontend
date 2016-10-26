@@ -224,6 +224,15 @@ public interface PropertiesEditor
 	 */
 	public Integer 
 	search_layerWithName(String name) throws EditorException;
+	
+	/**
+	 * Get a pathogen's ID using its name
+	 * @param name The name of the pathogen
+	 * @return The pathogenID for use in <code>pathogen_*</code> methods
+	 * @throws EditorException Thrown if the editor doesn't support pathogens
+	 */
+	public Integer
+	search_pathogenWithName(String name) throws EditorException;
 
 	
 	/*                          *\
