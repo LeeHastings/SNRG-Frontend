@@ -19,6 +19,21 @@ public interface AggregatorCreator {
 	aggr_new(int lid) throws EditorException;
 	
 	/**
+	 * Commit the aggregator object being worked on to the internal structure
+	 * @return The ID of the new aggregator
+	 * @throws EditorException Thrown if the aggregator is not yet complete
+	 */
+	public int 
+	aggr_commit() throws EditorException;
+	
+	/**
+	 * Get the layer ID of the aggregator being worked on
+	 * @return The layer ID of the aggregator being worked on
+	 */
+	public int 
+	aggr_getLayerID();
+	
+	/**
 	 * Add a node property to the aggregator list
 	 * @param pid The ID of the property to add
 	 * @throws EditorException Thrown if the property ID is invalid
