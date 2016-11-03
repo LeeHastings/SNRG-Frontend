@@ -63,6 +63,8 @@ public class BivariatDistributionSettings implements Transferable {
 			}
 			bds.biValueMap.put(property.getRangeLabel(i), tempMap);
 		}
+		bds.distID = bd.getId();
+		//System.out.printf("Saving: %s -> %s\n", bd.getId(),  bds.getObjectID());
 		return bds;
 	}
 	
@@ -125,7 +127,7 @@ public class BivariatDistributionSettings implements Transferable {
 		}
 		//Just in case the way IDs are generated changed between loadings
 		bd.setID(distID);
-		System.out.printf("Bidist: %s -> %s\n", distID, bd.getId());
+		//System.out.printf("Bidist: %s -> %s\n", distID, bd.getId());
 		return bd;
 	}
 	public String
