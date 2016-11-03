@@ -1,7 +1,6 @@
 package org.snrg_nyc.model.internal;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,6 +23,10 @@ public class AggregatorSettings implements Transferable {
 			this.prop = prop;
 			this.distID = dist;
 		}
+		@Override
+		public String toString(){
+			return "Dist: "+prop+" -> "+distID;
+		}
 	}
 	static class PathogenLink{
 		@SerializedName("PathogenID")
@@ -34,6 +37,13 @@ public class AggregatorSettings implements Transferable {
 		PathogenLink(String id, List<BiDistLink> links){
 			this.pathID = id;
 			this.links = links;
+		}
+		public String toString(){
+			String s = pathID+ ": ";
+			for(BiDistLink l : links){
+				s += "("+l+") ";
+			}
+			return s;
 		}
 	}
 	@SerializedName("BindToLayerID")
@@ -66,7 +76,13 @@ public class AggregatorSettings implements Transferable {
 	public static AggregatorSettings 
 	of(Aggregator a, PropertiesEditor e) throws EditorException{
 		AggregatorSettings as = new AggregatorSettings();
-		
+		System.out.printf(
+				"Converting aggregator %s\n"
+				+ "\tProperties:  %s\n"
+				+ "\tLayerProps:  %s\n"
+				+ "\tPathogenIDs: %s\n",
+				a.name(e), a.propertyIDs(), a.layerPropIDs(), a.pathogenIDs()
+			);
 		for(Integer pid : a.propertyIDs()){
 			as.nodes.add(new BiDistLink(
 					e.nodeProp_getName(pid), 
@@ -120,13 +136,15 @@ public class AggregatorSettings implements Transferable {
 			throw new EditorException("No layer with name "+layerName);
 		}
 		Aggregator a = new Aggregator(layerID);
-		
+		System.out.println("Converting "+getObjectID());
 		for(BiDistLink bdlink : nodes){
+			System.out.println("\tNode: "+bdlink);
 			a.addPropertyDist(
 					e.search_nodePropWithName(bdlink.prop), 
 					getDist(bidists, bdlink.distID));
 		}
 		for(BiDistLink bdLink : layers){
+			System.out.println("\tLayer: "+bdLink);
 			Integer pid = e.search_nodePropWithName(bdLink.prop, layerID);
 			if(pid == null){
 				throw new EditorException("No property with name "+bdLink.prop+
@@ -137,6 +155,7 @@ public class AggregatorSettings implements Transferable {
 					getDist(bidists, bdLink.distID));
 		}
 		for(PathogenLink plink : pathogens){
+			System.out.println("\t"+plink);
 			int pathID = e.search_pathogenWithName(plink.pathID);
 			PropertiesEditor p = e.pathogen_getEditor(pathID);
 			

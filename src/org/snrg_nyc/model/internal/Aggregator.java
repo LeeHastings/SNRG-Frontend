@@ -125,7 +125,7 @@ public class Aggregator {
 	}
 	protected void
 	addPropertyDist(int pid, BivariateDistribution bd){
-		layerProperties.put(pid, bd);
+		nodeProperties.put(pid, bd);
 	}
 	protected void
 	addPathogenDist(int pathID, int pid, BivariateDistribution bd){
