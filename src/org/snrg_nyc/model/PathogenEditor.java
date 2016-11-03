@@ -79,7 +79,7 @@ class PathogenEditor extends PropertiesEditor_Impl{
 		return map;
 	}
 	@Override
-	public boolean test_nodePropNameIsUnique(String name) {
+	public boolean test_nodePropNameIsUnique(String name) throws EditorException {
 		if(parent == null){
 			System.err.println("Pathogen Editor for "+getPathogen()+" has a null parent!");
 		}

@@ -140,9 +140,10 @@ public interface PropertiesEditor
 	 * Test if a given name is being used by another node property.
 	 * @param name Node Property name
 	 * @return Whether or not the name is available (and thus valid to use)
+	 * @throws EditorException Thrown if the node properties are malformed
 	 */
 	public boolean 
-	test_nodePropNameIsUnique(String name);
+	test_nodePropNameIsUnique(String name) throws EditorException;
 	
 	/**
 	 * Test if a property ID points to an existing node property
@@ -189,9 +190,10 @@ public interface PropertiesEditor
 	 * @param name The name of the property
 	 * @return The ID of a property with the given name,
 	 * or null if there is no match
+	 * @throws EditorException Thrown if the properties are malformed
 	 */
 	public Integer 
-	search_nodePropWithName(String name);
+	search_nodePropWithName(String name) throws EditorException;
 	
 	/**
 	 * Search for a property with the given name within a layer

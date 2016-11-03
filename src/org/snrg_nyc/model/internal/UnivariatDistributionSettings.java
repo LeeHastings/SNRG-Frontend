@@ -163,9 +163,15 @@ public class UnivariatDistributionSettings implements Transferable {
 			rangeProbs.clear();
 			
 			for(ValuePair pair : dist.values){
-				Integer rid = vlp.getRangeWithLabel(pair.Label);
+				Integer rid = null;
+				String l = pair.Label.toLowerCase();
+				for(int rid2 : vlp.getUnSortedRangeIDs()){
+					if(vlp.getRangeLabel(rid2).toLowerCase().equals(l)){
+						rid = rid2;
+					}
+				}
 				if(rid == null){
-					throw new IllegalArgumentException("No range with label '"
+					throw new EditorException("No range with label '"
 							+pair.Label
 							+"' in node property '"+vlp.getName()+"'");
 				}

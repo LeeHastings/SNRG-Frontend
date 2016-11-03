@@ -46,7 +46,8 @@ public abstract class NodeProperty implements Transferable {
 	}
 	public void setName(String name) throws EditorException{
 		if(name == null || name == ""){
-			throw new EditorException(errorMessage+"The name of a property cannot be empty or null");
+			throw new EditorException(errorMessage
+					+"The name of a property cannot be empty or null");
 		} 
 		else {
 			this.name = name;
@@ -55,7 +56,8 @@ public abstract class NodeProperty implements Transferable {
 	}
 	public void setDescription(String description) throws EditorException{
 		if(description == null || description.equals("")){
-			throw new EditorException(errorMessage+"The description cannot be null or empty.");
+			throw new EditorException(errorMessage+
+					"The description cannot be null or empty.");
 		}
 		else {
 			this.description = description;
@@ -63,13 +65,23 @@ public abstract class NodeProperty implements Transferable {
 	}
 	public void setDependencyLevel(int dlvl) throws EditorException{
 		if(dlvl < 0){
-			throw new EditorException(errorMessage+"The dependency level cannot be negative: "+dlvl);
+			throw new EditorException(errorMessage+
+					"The dependency level cannot be negative: "+dlvl);
 		}
 		else {
 			dependencyLevel = dlvl;
 		}
 	}
-	public String getName() {
+	/**
+	 * Get the name of the property
+	 * @return The property's name
+	 * @throws EditorException Thrown if the name was never set on this 
+	 * property.
+	 */
+	public String getName() throws EditorException {
+		if(name == null){
+			throw new EditorException("This node property has no name!");
+		}
 		return name;
 	}
 	public String getDescription() {
@@ -89,7 +101,8 @@ public abstract class NodeProperty implements Transferable {
 	public void addDependency(int pid) throws EditorException{
 		if(dependencies.contains(pid)){
 			throw new EditorException(
-					errorMessage+"Duplicate dependency ID '"+pid+"' in property '"+name+"'.");
+					errorMessage+"Duplicate dependency ID '"+pid+
+					"' in property '"+name+"'.");
 		}
 		else {
 			dependencies.add(pid);
@@ -99,7 +112,8 @@ public abstract class NodeProperty implements Transferable {
 	public void removeDependency(int pid) throws EditorException{
 		if(!dependencies.contains(pid)){
 			throw new EditorException(
-					errorMessage+"Tried to delete nonexistant dependency ID'"+pid+"' from property '"+name+"'.");
+					errorMessage+"Tried to delete nonexistant dependency ID'"
+							+pid+"' from property '"+name+"'.");
 		}
 		else {
 			dependencies.remove(new Integer(pid));

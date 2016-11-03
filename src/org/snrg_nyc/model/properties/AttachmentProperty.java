@@ -2,7 +2,7 @@ package org.snrg_nyc.model.properties;
 
 import org.snrg_nyc.model.EditorException;
 
-public class AttachmentProperty extends BooleanRangeProperty {
+public class AttachmentProperty extends BooleanProperty {
 	private static final long serialVersionUID = 1L;
 	
 	private int pathogenID;	

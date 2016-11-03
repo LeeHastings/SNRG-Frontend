@@ -174,8 +174,9 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 			map.put(s.getFsm_ID(), s);
 		}
 		for(Aggregator a : this.aggregators){
-			if(a != null){
-				map.put(a.name(this), AggregatorSettings.of(a, this));
+			map.put(a.name(this), AggregatorSettings.of(a, this));
+			for(BivariatDistributionSettings bds : a.getBiDistSettings()){
+				map.put(bds.getObjectID(), bds);
 			}
 		}
 		return map;
@@ -225,7 +226,8 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 			System.out.println("Found objects: "+objects.toString());
 		}
 		if(!objects.containsKey("nodesettings")){
-			throw new EditorException("Tried to open an experiment without node settings!");
+			throw new EditorException(
+					"Tried to open an experiment without node settings!");
 		}
 		nodeSettings = (NodeSettings) objects.get("nodesettings");
 		objects.remove("nodesettings");
@@ -243,7 +245,8 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 		}
 		
 		Iterator<Transferable> it = objects.values().iterator();
-		List<BivariateDistribution> bidists = new ArrayList<>();
+		Map<String,BivariateDistribution> bidists = new HashMap<>();
+		List<BivariatDistributionSettings> bdList = new ArrayList<>();
 		while(it.hasNext()){
 			Transferable object = it.next();
 			if(object instanceof PathogenSettings){
@@ -280,21 +283,58 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 			}
 			else if(object instanceof BivariatDistributionSettings){
 				it.remove();
-				BivariatDistributionSettings b = 
-						(BivariatDistributionSettings) object;
-				ValuesListProperty<?> prop = (ValuesListProperty<?>) 
-					properties.get(search_nodePropWithName(b.propertyName()));
-				
-				bidists.add(b.toInternalMap(prop));
+				bdList.add((BivariatDistributionSettings) object);
 			}
 			
 		}
+		//get bivariate Distributions
+		for(BivariatDistributionSettings b : bdList){
+			ValuesListProperty<?> prop = null;
+			Integer pid = search_nodePropWithName(b.propertyName());
+			if(pid == null){
+				for(int lid : layer_getLayerIDs()){
+					pid = search_nodePropWithName(b.propertyName(), lid);
+					if(pid != null){
+						prop = (ValuesListProperty<?>) 
+								layers.get(lid).getProperty(pid);
+						break;
+					}
+				}
+				if(pid == null){
+					for(int pathID : pathogen_getPathogenIDs()){
+						PropertiesEditor p = pathogen_getEditor(pathID);
+						pid = p.search_nodePropWithName(b.propertyName());
+						if(pid != null){
+							try{
+								prop = (ValuesListProperty<?>) 
+										((Editor_Internal) p)
+										.internal_getNodeProp(pid);
+							}
+							catch(ClassCastException e){
+								throw new EditorException("Distribution '"
+										+b.getObjectID()+"' references "+
+										//prop.getType()+ " '"+prop.getName()+
+										"', which is not ranged");
+							}
+							break;
+						}
+					}
+				}
+			}
+			else {
+				prop = (ValuesListProperty<?>) properties.get(pid);
+			}
+			if(prop == null){
+				throw new EditorException(
+						"Unknown property in distribution '"
+						+b.getObjectID()+"': "+b.propertyName());
+			}
+			BivariateDistribution bd = b.toInternalMap(prop);
+			bidists.put(bd.getId(),bd);
+		}
 		//Get secondary objects
-		Iterator<Transferable> it2 = objects.values().iterator();
-		while(it2.hasNext()){
-			Transferable object = it2.next();
+		for( Transferable object: objects.values()){
 			if(object instanceof AggregatorSettings){
-				it.remove();
 				AggregatorSettings a = (AggregatorSettings) object;
 				aggregators.add(a.toInternal(this, bidists));
 			}
@@ -355,7 +395,7 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 
 	@Override
 	public boolean 
-	test_nodePropNameIsUnique(String name) {
+	test_nodePropNameIsUnique(String name) throws EditorException {
 		for(PathogenEditor path : pathogens){
 			if(path != null && !path.uniquePropName(name)){
 				return false;

@@ -1,10 +1,9 @@
 package org.snrg_nyc.model.internal;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.snrg_nyc.model.EditorException;
 import org.snrg_nyc.model.PropertiesEditor;
@@ -68,26 +67,33 @@ public class AggregatorSettings implements Transferable {
 	of(Aggregator a, PropertiesEditor e) throws EditorException{
 		AggregatorSettings as = new AggregatorSettings();
 		
-		for(Integer pid : a.nodeProperties.keySet()){
+		for(Integer pid : a.propertyIDs()){
 			as.nodes.add(new BiDistLink(
 					e.nodeProp_getName(pid), 
 					a.getNodeDist(pid).getId()));
 		}
 		
 		int lid = a.layerID();
-		for(Integer plid : a.layerProperties.keySet()){
+		as.layerName = e.layer_getName(lid);
+		
+		for(Integer plid : a.layerPropIDs()){
+			if(plid == null){
+				throw new EditorException(
+						"There are null property IDs in layer "+
+						e.layer_getName(lid)+"!");
+			}
 			as.layers.add(new BiDistLink(
 					e.nodeProp_getName(lid, plid),
-					a.layerProperties.get(lid).getId()));
+					a.getLayerDist(lid).getId()));
 		}
 		
-		for(int pathID : a.pathogenList.keySet()){
+		for(int pathID : a.pathogenIDs()){
 			List<BiDistLink> pathList = new ArrayList<>();
 			PropertiesEditor p = e.pathogen_getEditor(pathID);
-			for(int pid : a.pathogenList.get(pathID).keySet()){
+			for(int pid : a.pathogenPropIDs(pathID)){
 				pathList.add(new BiDistLink(
 						p.nodeProp_getName(pid), 
-						a.pathogenList.get(pathID).get(pid).getId()));
+						a.getPathogenDist(pathID, pid).getId()));
 			}
 			as.pathogens.add(
 					new PathogenLink(e.pathogen_getName(pathID), pathList));
@@ -98,7 +104,7 @@ public class AggregatorSettings implements Transferable {
 	 * Convert a serializable {@link AggregatorSettings} object into the 
 	 * internal {@link Aggregator} object
 	 * @param e The {@link PropertiesEditor} that data will be drawn from
-	 * @param biDists The list of {@link BivariateDistribution} objects that
+	 * @param bidists The list of {@link BivariateDistribution} objects that
 	 * will be mapped to properties in the aggregator.
 	 * @return An instance of {@link Aggregator} based on the data stored in 
 	 * this object
@@ -106,49 +112,59 @@ public class AggregatorSettings implements Transferable {
 	 * likely because some information has not been loaded yet.
 	 */
 	public Aggregator 
-	toInternal(PropertiesEditor e, Collection<BivariateDistribution> biDists) 
+	toInternal(PropertiesEditor e, Map<String, BivariateDistribution> bidists) 
 			throws EditorException
 	{
-		int layerID = e.search_layerWithName(layerName);
+		Integer layerID = e.search_layerWithName(layerName);
+		if(layerID == null){
+			throw new EditorException("No layer with name "+layerName);
+		}
 		Aggregator a = new Aggregator(layerID);
 		
 		for(BiDistLink bdlink : nodes){
-			a.nodeProperties.put(
+			a.addPropertyDist(
 					e.search_nodePropWithName(bdlink.prop), 
-					popDist(biDists, bdlink.distID));
+					getDist(bidists, bdlink.distID));
 		}
-		for(BiDistLink bdLink : nodes){
-			a.layerProperties.put(
-					e.search_nodePropWithName(bdLink.prop, layerID),
-					popDist(biDists, bdLink.distID));
+		for(BiDistLink bdLink : layers){
+			Integer pid = e.search_nodePropWithName(bdLink.prop, layerID);
+			if(pid == null){
+				throw new EditorException("No property with name "+bdLink.prop+
+						" in layer "+e.layer_getName(layerID));
+			}
+			a.addLayerDist(
+					pid,
+					getDist(bidists, bdLink.distID));
 		}
 		for(PathogenLink plink : pathogens){
 			int pathID = e.search_pathogenWithName(plink.pathID);
 			PropertiesEditor p = e.pathogen_getEditor(pathID);
-			a.pathogenList.put(pathID, new HashMap<>());
 			
 			for(BiDistLink bdlink : plink.links){
-				a.pathogenList.get(pathID).put(
+				a.addPathogenDist(
+						pathID,
 						p.search_nodePropWithName(bdlink.prop), 
-						popDist(biDists, bdlink.distID));
+						getDist(bidists, bdlink.distID));
 			}
 		}
 		return a;
 	}
 	
 	private BivariateDistribution
-	popDist(Collection<BivariateDistribution> dists, String distID) 
+	getDist(Map<String, BivariateDistribution> bidists, String distID) 
 			throws EditorException
 	{
-		Iterator<BivariateDistribution> distItr = dists.iterator();
-		while(distItr.hasNext()){
-			BivariateDistribution dist = distItr.next();
-			if(dist.getId().equals(distID)){
-				distItr.remove();
-				return dist;
-			}
+		if(bidists.containsKey(distID)){
+			return bidists.get(distID);
 		}
-		throw new EditorException("No Bivariate Distribution with ID: "+distID);
+		else {
+			String msg = "No Bivariate Distribution with ID: "+distID
+					+"\nAvailable distributions:\n";
+			for(String id : bidists.keySet()){
+				msg += "\t"+id+"\n";
+			}
+			throw new EditorException(msg);
+		}
 	}
 	
 	@Override

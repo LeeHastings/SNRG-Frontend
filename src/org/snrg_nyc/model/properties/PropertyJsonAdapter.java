@@ -55,7 +55,11 @@ public class PropertyJsonAdapter
 		JsonObject innerJs = new JsonObject();
 		propertyJs.add(nodeProp.getClass().getSimpleName(), innerJs);
 		
-		innerJs.addProperty(nameLabel, nodeProp.getName());
+		try {
+			innerJs.addProperty(nameLabel, nodeProp.getName());
+		} catch (EditorException e1) {
+			throw new JsonParseException("This property has no name!");
+		}
 		innerJs.addProperty(descLabel, nodeProp.getDescription());
 		innerJs.addProperty(depLabel, nodeProp.getDependencyLevel());
 		
@@ -80,10 +84,15 @@ public class PropertyJsonAdapter
 				ranges.add(rangeJs);
 			}
 		}
-		else if(nodeProp instanceof BooleanRangeProperty){
+		else if(nodeProp instanceof BooleanProperty){
 			if(nodeProp instanceof AttachmentProperty){
 				innerJs.addProperty(pathogenLabel, 
 						((AttachmentProperty)nodeProp).getPathogenName() );
+			}
+			else if(nodeProp instanceof ValueProperty) {
+				innerJs.addProperty(
+						initValLabel, 
+						((BooleanProperty) nodeProp).getInitValue());
 			}
 		}
 		else if(nodeProp instanceof EnumeratorProperty){
@@ -105,11 +114,6 @@ public class PropertyJsonAdapter
 			innerJs.addProperty(
 					initValLabel, 
 					((FractionProperty) nodeProp).getInitValue());
-		}
-		else if(nodeProp instanceof BooleanProperty) {
-			innerJs.addProperty(
-					initValLabel, 
-					((BooleanProperty) nodeProp).getInitValue());
 		}
 		if(nodeProp.getDistributionID().equals("null")){
 			innerJs.addProperty(distIDLabel, (String) null);
@@ -188,10 +192,14 @@ public class PropertyJsonAdapter
 				}
 			}
 		}
-		else if(nodeProp instanceof BooleanRangeProperty){
+		else if(nodeProp instanceof BooleanProperty){
 			if(nodeProp instanceof AttachmentProperty){
 				((AttachmentProperty) nodeProp).setPathogenName(
 						getJson(innerJs, pathogenLabel).getAsString());
+			}
+			else if(nodeProp instanceof ValueProperty){
+				((BooleanProperty) nodeProp).setInitValue(
+						getJson(innerJs,initValLabel).getAsBoolean());
 			}
 		}
 		else if(nodeProp instanceof EnumeratorProperty){
@@ -214,10 +222,6 @@ public class PropertyJsonAdapter
 		else if(nodeProp instanceof FractionProperty){
 			((FractionProperty) nodeProp).setInitValue(
 					getJson(innerJs,initValLabel).getAsFloat());
-		}
-		else if(nodeProp instanceof BooleanProperty){
-			((BooleanProperty) nodeProp).setInitValue(
-					getJson(innerJs,initValLabel).getAsBoolean());
 		}
 		//If the distribution was null, the distIDLabel is not included
 		if(innerJs.has(distIDLabel) 

@@ -11,8 +11,12 @@ public class BivariateDistribution {
 	private String id;
 	protected Map<Integer, Map<Integer, Float>> distribution = new HashMap<>();
 	
-	public BivariateDistribution(ValuesListProperty<?> property){
+	public BivariateDistribution(ValuesListProperty<?> property) 
+			throws EditorException
+	{
 		this.property = property;
+		this.id = property.getName() + "_bi_dist";
+		
 		for(int rid : property.getUnSortedRangeIDs()){
 			Map<Integer, Float> ridDist = new HashMap<>();
 			for(int rid2 : property.getUnSortedRangeIDs()){

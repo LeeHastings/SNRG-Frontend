@@ -28,30 +28,42 @@ public class BivariatDistributionSettings implements Transferable {
 	@SerializedName("MissingValueAssignmentHandler")
 	private int mvah = 0;
 	
-	public 
-	BivariatDistributionSettings(BivariateDistribution bd) 
+	public BivariatDistributionSettings(){}
+	public BivariatDistributionSettings(ValuesListProperty<?> p) 
+			throws EditorException
+	{
+		this.distID = p.getName()+"_bi_dist";
+		biValueMap = new HashMap<>();
+		this.propName = p.getName();
+	}
+	
+	public static BivariatDistributionSettings
+	of(BivariateDistribution bd) 
 			throws EditorException
 	{
 		Map<Integer, Map<Integer, Float>> map = bd.distribution;
 		ValuesListProperty<?> property = bd.property;
-		assert_validMap(map, property);
+		BivariatDistributionSettings bds = 
+				new BivariatDistributionSettings(bd.property);
+		
+		bds.assert_validMap(map, property);
 		for(int i : map.keySet()){
 			try{
-				assert_validMap(map.get(i), property);
+				bds.assert_validMap(map.get(i), property);
 			}
 			catch(IllegalArgumentException e){
 				throw new IllegalArgumentException("Invalid map for property '"
 						+property.getRangeLabel(i)+"': "+e.getMessage());
 			}
 		}
-		biValueMap = new HashMap<>();
 		for(int i : map.keySet()){
 			Map<String, Float> tempMap = new HashMap<>();
 			for(int j : map.get(i).keySet()){
 				tempMap.put(property.getRangeLabel(j), map.get(i).get(j));
 			}
-			biValueMap.put(property.getRangeLabel(i), tempMap);
+			bds.biValueMap.put(property.getRangeLabel(i), tempMap);
 		}
+		return bds;
 	}
 	
 	private void 
@@ -60,12 +72,14 @@ public class BivariatDistributionSettings implements Transferable {
 	{
 		List<Integer> pids = property.getUnSortedRangeIDs();
 		if(map.size() != pids.size()){
-			throw new IllegalArgumentException("The given map was of the wrong size.  "
+			throw new IllegalArgumentException(
+					"The given map was of the wrong size.  "
 					+"expected "+pids.size()+", found "+map.size());
 		}
 		for(int i : pids){
 			if(!map.containsKey(i)){
-				throw new IllegalArgumentException("Missing label in distribution: "
+				throw new IllegalArgumentException(
+						"Missing label in distribution: "
 						+property.getRangeLabel(i));
 			}
 		}
@@ -85,11 +99,19 @@ public class BivariatDistributionSettings implements Transferable {
 		Map<String, Integer> labelMap = new HashMap<>();
 		
 		for(String s : biValueMap.keySet()){
+			if(p.getUnSortedRangeIDs().size() == 0){
+				throw new EditorException("Error reading property '"
+						+p.getName()+"': no range labels");
+			}
+			boolean match = false;
 			for(int rid : p.getUnSortedRangeIDs()){
-				if(p.getRangeLabel(rid).equals(s)){
+				if(p.getRangeLabel(rid).toLowerCase().equals(s.toLowerCase())){
 					labelMap.put(s, rid);
-					continue;
+					match = true;
+					break;
 				}
+			}
+			if(!match){
 				throw new EditorException("Unknown value in '"+distID+"': "+s);
 			}
 		}
@@ -103,6 +125,7 @@ public class BivariatDistributionSettings implements Transferable {
 		}
 		//Just in case the way IDs are generated changed between loadings
 		bd.setID(distID);
+		System.out.printf("Bidist: %s -> %s\n", distID, bd.getId());
 		return bd;
 	}
 	public String

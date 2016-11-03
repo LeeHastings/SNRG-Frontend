@@ -39,7 +39,8 @@ import com.google.gson.GsonBuilder;
  * @author Devin Hastings
  *
  */
-abstract class PropertiesEditor_Impl implements PropertiesEditor {
+abstract class PropertiesEditor_Impl 
+implements PropertiesEditor, Editor_Internal {
 	
 	/*         *\
 	 * Members *
@@ -356,9 +357,10 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 	 * @param name The name to compare the other properties against
 	 * @return True if the name is unique (there is no property with this name)
 	 * , otherwise false.
+	 * @throws EditorException Thrown if there is a property with no name
 	 */
 	protected boolean 
-	uniquePropName(String name){
+	uniquePropName(String name) throws EditorException{
 		for(NodeProperty p : properties){
 			if(p != null && p.getName().equals(name)){
 				return false;
@@ -1398,7 +1400,7 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 
 	@Override
 	public Integer 
-	search_nodePropWithName(String name) {
+	search_nodePropWithName(String name) throws EditorException {
 		for(int i : nodeProp_getPropertyIDs()){
 			if(properties.get(i).getName().equals(name)){
 				return i;
@@ -1600,4 +1602,11 @@ abstract class PropertiesEditor_Impl implements PropertiesEditor {
 				"This editor does not support SimConfig files!");
 	}
 	
+	//Internal methods
+	@Override
+	public NodeProperty 
+	internal_getNodeProp(int pid) throws EditorException{
+		assert_validPID(pid);
+		return properties.get(pid);
+	}
 }

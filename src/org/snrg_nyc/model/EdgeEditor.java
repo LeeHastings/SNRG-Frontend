@@ -30,7 +30,7 @@ class EdgeEditor extends PropertiesEditor_Impl {
 
 	@Override
 	public boolean 
-	test_nodePropNameIsUnique(String name) {
+	test_nodePropNameIsUnique(String name) throws EditorException {
 		return parent.test_nodePropNameIsUnique(name);
 	}
 

@@ -837,19 +837,23 @@ public class EditorPage extends GridPane{
 			add(desc, 1, 5, 1, 2);
 			
 			checkNext = () -> {
-				if(!model.test_nodePropNameIsUnique(propName.getText())){
-					sendWarning("Property name already exists: "
-								+propName.getText());
-					nextBtn.setDisable(true);
-				}
-				else {
-					nextBtn.setDisable(
-							type.getValue() == null 
-							|| propName.getText() == null
-							|| propName.getText().length() == 0 
-							|| desc.getText() == null
-							|| desc.getText().length() == 0
-					);
+				try {
+					if(!model.test_nodePropNameIsUnique(propName.getText())){
+						sendWarning("Property name already exists: "
+									+propName.getText());
+						nextBtn.setDisable(true);
+					}
+					else {
+						nextBtn.setDisable(
+								type.getValue() == null 
+								|| propName.getText() == null
+								|| propName.getText().length() == 0 
+								|| desc.getText() == null
+								|| desc.getText().length() == 0
+						);
+					}
+				} catch (EditorException e1) {
+					sendError(e1);
 				}
 			};
 			

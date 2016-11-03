@@ -55,7 +55,12 @@ public class MessageBox extends VBox {
 						t = toUI(m);
 						t.setWrappingWidth(w);
 						messageBox.getChildren().add(t);
-						System.out.println(m);
+						if(m.type() == Message.Type.ERROR){
+							System.err.println(m);
+						}
+						else {
+							System.out.println(m);
+						}
 					}
 				} 
 				else {
@@ -63,7 +68,12 @@ public class MessageBox extends VBox {
 						t = toUI(m);
 						t.setWrappingWidth(w);
 						messageBox.getChildren().add(t);
-						System.out.println(m);
+						if(m.type() == Message.Type.ERROR){
+							System.err.println(m);
+						}
+						else {
+							System.out.println(m);
+						}
 					}
 				}
 			});

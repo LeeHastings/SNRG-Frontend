@@ -3,6 +3,7 @@ package org.snrg_nyc.model.internal;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.snrg_nyc.model.EditorException;
 import org.snrg_nyc.model.properties.NodeProperty;
 
 import com.google.gson.annotations.SerializedName;
@@ -23,7 +24,8 @@ public class NodeLayer {
 	}
 	public void setName(String name){
 		if(name == null || name.equals("")){
-			throw new IllegalArgumentException("The new layer name cannot be empty or null");
+			throw new IllegalArgumentException(
+					"The new layer name cannot be empty or null");
 		}
 		else {
 			this.name = name;
@@ -34,12 +36,16 @@ public class NodeLayer {
 	 * @param np The {@link NodeProperty} to add
 	 * @return The ID of the new property in the layer
 	 * @throws IllegalArgumentException Thrown if a property with the same name exists in the layer.
+	 * @throws EditorException Thrown if the property is malformed
 	 */
-	public int addProperty(NodeProperty np) throws IllegalArgumentException{
+	public int 
+	addProperty(NodeProperty np) throws EditorException{
 		//Check for duplicates
 		if(!nameIsUnique(np.getName())){
-			String msg = String.format("Error when adding property '%s' to layer "
-					+ "'%s': a property with this name already exists.", np.getName(), name);
+			String msg = String.format(
+					"Error when adding property '%s' to layer "
+					+ "'%s': a property with this name already exists.", 
+					np.getName(), name);
 			throw new IllegalArgumentException(msg);
 		}
 		//The list is nullable when objects are removed, use one of those spots instead
@@ -61,7 +67,7 @@ public class NodeLayer {
 		return ids;
 	}
 	
-	public NodeProperty getProperty(int pid){
+	public NodeProperty getProperty(int pid) throws EditorException{
 		assert_validPID(pid);
 		return layerAttributes.get(pid);
 	}
@@ -69,7 +75,7 @@ public class NodeLayer {
 	public List<NodeProperty> getProperties(){
 		return layerAttributes;
 	}
-	public void removeProperty(int pid){
+	public void removeProperty(int pid) throws EditorException{
 		assert_validPID(pid);
 		layerAttributes.set(pid, null);
 	}
@@ -78,9 +84,11 @@ public class NodeLayer {
 	 * @param pid The node property ID that must be valid.
 	 * @throws IllegalArgumentException Thrown if the property ID given is not valid.
 	 */
-	private void assert_validPID(int pid) throws IllegalArgumentException{
+	private void 
+	assert_validPID(int pid) throws EditorException{
 		if(!validPID(pid)){
-			throw new IllegalArgumentException("Tried to get a property from layer '"+ name
+			throw new EditorException(
+					"Tried to get a property from layer '"+ name
 					+"' with an invalid property ID: "+pid);
 		}
 	}
@@ -89,11 +97,14 @@ public class NodeLayer {
 	 * @param pid The PID to check
 	 * @return If it exists and is non-null
 	 */
-	public boolean validPID(int pid){
-		return (pid >= 0 && pid < layerAttributes.size() && layerAttributes.get(pid) != null);
+	public boolean 
+	validPID(int pid){
+		return (pid >= 0 && pid < layerAttributes.size() 
+				&& layerAttributes.get(pid) != null);
 	}
 	
-	public boolean nameIsUnique(String name){
+	public boolean 
+	nameIsUnique(String name) throws EditorException{
 		for(NodeProperty p : layerAttributes){
 			if(p != null && p.getName().equals(name)){
 				return false;
