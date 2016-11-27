@@ -62,5 +62,4 @@ class EdgeEditor extends PropertiesEditor_Impl {
 	public boolean allowsLayers() {
 		return false;
 	}
-
 }

@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -1609,4 +1610,113 @@ implements PropertiesEditor, Editor_Internal {
 		assert_validPID(pid);
 		return properties.get(pid);
 	}
+	
+	//Aggregator Creator Methods
+	@Override
+	public void 
+	aggr_new(int lid) throws EditorException {
+		throw new EditorException("Cannot create aggregators in this editor");
+		
+	}
+	@Override
+	public int 
+	aggr_commit() throws EditorException {
+		throw new EditorException("Cannot create aggregators in this editor");
+	}
+	@Override
+	public int 
+	aggr_getLayerID() {
+		return 0;
+	}
+	@Override
+	public void 
+	aggr_addNodeProperty(int pid) throws EditorException {
+		throw new EditorException("Cannot create aggregators in this editor");
+	}
+	@Override
+	public void 
+	aggr_removeNodeProperty(int pid) throws EditorException {
+		throw new EditorException("Cannot create aggregators in this editor");
+		
+	}
+	@Override
+	public void 
+	aggr_addLayerProperty(int pid) throws EditorException {
+		throw new EditorException("Cannot create aggregators in this editor");
+		
+	}
+	@Override
+	public void 
+	aggr_removeLayerProperty(int pid) throws EditorException {
+		throw new EditorException("Cannot create aggregators in this editor");
+		
+	}
+	@Override
+	public void 
+	aggr_addPathogenProperty(int pathID, int pid) throws EditorException {
+		throw new EditorException("Cannot create aggregators in this editor");
+		
+	}
+	@Override
+	public void 
+	aggr_removePathogenProperty(int pathID, int pid) throws EditorException {
+		throw new EditorException("Cannot create aggregators in this editor");
+		
+	}
+	@Override
+	public Collection<Integer> 
+	aggr_nodePropertyIDs() {
+		return Collections.emptyList();
+	}
+	@Override
+	public Collection<Integer> 
+	aggr_layerPropertyIDs() {
+		return Collections.emptyList();
+	}
+	@Override
+	public Collection<Integer> 
+	aggr_pathogenIDs() {
+		return Collections.emptyList();
+	}
+	@Override
+	public Collection<Integer> 
+	aggr_pathogenPropertyIDs(int pathID) throws EditorException {
+		return Collections.emptyList();
+	}
+	@Override
+	public Map<Integer, Map<Integer, Float>> 
+	aggr_getNodePropertyBiDist(int pid) throws EditorException {
+		throw new EditorException("Cannot create aggregators in this editor");
+	}
+	@Override
+	public void 
+	aggr_setNodePropertyBiDist(int pid, Map<Integer, Map<Integer, Float>> map) 
+			throws EditorException {
+		throw new EditorException("Cannot create aggregators in this editor");
+		
+	}
+	@Override
+	public Map<Integer, Map<Integer, Float>> 
+	aggr_getLayerPropertyBiDist(int pid) throws EditorException {
+		throw new EditorException("Cannot create aggregators in this editor");
+	}
+	@Override
+	public void 
+	aggr_setLayerPropertyBiDist(int pid, Map<Integer, Map<Integer, Float>> map) 
+			throws EditorException {
+		throw new EditorException("Cannot create aggregators in this editor");		
+	}
+	@Override
+	public Map<Integer, Map<Integer, Float>> 
+	aggr_getPathPropertyBiDist(int pathID, int pid) throws EditorException {
+		throw new EditorException("Cannot create aggregators in this editor");
+	}
+	@Override
+	public void 
+	aggr_setPathPropertyBiDist(
+			int pathID, int pid, Map<Integer, Map<Integer, Float>> map)
+			throws EditorException {
+		throw new EditorException("Cannot create aggregators in this editor");
+	}
+
 }

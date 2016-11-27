@@ -11,6 +11,7 @@ import java.util.List;
 import org.snrg_nyc.model.EditorException;
 import org.snrg_nyc.model.PropertiesEditor;
 import org.snrg_nyc.util.LambdaErrorWrapper;
+import org.snrg_nyc.util.NoAddMap;
 
 public class Aggregator {
 	private Map<Integer, BivariateDistribution> nodeProperties, layerProperties;
@@ -118,6 +119,9 @@ public class Aggregator {
 			err.validate();
 		}
 		return settings;
+	}
+	public NoAddMap<Integer, BivariateDistribution> safePropertiesMap(){
+		return new NoAddMap<>(nodeProperties);
 	}
 	protected void
 	addLayerDist(int plid, BivariateDistribution bd){

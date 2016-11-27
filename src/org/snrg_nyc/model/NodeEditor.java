@@ -58,6 +58,7 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 	
 	private List<Aggregator> aggregators;
  	
+	private Aggregator tmp_aggr;
 	/*         *\
 	 * Methods *
 	\*         */
@@ -637,5 +638,119 @@ public class NodeEditor extends PropertiesEditor_Impl implements EditorTester {
 		assert_validconfID(confID);
 		configSettings.set(confID, null);
 	}
+	
+	//Aggregator Creator methods
+	
+	@Override
+	public void 
+	aggr_new(int lid) throws EditorException {
+		assert_validLID(lid);
+		tmp_aggr = new Aggregator(lid);
+	}
+	@Override
+	public int 
+	aggr_commit() throws EditorException {
+		if(tmp_aggr == null){
+			throw new EditorException("Cannot commit a null aggregator");
+		}
+		aggregators.add(tmp_aggr);
+		tmp_aggr = null;
+		return aggregators.size()-1;
+	}
+	@Override
+	public int 
+	aggr_getLayerID() {
+		if(tmp_aggr == null){
+			return -1;
+		}
+		return tmp_aggr.layerID();
+	}
+	@Override
+	public void 
+	aggr_addNodeProperty(int pid) throws EditorException {
+		assert_validPID(pid);
+		if(tmp_aggr != null){
+			tmp_aggr.setNodeDist(pid, null);
+		}
+	}
+	@Override
+	public void 
+	aggr_removeNodeProperty(int pid) throws EditorException {
+		if(tmp_aggr != null){
+			
+		}
+	}
+	@Override
+	public void aggr_addLayerProperty(int pid) throws EditorException {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void aggr_removeLayerProperty(int pid) throws EditorException {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void aggr_addPathogenProperty(int pathID, int pid) throws EditorException {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void aggr_removePathogenProperty(int pathID, int pid) throws EditorException {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public Collection<Integer> aggr_nodePropertyIDs() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public Collection<Integer> aggr_layerPropertyIDs() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public Collection<Integer> aggr_pathogenIDs() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public Collection<Integer> aggr_pathogenPropertyIDs(int pathID) throws EditorException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public Map<Integer, Map<Integer, Float>> aggr_getNodePropertyBiDist(int pid) throws EditorException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public void aggr_setNodePropertyBiDist(int pid, Map<Integer, Map<Integer, Float>> map) throws EditorException {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public Map<Integer, Map<Integer, Float>> aggr_getLayerPropertyBiDist(int pid) throws EditorException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public void aggr_setLayerPropertyBiDist(int pid, Map<Integer, Map<Integer, Float>> map) throws EditorException {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public Map<Integer, Map<Integer, Float>> aggr_getPathPropertyBiDist(int pathID, int pid) throws EditorException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public void aggr_setPathPropertyBiDist(int pathID, int pid, Map<Integer, Map<Integer, Float>> map)
+			throws EditorException {
+		// TODO Auto-generated method stub
+		
+	}
+
 	
 }

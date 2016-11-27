@@ -10,7 +10,8 @@ import java.util.List;
  * @version 0.2
  */
 public interface PropertiesEditor 
-       extends PropertyCreator, PropertyViewer, SimConfigEditor {
+       extends PropertyCreator, PropertyViewer, SimConfigEditor, 
+       AggregatorCreator {
 
 	/**
 	 * Save the properties to a persistent structure.  This does not 

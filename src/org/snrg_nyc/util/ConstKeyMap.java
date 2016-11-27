@@ -1,6 +1,8 @@
 package org.snrg_nyc.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,7 +15,7 @@ import java.util.Set;
  * @param <S> The value type
  */
 public class ConstKeyMap<T, S>{
-	private final Map<T, S> map;
+	protected final Map<T, S> map;
 	
 	public ConstKeyMap(Map<T, S> map){
 		this.map = map;
@@ -33,10 +35,13 @@ public class ConstKeyMap<T, S>{
 			throw new IllegalArgumentException("Key not found: "+key);
 		}
 	}
-	
+	/**
+	 * Copy the map keyset (this is not backed by the map)
+	 * @return A copy of the map's keyset
+	 */
 	public Set<T>
 	keySet(){
-		return map.keySet();
+		return new HashSet<T>(map.keySet());
 	}
 	
 	public Collection<S>
@@ -53,10 +58,14 @@ public class ConstKeyMap<T, S>{
 	containsValue(S value) {
 		return map.containsValue(value);
 	}
-
+	
+	/**
+	 * Return a copy of the map's entry set (this is not backed by the map)
+	 * @return A copy of the map's entry set
+	 */
 	public Set<Map.Entry<T,S>> 
 	entrySet() {
-		return map.entrySet();
+		return new HashSet<>(map.entrySet());
 	}
 
 	public boolean 
